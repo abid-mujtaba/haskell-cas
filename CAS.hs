@@ -12,10 +12,24 @@
 
 module CAS
     (
---      Expr(...)
+      Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
 --      , x, y, z, a, b, c
 --      , simplify
 --      , diff
 --      , eval
     )
     where
+
+-- We define the new data typeclass 'Expr' which corresponds to a general algebraic expression. This is achieved by using recursion in the definition of the constructors. By defining these carefully one can use patterm-matching to implement various functions for the 'Expr' typeclass.
+
+data Expr a =                               -- We declare 'Expr a' to be a type class where 'a' can be any concrte type
+              Const a                       -- A constant (basically a number) can be an expression by itself (the most basic kind there is)
+            deriving (Eq)                   -- We declare Expr to be an instance of the Eq class since we will want to compare expressions for equality
+
+
+-- We declare 'Expr' to be an instance of the 'Show' typeclass. Since 'Expr a' is a typeclass with a type-parameter 'a' we declare that in our declaration of the instance we limit ourselves to types of class 'Show' i.e. this instance only refers to types 'Expr a' where 'a' itself is an instance of the Show class. This is the '(Show a) =>' part.
+-- Then comes the actual instance declaration 'Show (Expr a)'. We need the parentheses when a type-parameter is included.
+-- Lastly comes the 'where' keyword and after it on the following lines comes the functions that must be defined for a type to be an instance of the class. In the case of the 'Show' typeclass this only one function 'show'
+
+instance (Show a) => Show (Expr a) where
+  show (Const a) = show a           -- We pattern match on the 'Const a' constructor. In the case of constant we simply show the number. The 'a' in this line is NOT the same as the 'a' in the instance declaration line above it. Here 'a' matches the value inside the 'Const a' constructor. Since the instance declaration limits 'Expr a' to type-parameters 'a' that are an instance of 'Show' so we can run the 'show' method directly on the value 'a' inside the 'Const a' parameter
