@@ -71,8 +71,8 @@ instance (Show a) => Show (Expr a) where
 -- The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
 
 instance (Integral a) => Num (Expr a) where                 -- (1)
-  (+) = Sum                                                 -- (2)
-  a - b = Sum a (Neg b)                                     -- (3)
+  a + b = s $ Sum a b                                       -- (2)
+  a - b = s $ Sum a (Neg b)                                 -- (3)
   (*) = Prod
   negate = Neg
   signum = undefined                                        -- (4)
@@ -81,8 +81,7 @@ instance (Integral a) => Num (Expr a) where                 -- (1)
 
 -- (1) -- We want ONLY constant integers in our expressions so we limit the type-constraint from the usual 'Num a' to 'Integral a'. This means that any calls to the methods defined in this class which uses non-integer Constants will raise an exception.
 
--- (2) -- The operator '+' must be surrounded by parentheses for it to be considered as a normal function and NOT an infix function. Basically 'a + b' is equivalent '(+) a b' where the latter has the advantage of being both curried and in the same format as 'Sum a b'.
-       -- We define (+) simply as ths constructor 'Sum' since constructors are actually functions. '(+) = Sum' can also be written as 'a + b = Sum a b' but the shorter notation emphasizes that both '+' and 'Sum' are curried functions.
+-- (2) -- By using 's' here we force every use of the operator (+) to carry out a simplification over the created Sum object.
 
 -- (3) -- This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
       --            (-) a b = Sum a (Neg b)
