@@ -68,26 +68,40 @@ instance (Show a) => Show (Expr a) where
 -- We define Expr to be an instance of the Num class which gives us access to the standard arithematic operations. It is rather evident that we expect the type-parameter 'a' to be an instance of the Num class itself.
 -- The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
 
-instance (Num a) => Num (Expr a) where
-  (+) = Sum                                                 -- (1)
-  a - b = Sum a (Neg b)                                     -- (2)
+instance (Integral a) => Num (Expr a) where                 -- (1)
+  (+) = Sum                                                 -- (2)
+  a - b = Sum a (Neg b)                                     -- (3)
   (*) = Prod
   negate = Neg
-  signum = undefined                                        -- (3)
+  signum = undefined                                        -- (4)
   abs = undefined
   fromInteger a = Const (fromInteger a)
 
--- (1) -- The operator '+' must be surrounded by parentheses for it to be considered as a normal function and NOT an infix function. Basically 'a + b' is equivalent '(+) a b' where the latter has the advantage of being both curried and in the same format as 'Sum a b'.
+-- (1) -- We want ONLY constant integers in our expressions so we limit the type-constraint from the usual 'Num a' to 'Integral a'. This means that any calls to the methods defined in this class which uses non-integer Constants will raise an exception.
+
+-- (2) -- The operator '+' must be surrounded by parentheses for it to be considered as a normal function and NOT an infix function. Basically 'a + b' is equivalent '(+) a b' where the latter has the advantage of being both curried and in the same format as 'Sum a b'.
        -- We define (+) simply as ths constructor 'Sum' since constructors are actually functions. '(+) = Sum' can also be written as 'a + b = Sum a b' but the shorter notation emphasizes that both '+' and 'Sum' are curried functions.
 
--- (2) -- This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
+-- (3) -- This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
       --            (-) a b = Sum a (Neg b)
       -- And now one can curry it as follows:
       --            let d = (-) (Const 4)
       -- then one can apply 'd' to other expressions:
       --            d x  --->  (4 - x) = Sum (Const 4) (Neg (Symbol "x"))
 
--- (3) -- The Num typeclass defines a number of functions that we are not interested in implementing since they do not make sense for algebraic expressions. For these we simply define them to be equal to the 'undefined' function which will raise en exception if these are used.
+-- (4) -- The Num typeclass defines a number of functions that we are not interested in implementing since they do not make sense for algebraic expressions. For these we simply define them to be equal to the 'undefined' function which will raise en exception if these are used.
 
 -- (4) -- We define the fromInteger method which gives us the ability to detect integers in expressions from context and convert them in to expressions of type Const. An example will clarify.
        -- With fromInteger so defined we can write '2 * x' and it will be interpreted and converted in to 'Const 2 * Symbol "x"'. This will save us from having to write 'Const 2' all the time.
+
+
+-- We make Expr an instance of Fractional so we can use the '/' operator.
+
+instance (Integral a) => Fractional (Expr a) where               -- (1)
+  a / b = Prod a (Rec b)
+  fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."                                                     -- (2)
+
+-- (1) -- The instance declaration has a minor subtlety in the type-constraint 'Integral a'. Usually in such an overloading scenario the type-constraing would be (Fractional a). Note in the definition of the type Expr that the only constructor that (without recursion) uses the type-parameter 'a' is 'Const a'. For our application we are ONLY interested in expressions that contain integer constants so we restrict the type parameter 'a' here to 'Integral a'.
+       -- If a non-integer constant is found see -- (2) --
+
+-- (2) -- We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
