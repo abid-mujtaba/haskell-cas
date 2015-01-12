@@ -13,7 +13,7 @@
 module CAS
     (
       Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
---      , x, y, z, a, b, c
+      , x, y, z
 --      , simplify
 --      , diff
 --      , eval
@@ -25,6 +25,10 @@ module CAS
 data Expr a =                               -- (1)
               Const a                       -- (2)
             | Sum (Expr a) (Expr a)         -- (3)
+            | Prod (Expr a) (Expr a)
+            | Neg (Expr a)
+            | Rec (Expr a)                  -- The reciprocal of an expression (1 / Expr)
+            | Symbol String                 -- The algebraic variables in the expression: x, y, z, .etc
             deriving (Eq)                   -- (4)
 
 -- (1) -- We declare 'Expr a' to be a type class where 'a' can be any concrete type
@@ -32,6 +36,12 @@ data Expr a =                               -- (1)
 -- (3) -- This is a recursive constructor with the Constructor name 'Sum' and which takes two 'Expr a' objects as its constructor parameters
 -- (4) -- We declare Expr to be an instance of the Eq class since we will want to compare expressions for equality
 
+
+-- We define and export some useful symbols which will save us time later when we export the module. To that end we simply use the 'Symbol String' constructor.
+
+x = Symbol "x"
+y = Symbol "y"
+z = Symbol "z"
 
 
 -- We declare 'Expr' to be an instance of the 'Show' typeclass. Since 'Expr a' is a typeclass with a type-parameter 'a' we declare that in our declaration of the instance we limit ourselves to types of class 'Show' i.e. this instance only refers to types 'Expr a' where 'a' itself is an instance of the Show class. This is the '(Show a) =>' part.
@@ -41,7 +51,43 @@ data Expr a =                               -- (1)
 instance (Show a) => Show (Expr a) where
   show (Const a) = show a                                           -- (1)
   show (Sum a b) = "(" ++ show a ++ " + " ++ show b ++ ")"          -- (2)
+  show (Prod a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
+  show (Neg a) = '-' : show a                                       -- (3)
+  show (Rec a) = "1/" ++ show a
+  show (Symbol s) = s                                               -- (4)
 
 -- (1) --  We pattern match on the 'Const a' constructor. In the case of constant we simply show the number. The 'a' in this line is NOT the same as the 'a' in the instance declaration line above it. Here 'a' matches the value inside the 'Const a' constructor. Since the instance declaration limits 'Expr a' to type-parameters 'a' that are an instance of 'Show' so we can run the 'show' method directly on the value 'a' inside the 'Const a' parameter
 
 -- (2) -- This is a recursive function definition where we include parentheses to encapsulate the result. 'show a' and 'show b' are recursive calls which print the two expressions that form part of the 'Sum' constructor
+
+-- (3) -- The negation of an expression is simply appending '-' in front of it. We use the concatenation operator ':' to preprend '-' in front of the String representation of the expression
+
+-- (4) -- Since 's' is a String (from the definition of the 'Symbol' constucor) we don't need to use 'show' here. Had we done so it would have printed the strings surrounded by quotation marks
+
+
+-- We define Expr to be an instance of the Num class which gives us access to the standard arithematic operations. It is rather evident that we expect the type-parameter 'a' to be an instance of the Num class itself.
+-- The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
+
+instance (Num a) => Num (Expr a) where
+  (+) = Sum                                                 -- (1)
+  a - b = Sum a (Neg b)                                     -- (2)
+  (*) = Prod
+  negate = Neg
+  signum = undefined                                        -- (3)
+  abs = undefined
+  fromInteger a = Const (fromInteger a)
+
+-- (1) -- The operator '+' must be surrounded by parentheses for it to be considered as a normal function and NOT an infix function. Basically 'a + b' is equivalent '(+) a b' where the latter has the advantage of being both curried and in the same format as 'Sum a b'.
+       -- We define (+) simply as ths constructor 'Sum' since constructors are actually functions. '(+) = Sum' can also be written as 'a + b = Sum a b' but the shorter notation emphasizes that both '+' and 'Sum' are curried functions.
+
+-- (2) -- This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
+      --            (-) a b = Sum a (Neg b)
+      -- And now one can curry it as follows:
+      --            let d = (-) (Const 4)
+      -- then one can apply 'd' to other expressions:
+      --            d x  --->  (4 - x) = Sum (Const 4) (Neg (Symbol "x"))
+
+-- (3) -- The Num typeclass defines a number of functions that we are not interested in implementing since they do not make sense for algebraic expressions. For these we simply define them to be equal to the 'undefined' function which will raise en exception if these are used.
+
+-- (4) -- We define the fromInteger method which gives us the ability to detect integers in expressions from context and convert them in to expressions of type Const. An example will clarify.
+       -- With fromInteger so defined we can write '2 * x' and it will be interpreted and converted in to 'Const 2 * Symbol "x"'. This will save us from having to write 'Const 2' all the time.
