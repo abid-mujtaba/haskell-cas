@@ -28,6 +28,7 @@ data Expr a =                               -- (1)
             | Prod (Expr a) (Expr a)
             | Neg (Expr a)
             | Rec (Expr a)                  -- The reciprocal of an expression (1 / Expr)
+            | Exp (Expr a) Int              -- Expression raised to an INTEGER power.
             | Symbol String                 -- The algebraic variables in the expression: x, y, z, .etc
             deriving (Eq)                   -- (4)
 
@@ -54,6 +55,7 @@ instance (Show a) => Show (Expr a) where
   show (Prod a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
   show (Neg a) = '-' : show a                                       -- (3)
   show (Rec a) = "1/" ++ show a
+  show (Exp a p) = show a ++ "^" ++ show p
   show (Symbol s) = s                                               -- (4)
 
 -- (1) --  We pattern match on the 'Const a' constructor. In the case of constant we simply show the number. The 'a' in this line is NOT the same as the 'a' in the instance declaration line above it. Here 'a' matches the value inside the 'Const a' constructor. Since the instance declaration limits 'Expr a' to type-parameters 'a' that are an instance of 'Show' so we can run the 'show' method directly on the value 'a' inside the 'Const a' parameter
@@ -105,3 +107,17 @@ instance (Integral a) => Fractional (Expr a) where               -- (1)
        -- If a non-integer constant is found see -- (2) --
 
 -- (2) -- We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
+
+
+-- We want our expressions to be able to be raised by integer powers (NOT arbitrary expressions or even Const expressions). Since there exists no definition of the exponentiation operator (^) that satisfies this we write our own custom typeclass for it containing a single method that takes an object and an int and returns an object of the same type. This is informed by our need to take an Expr and an Int and return an Expr that corresponds to its exponentiation.
+
+-- NOTE: The 'Exponent' typeclass is NOT exposed to the outside since it is not in the exported classes in the module definition.
+
+class Exponent a where
+  (^) :: (Exponent a) => a -> Int -> a
+
+
+-- We make Expr an instance of the newly minted Exponent typeclass. The method definition is extremely straight forward.
+
+instance (Integral a) => Exponent (Expr a) where
+  a ^ b = Exp a b
