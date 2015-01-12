@@ -14,7 +14,7 @@ module CAS
     (
       Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
       , x, y, z
---      , simplify
+      , simplify
 --      , diff
 --      , eval
     )
@@ -107,3 +107,29 @@ instance (Integral a) => Fractional (Expr a) where               -- (1)
        -- If a non-integer constant is found see -- (2) --
 
 -- (2) -- We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
+
+
+-- Let us define simplification methods.
+
+s :: (Integral a) => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
+s (Sum (Const 0) a) = a                                 -- Pattern matching using constructors
+s (Sum a (Const 0)) = a
+s (Sum (Const a) (Const b)) = Const (a + b)             -- Level 1 depth pattern matching
+s (Sum (Const a) (Neg (Const b))) = let c = a - b in                        -- (1)
+                                        if c > 0 then Const c
+                                        else Neg (Const $ negate c)
+s o@(Sum a b) | a == b = Prod 2 a                                           -- (2)
+              | otherwise = o
+
+-- (1) -- We use the 'let' keyword to bind the result of the calculation 'a - b' to the name 'c'. Then we check if c > 0 and based on that return the appropriate result.
+
+-- (2) -- Here we use an as-pattern to bind the name 'o' to the pattern we are matching. In this case since it is at the end this constitutes the catch-all pattern.
+       -- Then we use guards to determine the result. If a == b then a + b = a + a = 2 a.
+       -- If a != b then we simply return the matched pattern (the original Sum) using the name 'o' which we had bound to the original pattern.
+
+
+-- We implement a full simplification method which we export.
+-- For now this method simply equals the 's' method we have defined above.
+
+simplify :: (Integral a) => Expr a -> Expr a
+simplify = s
