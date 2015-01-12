@@ -14,6 +14,7 @@ module CAS
     (
       Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
       , x, y, z
+      , z0, z1, z2, z3, z4, z5, z6, z7, z8, z9          -- Used for testing. Will be removed later.
       , simplify
 --      , diff
 --      , eval
@@ -43,6 +44,17 @@ data Expr a =                               -- (1)
 x = Symbol "x"
 y = Symbol "y"
 z = Symbol "z"
+
+z0 = Const 0        -- Define the first 10 integers for testing.
+z1 = Const 1
+z2 = Const 2
+z3 = Const 3
+z4 = Const 4
+z5 = Const 5
+z6 = Const 6
+z7 = Const 7
+z8 = Const 8
+z9 = Const 9
 
 
 -- We declare 'Expr' to be an instance of the 'Show' typeclass. Since 'Expr a' is a typeclass with a type-parameter 'a' we declare that in our declaration of the instance we limit ourselves to types of class 'Show' i.e. this instance only refers to types 'Expr a' where 'a' itself is an instance of the Show class. This is the '(Show a) =>' part.
