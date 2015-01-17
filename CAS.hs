@@ -15,7 +15,7 @@ module CAS
       Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
       , x, y, z
       , z0, z1, z2, z3, z4, z5, z6, z7, z8, z9          -- Used for testing. Will be removed later.
-      , simplify
+--      , simplify
 --      , diff
 --      , eval
     )
@@ -25,7 +25,7 @@ module CAS
 
 data Expr a =                               -- (1)
               Const a                       -- (2)
-            | Sum (Expr a) (Expr a)         -- (3)
+            | Sum [Expr a]                  -- (3)
             | Prod (Expr a) (Expr a)
             | Neg (Expr a)
             | Rec (Expr a)                  -- The reciprocal of an expression (1 / Expr)
@@ -35,7 +35,7 @@ data Expr a =                               -- (1)
 
 -- (1) -- We declare 'Expr a' to be a type class where 'a' can be any concrete type
 -- (2) -- A constant (basically a number) can be an expression by itself (the most basic kind there is)
--- (3) -- This is a recursive constructor with the Constructor name 'Sum' and which takes two 'Expr a' objects as its constructor parameters
+-- (3) -- This is a recursive constructor with the Constructor name 'Sum' and which takes a list of 'Expr a' objects as its constructor parameters
 -- (4) -- We declare Expr to be an instance of the Eq class since we will want to compare expressions for equality
 
 
@@ -63,28 +63,44 @@ z9 = Const 9
 
 instance (Show a) => Show (Expr a) where
   show (Const a) = show a                                           -- (1)
-  show (Sum a b) = "(" ++ show a ++ " + " ++ show b ++ ")"          -- (2)
+  show (Sum xs) = showExprList " + " xs                             -- (2)
   show (Prod a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
   show (Neg a) = '-' : show a                                       -- (3)
   show (Rec a) = "1/" ++ show a
   show (Exp a p) = show a ++ "^" ++ show p
   show (Symbol s) = s                                               -- (4)
 
+
+showExprList :: Show a => String -> [Expr a] -> String              -- (5)
+showExprList _ [] = "(0)"
+showExprList sep es = "(" ++ showExprList' sep es ++ ")"
+
+showExprList' :: Show a => String -> [Expr a] -> String             -- (6)
+showExprList' _ [] = ""
+showExprList' _ [e] = show e
+showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
+
 -- (1) --  We pattern match on the 'Const a' constructor. In the case of constant we simply show the number. The 'a' in this line is NOT the same as the 'a' in the instance declaration line above it. Here 'a' matches the value inside the 'Const a' constructor. Since the instance declaration limits 'Expr a' to type-parameters 'a' that are an instance of 'Show' so we can run the 'show' method directly on the value 'a' inside the 'Const a' parameter
 
--- (2) -- This is a recursive function definition where we include parentheses to encapsulate the result. 'show a' and 'show b' are recursive calls which print the two expressions that form part of the 'Sum' constructor
+-- (2) -- We use the utility function showList to print the expression with its parts separated by the " + " symbol
 
 -- (3) -- The negation of an expression is simply appending '-' in front of it. We use the concatenation operator ':' to preprend '-' in front of the String representation of the expression
 
 -- (4) -- Since 's' is a String (from the definition of the 'Symbol' constucor) we don't need to use 'show' here. Had we done so it would have printed the strings surrounded by quotation marks
+
+-- (5) -- This is a utility function (NOT exported) for showing a list of expressions. The separator (+ or *) is specified.
+       -- The empty list should not occur but if it does we simply print (0)
+       -- For a non-empty list we print the surrounding parentheses and use another related utility function to print the meat of the expression.
+
+-- (6) -- In this utility function for a single element we simply print the expression within. For a larger list we use a head:tail pattern-match to extract the head show it, add the separator and then use recursion on the rest.
 
 
 -- We define Expr to be an instance of the Num class which gives us access to the standard arithematic operations. It is rather evident that we expect the type-parameter 'a' to be an instance of the Num class itself.
 -- The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
 
 instance (Integral a) => Num (Expr a) where                 -- (1)
-  a + b = s $ Sum a b                                       -- (2)
-  a - b = s $ Sum a (Neg b)                                 -- (3)
+  a + b = Sum [a, b]                                       -- (2)
+  a - b = Sum [a, (Neg b)]                                 -- (3)
   (*) = Prod
   negate = Neg
   signum = undefined                                        -- (4)
@@ -122,15 +138,15 @@ instance (Integral a) => Fractional (Expr a) where               -- (1)
 
 -- Let us define simplification methods.
 
-s :: (Integral a) => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
-s (Sum (Const 0) a) = a                                 -- Pattern matching using constructors
-s (Sum a (Const 0)) = a
-s (Sum (Const a) (Const b)) = Const (a + b)             -- Level 1 depth pattern matching
-s (Sum (Const a) (Neg (Const b))) = let c = a - b in                        -- (1)
-                                        if c > 0 then Const c
-                                        else Neg (Const $ negate c)
-s o@(Sum a b) | a == b = Prod 2 a                                           -- (2)
-              | otherwise = o
+--s :: (Integral a) => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
+--s (Sum (Const 0) a) = a                                 -- Pattern matching using constructors
+--s (Sum a (Const 0)) = a
+--s (Sum (Const a) (Const b)) = Const (a + b)             -- Level 1 depth pattern matching
+--s (Sum (Const a) (Neg (Const b))) = let c = a - b in                        -- (1)
+--                                        if c > 0 then Const c
+--                                        else Neg (Const $ negate c)
+--s o@(Sum a b) | a == b = Prod 2 a                                           -- (2)
+--              | otherwise = o
 
 -- (1) -- We use the 'let' keyword to bind the result of the calculation 'a - b' to the name 'c'. Then we check if c > 0 and based on that return the appropriate result.
 
@@ -142,5 +158,5 @@ s o@(Sum a b) | a == b = Prod 2 a                                           -- (
 -- We implement a full simplification method which we export.
 -- For now this method simply equals the 's' method we have defined above.
 
-simplify :: (Integral a) => Expr a -> Expr a
-simplify = s
+--simplify :: (Integral a) => Expr a -> Expr a
+--simplify = s
