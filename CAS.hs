@@ -41,10 +41,12 @@ data Expr a =                               -- (1)
 
 -- We define and export some useful symbols which will save us time later when we export the module. To that end we simply use the 'Symbol String' constructor.
 
+x, y, z :: Expr a
 x = Symbol "x"
 y = Symbol "y"
 z = Symbol "z"
 
+z0, z1, z2, z3, z4, z5, z6, z7, z8, z9 :: (Integral a) => Expr a
 z0 = Const 0        -- Define the first 10 integers for testing.
 z1 = Const 1
 z2 = Const 2
@@ -99,8 +101,8 @@ showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
 -- The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
 
 instance (Integral a) => Num (Expr a) where                 -- (1)
-  a + b = Sum [a, b]                                       -- (2)
-  a - b = Sum [a, (Neg b)]                                 -- (3)
+  a + b = sum' a b                                          -- (2)
+  a - b = sum' a $ Neg b                                    -- (3)
   (*) = Prod
   negate = Neg
   signum = undefined                                        -- (4)
@@ -109,14 +111,14 @@ instance (Integral a) => Num (Expr a) where                 -- (1)
 
 -- (1) -- We want ONLY constant integers in our expressions so we limit the type-constraint from the usual 'Num a' to 'Integral a'. This means that any calls to the methods defined in this class which uses non-integer Constants will raise an exception.
 
--- (2) -- By using 's' here we force every use of the operator (+) to carry out a simplification over the created Sum object.
+-- (2) -- We now use a function (sum') to carry out the actual addition. This allows us to write a specialized function to this effect.
 
 -- (3) -- This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
-      --            (-) a b = Sum a (Neg b)
+      --            (-) a b = sum' a (Neg b)
       -- And now one can curry it as follows:
       --            let d = (-) (Const 4)
       -- then one can apply 'd' to other expressions:
-      --            d x  --->  (4 - x) = Sum (Const 4) (Neg (Symbol "x"))
+      --            d x  --->  (4 - x) = sum' (Const 4) (Neg (Symbol "x"))
 
 -- (4) -- The Num typeclass defines a number of functions that we are not interested in implementing since they do not make sense for algebraic expressions. For these we simply define them to be equal to the 'undefined' function which will raise en exception if these are used.
 
@@ -134,6 +136,21 @@ instance (Integral a) => Fractional (Expr a) where               -- (1)
        -- If a non-integer constant is found see -- (2) --
 
 -- (2) -- We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
+
+
+-- We define functions that intelligently carry out the various arithematic operations.
+
+sum' :: (Integral a) => Expr a -> Expr a -> Expr a
+sum' (Sum xs) (Sum ys)   = Sum $ xs ++ ys                   -- (1)
+sum' n (Sum ns)          = Sum $ n:ns                       -- (2)
+sum' (Sum ns) n          = Sum $ ns ++ [n]
+sum' m n                 = Sum [m, n]                        -- (3)
+
+-- (1) -- We are carrying out pattern-matching where the first pattern that matches is the one that is used. So our first pattern matches the addition of two Sum expressions with xs and ys matching the lists encapsulated by both. The result is simply another Sum with the two lists concatenated.
+
+-- (2) -- The next two patterns match the possibility of a single Sum expression being added to a non-sum expression (since the case of two Sum-s being added corresponds to the pattern at the top). In such a case we simply add the expression to the list within the Sum.
+
+-- (3) -- The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added. In this case we simply construct a list of two elements and put it inside the Sum.
 
 
 -- Let us define simplification methods.
