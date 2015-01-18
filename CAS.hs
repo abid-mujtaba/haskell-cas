@@ -15,7 +15,7 @@ module CAS
       Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
       , x, y, z
       , z0, z1, z2, z3, z4, z5, z6, z7, z8, z9          -- Used for testing. Will be removed later.
---      , simplify
+      , simplify
 --      , diff
 --      , eval
     )
@@ -155,13 +155,14 @@ sum' m n                 = Sum [m, n]                        -- (3)
 
 -- Let us define simplification methods.
 
---s :: (Integral a) => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
---s (Sum (Const 0) a) = a                                 -- Pattern matching using constructors
---s (Sum a (Const 0)) = a
---s (Sum (Const a) (Const b)) = Const (a + b)             -- Level 1 depth pattern matching
---s (Sum (Const a) (Neg (Const b))) = let c = a - b in                        -- (1)
---                                        if c > 0 then Const c
---                                        else Neg (Const $ negate c)
+s :: (Integral a) => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
+s (Sum xs) = empty_sum $ simplify_sum xs                --(1)
+
+-- (1) -- We define the simplification for a Sum expression that encapsulates a list of expressions.
+       -- We use pattern matching on the RHS to get the list of expressions 'xs'
+       -- On the RHS we first use simplify_sum on the list of expressions. Then we pass the result on to 'empty_sum' which tests for the possibility of an empty list.
+
+
 --s o@(Sum a b) | a == b = Prod 2 a                                           -- (2)
 --              | otherwise = o
 
@@ -172,8 +173,57 @@ sum' m n                 = Sum [m, n]                        -- (3)
        -- If a != b then we simply return the matched pattern (the original Sum) using the name 'o' which we had bound to the original pattern.
 
 
+-- We define simplification method for the list of expressions inside a Sum.
+simplify_sum :: (Integral a) => [Expr a] -> [Expr a]
+simplify_sum xs = collect_const xs
+
+-- We define a utility function for collecting Const terms inside a list of expressions which are intended for encapsulation in a Sum.
+collect_const :: (Integral a) => [Expr a] -> [Expr a]
+collect_const xs = let (c, es) = foldr fold_constants (0, []) xs in           -- (1)
+                        if c == 0 then es
+                        else es ++ [Const c]
+
+-- (1) -- We use a let expression to bind (c, es) to the result of the foldr. We use this binding in the if statement that follows. If after the foldr the collected constant value is 0 we simply return the collected list 'es'.
+       -- If c != 0 then we simply append a Const expression corresponding to 'c' at the end of the list of expressions 'es'
+       -- The foldr takes a binary function, an initial accumulator which in this case is the tuple (0, []) and then folds the function over the list of expressions.
+       -- The idea is that the current accumulator and one element of the list is fed to the binary function 'fold_constants'. The function analyzses the element. If the element is a Const then its value is added to the first member of the accumulator which keeps track of the sum of constant values.
+       -- If the element passed in to fold_constants is NOT a Const then we leave the sum value unchanged and append the element to the list of expressions which forms the second part of the accumulator.
+       -- With this in mind it is obvious that the initial accumulator which appears in 'foldr' must be (0, []) because we start with a constants sum value of 0 (and add to it element by element) and we start with an empty list to which we append non-Const expressions as we fold over the list 'xs'
+       -- By using a foldr here we get to keep the order of elements from the original list
+
+-- Write a binary function which we will use inside the foldr for collecting constants.
+fold_constants :: (Integral a) => Expr a -> (a, [Expr a]) -> (a, [Expr a])      -- (1)
+fold_constants e (m, xs) = case e of Const n -> ((m + n), xs)                   -- (2)
+                                     Neg (Const n) -> ((m - n), xs)             -- (3)
+                                     _ -> (m, e:xs)                             -- (4)
+
+-- (1) -- The desired functionality for this binary function is defined in comment (1) for the 'collect_const' function.
+       -- Because it is to be used in a 'foldr' (as contrasted with a 'foldl') the element of the folded list is the first argument to 'foldr' and the accumulator is the second.
+       -- Consequently the signature starts with an Expr a for the element and then (a, [Expr a]) for the accumulator and returns an object of the same type as the accumulator
+       -- Note: By using a type-constraing of 'Integral a' we can refer to integers inside 'Const n'. We use (a, [Expr a]) because we want the first element of the accumulator to have the same type as that encapsualted by the Const. It should be further noted that the definition of Expr shows that the only value constructor of Expr that uses the type-parameter 'a' in its definition is 'Const'
+
+-- (2) -- We use pattern matching to access the element 'e', accumulator sum value 'm' and the collected list of expressions 'xs'
+       -- On the RHS we use a case expression to pattern-match on the element 'e' which is of type 'Expr a'
+       -- The first pattern we match is for 'e' being a Const with value n. In this case we simply add n to the current accumulator value m and leave the list of expressions unchanged (basically removing the Const from the list and placing its value inside the sum integer)
+
+-- (3) -- The second pattern matches for a negative constant and behave analogous to the first pattern.
+
+-- (4) -- If the element 'e' is not a (negative) constant we leave the sum value 'm' unchanged and prepend the element to the collected list. By virtue of prepending and not appending in a function that is used in a 'foldr' we retain the ordering of the original list.
+
+
+-- A simple function for dealing with the possibility of a sum with no expressions inside
+empty_sum :: Integral a => [Expr a] -> Expr a
+empty_sum xs = case xs of [] -> Const 0                     -- (1)
+                          [e] -> e                          -- (2)
+                          _ -> Sum xs
+
+-- (1) -- If the list of expressions destined to be encapsulated by Sum is empty (tested using the 'null' function) we return a Const 0 which is the logical equivalent of an empty sum (e.g. 3 + -3 = 0).
+
+-- (2) -- If the list contains a single expression then we return just that expression (e.g. x + 0 = x). Otherwise we return the list encapsulated by a Sum
+
+
 -- We implement a full simplification method which we export.
 -- For now this method simply equals the 's' method we have defined above.
 
---simplify :: (Integral a) => Expr a -> Expr a
---simplify = s
+simplify :: (Integral a) => Expr a -> Expr a
+simplify = s
