@@ -12,6 +12,7 @@ In this file we have placed the comments that have been made regarding the Haske
 * The parentheses are followed by the keyword where and then the rest of the file is dedicated to defining the various objects that are being exported.
 
 
+
 ## B. Expr type
 
 **B.1** - We define the new data typeclass 'Expr' which corresponds to a general algebraic expression. This is achieved by using recursion in the definition of the constructors. By defining these carefully one can use patterm-matching to implement various functions for the 'Expr' typeclass.
@@ -29,6 +30,7 @@ In this file we have placed the comments that have been made regarding the Haske
 **B.7** - The algebraic variables in the expression: x, y, z, .etc
 
 **B.8** - We declare Expr to be an instance of the Eq class since we will want to compare expressions for equality
+
 
 
 ## C. Expr instance of Show
@@ -56,6 +58,7 @@ In this file we have placed the comments that have been made regarding the Haske
 **C.7** - In this utility function for a single element we simply print the expression within. For a larger list we use a head:tail pattern-match to extract the head show it, add the separator and then use recursion on the rest.
 
 
+
 ## D. Expr instance of Num
 
 **D.1**
@@ -78,3 +81,80 @@ In this file we have placed the comments that have been made regarding the Haske
 
 * We define the fromInteger method which gives us the ability to detect integers in expressions from context and convert them in to expressions of type Const. An example will clarify.
 * With fromInteger so defined we can write '2 * x' and it will be interpreted and converted in to 'Const 2 * Symbol "x"'. This will save us from having to write 'Const 2' all the time.
+
+
+
+## E. Expr instance of Fractional
+
+**E.1**
+
+* The instance declaration has a minor subtlety in the type-constraint 'Integral a'. Usually in such an overloading scenario the type-constraing would be (Fractional a). Note in the definition of the type Expr that the only constructor that (without recursion) uses the type-parameter 'a' is 'Const a'. For our application we are ONLY interested in expressions that contain integer constants so we restrict the type parameter 'a' here to 'Integral a'.
+* If a non-integer constant is found see E.2
+
+**E.2** - We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
+
+
+
+## F. Functions for arithematic operations
+
+**F.1** - We are carrying out pattern-matching where the first pattern that matches is the one that is used. So our first pattern matches the addition of two Sum expressions with xs and ys matching the lists encapsulated by both. The result is simply another Sum with the two lists concatenated.
+
+**F.2** - The next two patterns match the possibility of a single Sum expression being added to a non-sum expression (since the case of two Sum-s being added corresponds to the pattern at the top). In such a case we simply add the expression to the list within the Sum.
+
+**F.3** - The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added. In this case we simply construct a list of two elements and put it inside the Sum.
+
+
+
+## G. Simplification functions for expressions
+
+**G.1**
+
+* We define the simplification for a Sum expression that encapsulates a list of expressions.
+* We use pattern matching on the RHS to get the list of expressions 'xs'
+* On the RHS we first use simplify_sum on the list of expressions. Then we pass the result on to 'empty_sum' which tests for the possibility of an empty list.
+
+
+
+## H. Collection of Const terms inside a Sum
+
+**H.1**
+
+* We use a let expression to bind ``(c, es)`` to the result of the ``foldr``. We use this binding in the if statement that follows. If after the ``foldr`` the collected constant value is 0 we simply return the collected list ``es``.
+* If ``c != 0`` then we simply append a ``Const`` expression corresponding to ``c`` at the end of the list of expressions ``es``
+* The ``foldr`` takes a binary function, an initial accumulator which in this case is the tuple ``(0, [])`` and then folds the function over the list of expressions.
+* The idea is that the current accumulator and one element of the list is fed to the binary function ``fold_constants``. The function analyzes the element. If the element is a ``Const`` then its value is added to the first member of the accumulator which keeps track of the sum of constant values.
+* If the element passed in to ``fold_constants`` is NOT a ``Const`` then we leave the sum value unchanged and append the element to the list of expressions which forms the second part of the accumulator.
+* With this in mind it is obvious that the initial accumulator which appears in ``foldr`` must be ``(0, [])`` because we start with a constants sum value of 0 (and add to it element by element) and we start with an empty list to which we append non-Const expressions as we fold over the list ``xs``
+* By using a ``foldr`` here we get to keep the order of elements from the original list
+
+
+
+## I. fold_constants
+
+*Binary function for collecting terms inside a Sum*
+
+**I.1**
+
+* The desired functionality for this binary function is defined in comment H.1.
+* Because it is to be used in a ``foldr`` (as contrasted with a ``foldl``) the element of the folded list is the first argument to ``foldr`` and the accumulator is the second.
+* Consequently the signature starts with an ``Expr a`` for the element and then ``(a, [Expr a])`` for the accumulator and returns an object of the same type as the accumulator
+* Note: By using a type-constraint of ``Integral a`` we can refer to integers inside ``Const n``. We use ``(a, [Expr a])`` because we want the first element of the accumulator to have the same type as that encapsulated by the ``Const``. It should be further noted that the definition of ``Expr`` shows that the only value constructor of ``Expr`` that uses the type-parameter ``a`` in its definition is ``Const``.
+
+**I.2**
+* We use pattern matching to access the element 'e', accumulator sum value 'm' and the collected list of expressions 'xs'
+* On the RHS we use a case expression to pattern-match on the element 'e' which is of type 'Expr a'
+* The first pattern we match is for 'e' being a Const with value n. In this case we simply add n to the current accumulator value m and leave the list of expressions unchanged (basically removing the Const from the list and placing its value inside the sum integer)
+
+**I.3** The second pattern matches for a negative constant and behave analogous to the first pattern.
+
+**I.4** If the element 'e' is not a (negative) constant we leave the sum value 'm' unchanged and prepend the element to the collected list. By virtue of prepending and not appending in a function that is used in a ``foldr`` we retain the ordering of the original list.
+
+
+
+## J. empty_sum
+
+*Function that deals with the possibility of the list inside the Sum being empty*
+
+**J.1** - If the list of expressions destined to be encapsulated by Sum is empty (tested using the ``null`` function) we return a ``Const 0`` which is the logical equivalent of an empty sum (e.g. 3 + -3 = 0).
+
+**J.2** - If the list contains a single expression then we return just that expression (e.g. x + 0 = x). Otherwise we return the list encapsulated by a ``Sum``
