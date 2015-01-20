@@ -3,14 +3,11 @@
 
 -- This module implements a Computer Algebra System for Haskell.
 --
--- This work is heavily inspired by (basically a minor modification of): https://github.com/hepek/Ramblings/blob/master/symb.lhs
+-- This work is inspired in part by: https://github.com/hepek/Ramblings/blob/master/symb.lhs
+--
+-- Details comments to this code are given in the accompanying 'comments.md' file. These are labelled using a simple scheme which consists of an uppercase letter followed by a number, e.g. C.3 (search for this label in the comments file to find the relevant comment)
 
-
--- We start by declaring this .hs file to be module. The module must have the same name as the file (CAS.hs).hs
--- In the module identifier after the module's name and delimited in parentheses we declare the classes, types and functions we want to export from the module.
--- The parentheses are followed by the keyword where and then the rest of the file is dedicated to defining the various objects that are being exported.
-
-module CAS
+module CAS                      -- A.1
     (
       Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
       , x, y, z
@@ -21,22 +18,17 @@ module CAS
     )
     where
 
--- We define the new data typeclass 'Expr' which corresponds to a general algebraic expression. This is achieved by using recursion in the definition of the constructors. By defining these carefully one can use patterm-matching to implement various functions for the 'Expr' typeclass.
 
-data Expr a =                               -- (1)
-              Const a                       -- (2)
-            | Sum [Expr a]                  -- (3)
+
+data Expr a =                               -- B.1, B.2
+              Const a                       -- B.3
+            | Sum [Expr a]                  -- B.4
             | Prod (Expr a) (Expr a)
             | Neg (Expr a)
-            | Rec (Expr a)                  -- The reciprocal of an expression (1 / Expr)
-            | Exp (Expr a) Int              -- Expression raised to an INTEGER power.
-            | Symbol String                 -- The algebraic variables in the expression: x, y, z, .etc
-            deriving (Eq)                   -- (4)
-
--- (1) -- We declare 'Expr a' to be a type class where 'a' can be any concrete type
--- (2) -- A constant (basically a number) can be an expression by itself (the most basic kind there is)
--- (3) -- This is a recursive constructor with the Constructor name 'Sum' and which takes a list of 'Expr a' objects as its constructor parameters
--- (4) -- We declare Expr to be an instance of the Eq class since we will want to compare expressions for equality
+            | Rec (Expr a)                  -- B.5
+            | Exp (Expr a) Int              -- B.6
+            | Symbol String                 -- B.7
+            deriving (Eq)                   -- B.8
 
 
 -- We define and export some useful symbols which will save us time later when we export the module. To that end we simply use the 'Symbol String' constructor.
@@ -46,8 +38,9 @@ x = Symbol "x"
 y = Symbol "y"
 z = Symbol "z"
 
+-- Define the first 10 integers for testing.
 z0, z1, z2, z3, z4, z5, z6, z7, z8, z9 :: (Integral a) => Expr a
-z0 = Const 0        -- Define the first 10 integers for testing.
+z0 = Const 0
 z1 = Const 1
 z2 = Const 2
 z3 = Const 3
