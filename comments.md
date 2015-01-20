@@ -56,7 +56,7 @@ In this file we have placed the comments that have been made regarding the Haske
 **C.7** - In this utility function for a single element we simply print the expression within. For a larger list we use a head:tail pattern-match to extract the head show it, add the separator and then use recursion on the rest.
 
 
-** D. Expr instance of Num
+## D. Expr instance of Num
 
 **D.1**
 
@@ -69,12 +69,8 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **D.4**
 
-* This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
-                  (-) a b = sum' a (Neg b)
-* And now one can curry it as follows:
-                  let d = (-) (Const 4)
-       then one can apply 'd' to other expressions:
-                  d x  --->  (4 - x) = sum' (Const 4) (Neg (Symbol "x"))
+* This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as: ``(-) a b = sum' a (Neg b)``
+* And now one can curry it as follows: ``let d = (-) (Const 4)`` then one can apply 'd' to other expressions: ``d x``  --->  ``(4 - x) = sum' (Const 4) (Neg (Symbol "x"))``
 
 **D.5** - The Num typeclass defines a number of functions that we are not interested in implementing since they do not make sense for algebraic expressions. For these we simply define them to be equal to the 'undefined' function which will raise en exception if these are used.
 
