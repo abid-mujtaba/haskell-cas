@@ -52,71 +52,40 @@ z8 = Const 8
 z9 = Const 9
 
 
--- We declare 'Expr' to be an instance of the 'Show' typeclass. Since 'Expr a' is a typeclass with a type-parameter 'a' we declare that in our declaration of the instance we limit ourselves to types of class 'Show' i.e. this instance only refers to types 'Expr a' where 'a' itself is an instance of the Show class. This is the '(Show a) =>' part.
--- Then comes the actual instance declaration 'Show (Expr a)'. We need the parentheses when a type-parameter is included.
--- Lastly comes the 'where' keyword and after it on the following lines comes the functions that must be defined for a type to be an instance of the class. In the case of the 'Show' typeclass this only one function 'show'
+-- C.1
 
 instance (Show a) => Show (Expr a) where
-  show (Const a) = show a                                           -- (1)
-  show (Sum xs) = showExprList " + " xs                             -- (2)
+  show (Const a) = show a                                           -- C.2
+  show (Sum xs) = showExprList " + " xs                             -- C.3
   show (Prod a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
-  show (Neg a) = '-' : show a                                       -- (3)
+  show (Neg a) = '-' : show a                                       -- C.4
   show (Rec a) = "1/" ++ show a
   show (Exp a p) = show a ++ "^" ++ show p
-  show (Symbol s) = s                                               -- (4)
+  show (Symbol s) = s                                               -- C.5
 
 
-showExprList :: Show a => String -> [Expr a] -> String              -- (5)
+showExprList :: Show a => String -> [Expr a] -> String              -- C.6
 showExprList _ [] = "(0)"
 showExprList sep es = "(" ++ showExprList' sep es ++ ")"
 
-showExprList' :: Show a => String -> [Expr a] -> String             -- (6)
+showExprList' :: Show a => String -> [Expr a] -> String             -- C.7
 showExprList' _ [] = ""
 showExprList' _ [e] = show e
 showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
 
--- (1) --  We pattern match on the 'Const a' constructor. In the case of constant we simply show the number. The 'a' in this line is NOT the same as the 'a' in the instance declaration line above it. Here 'a' matches the value inside the 'Const a' constructor. Since the instance declaration limits 'Expr a' to type-parameters 'a' that are an instance of 'Show' so we can run the 'show' method directly on the value 'a' inside the 'Const a' parameter
-
--- (2) -- We use the utility function showList to print the expression with its parts separated by the " + " symbol
-
--- (3) -- The negation of an expression is simply appending '-' in front of it. We use the concatenation operator ':' to preprend '-' in front of the String representation of the expression
-
--- (4) -- Since 's' is a String (from the definition of the 'Symbol' constucor) we don't need to use 'show' here. Had we done so it would have printed the strings surrounded by quotation marks
-
--- (5) -- This is a utility function (NOT exported) for showing a list of expressions. The separator (+ or *) is specified.
-       -- The empty list should not occur but if it does we simply print (0)
-       -- For a non-empty list we print the surrounding parentheses and use another related utility function to print the meat of the expression.
-
--- (6) -- In this utility function for a single element we simply print the expression within. For a larger list we use a head:tail pattern-match to extract the head show it, add the separator and then use recursion on the rest.
 
 
--- We define Expr to be an instance of the Num class which gives us access to the standard arithematic operations. It is rather evident that we expect the type-parameter 'a' to be an instance of the Num class itself.
--- The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
+-- D.1
 
-instance (Integral a) => Num (Expr a) where                 -- (1)
-  a + b = sum' a b                                          -- (2)
-  a - b = sum' a $ Neg b                                    -- (3)
+instance (Integral a) => Num (Expr a) where                 -- D.2
+  a + b = sum' a b                                          -- D.3
+  a - b = sum' a $ Neg b                                    -- D.4
   (*) = Prod
   negate = Neg
-  signum = undefined                                        -- (4)
+  signum = undefined                                        -- D.5
   abs = undefined
-  fromInteger a = Const (fromInteger a)
+  fromInteger a = Const (fromInteger a)                     -- D.6
 
--- (1) -- We want ONLY constant integers in our expressions so we limit the type-constraint from the usual 'Num a' to 'Integral a'. This means that any calls to the methods defined in this class which uses non-integer Constants will raise an exception.
-
--- (2) -- We now use a function (sum') to carry out the actual addition. This allows us to write a specialized function to this effect.
-
--- (3) -- This definition is very clear. It however obfuscates the fact that this is a curried function. To see that one can define it equivalently as:
-      --            (-) a b = sum' a (Neg b)
-      -- And now one can curry it as follows:
-      --            let d = (-) (Const 4)
-      -- then one can apply 'd' to other expressions:
-      --            d x  --->  (4 - x) = sum' (Const 4) (Neg (Symbol "x"))
-
--- (4) -- The Num typeclass defines a number of functions that we are not interested in implementing since they do not make sense for algebraic expressions. For these we simply define them to be equal to the 'undefined' function which will raise en exception if these are used.
-
--- (4) -- We define the fromInteger method which gives us the ability to detect integers in expressions from context and convert them in to expressions of type Const. An example will clarify.
-       -- With fromInteger so defined we can write '2 * x' and it will be interpreted and converted in to 'Const 2 * Symbol "x"'. This will save us from having to write 'Const 2' all the time.
 
 
 -- We make Expr an instance of Fractional so we can use the '/' operator.
