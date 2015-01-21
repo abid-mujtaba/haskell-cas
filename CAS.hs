@@ -115,7 +115,7 @@ prod' m n                 = Prod [m, n]
 -- Let us define simplification methods.
 
 s :: (Integral a) => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
-s (Sum xs) = empty_sum $ simplify_sum xs                -- G.1
+s (Sum xs) = simplify_sum xs                            -- G.1
 
 
 
@@ -131,8 +131,8 @@ s (Sum xs) = empty_sum $ simplify_sum xs                -- G.1
 
 
 -- We define the simplification method for the list of expressions inside a Sum.
-simplify_sum :: (Integral a) => [Expr a] -> [Expr a]
-simplify_sum xs = collect_const xs
+simplify_sum :: (Integral a) => [Expr a] -> Expr a
+simplify_sum xs = empty_sum $ collect_const xs
 
 -- We define a utility function for collecting Const terms inside a list of expressions which are intended for encapsulation in a Sum.
 collect_const :: (Integral a) => [Expr a] -> [Expr a]

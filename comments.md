@@ -113,7 +113,7 @@ In this file we have placed the comments that have been made regarding the Haske
 
 * We define the simplification for a Sum expression that encapsulates a list of expressions.
 * We use pattern matching on the RHS to get the list of expressions 'xs'
-* On the RHS we first use simplify_sum on the list of expressions. Then we pass the result on to 'empty_sum' which tests for the possibility of an empty list.
+* The actual simplification is carried out by the ``simplify_sum`` utility function (this is analogous to how the action of ``+`` is carried out by ``sum'``).
 
 
 
