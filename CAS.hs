@@ -166,10 +166,10 @@ simplify_prod xs = single_prod $ collect_prod_const xs
 -- A utility function for collecting the Const terms inside a list of expressions intended for encapsulation by a Prod.
 collect_prod_const :: Integral a => [Expr a] -> [Expr a]
 collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in
-                            if n == 1 && d == 1 then es
-                            else if d == 1 then (Const n):es
-                                 else if n == 1 then (Rec (Const d)):es
-                                      else (Const n):(Rec (Const d)):es
+                            case (n, d) of (1, 1) -> es
+                                           (1, _) -> (Rec (Const d)):es
+                                           (_, 1) -> (Const n):es
+                                           _      -> (Const n):(Rec (Const d)):es
 
 
 -- A binary function which is used inside the foldr for collecting constants
