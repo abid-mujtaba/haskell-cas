@@ -115,7 +115,8 @@ prod' m n                 = Prod [m, n]
 -- Let us define simplification methods.
 
 s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
-s (Sum xs) = simplify_sum xs                            -- G.1
+s (Sum xs)  = simplify_sum xs                         -- G.1
+s (Prod xs) = simplify_prod xs
 
 
 
@@ -144,10 +145,10 @@ collect_sum_const xs = let (c, es) = foldr fold_sum_constants (0, []) xs in     
 
 
 -- Write a binary function which we will use inside the foldr for collecting constants.
-fold_sum_constants :: Integral a => Expr a -> (a, [Expr a]) -> (a, [Expr a])      -- I.1
-fold_sum_constants e (m, xs) = case e of Const n -> ((m + n), xs)                   -- I.2
-                                     Neg (Const n) -> ((m - n), xs)             -- I.3
-                                     _ -> (m, e:xs)                             -- I.4
+fold_sum_constants :: Integral a => Expr a -> (a, [Expr a]) -> (a, [Expr a])        -- I.1
+fold_sum_constants e (m, es) = case e of Const n -> ((m + n), es)                   -- I.2
+                                         Neg (Const n) -> ((m - n), es)             -- I.3
+                                         _ -> (m, e:es)                             -- I.4
 
 
 -- A simple function for dealing with the possibility of a sum with no expressions inside
@@ -156,6 +157,33 @@ empty_sum xs = case xs of [] -> Const 0                     -- J.1
                           [e] -> e                          -- J.2
                           _ -> Sum xs
 
+
+
+-- We define the simplification method (and its utility methods) for the list of expressions inside a Product.
+simplify_prod :: Integral a => [Expr a] -> Expr a
+simplify_prod xs = single_prod $ collect_prod_const xs
+
+-- A utility function for collecting the Const terms inside a list of expressions intended for encapsulation by a Prod.
+collect_prod_const :: Integral a => [Expr a] -> [Expr a]
+collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in
+                            if n == 1 && d == 1 then es
+                            else if d == 1 then (Const n):es
+                                 else if n == 1 then (Rec (Const d)):es
+                                      else (Const n):(Rec (Const d)):es
+
+
+-- A binary function which is used inside the foldr for collecting constants
+fold_prod_constants :: Integral a => Expr a -> (a, a, [Expr a]) -> (a, a, [Expr a])
+fold_prod_constants e (n, d, es) = case e of Const m -> (n * m, d, es)
+                                             Rec (Const m) -> (n, d * m, es)
+                                             _ -> (n, d, e:es)
+
+
+-- A simple function for dealing with the possibility of a product with just one expression
+single_prod :: Integral a => [Expr a] -> Expr a
+single_prod xs = case xs of [] -> error "A product cannot have zero elements."
+                            [e] -> e
+                            _ -> Prod xs
 
 
 -- We implement a full simplification method which we export.
