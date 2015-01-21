@@ -23,7 +23,7 @@ module CAS                      -- A.1
 data Expr a =                               -- B.1, B.2
               Const a                       -- B.3
             | Sum [Expr a]                  -- B.4
-            | Prod (Expr a) (Expr a)
+            | Prod [Expr a]
             | Neg (Expr a)
             | Rec (Expr a)                  -- B.5
             | Exp (Expr a) Int              -- B.6
@@ -57,7 +57,7 @@ z9 = Const 9
 instance (Show a) => Show (Expr a) where
   show (Const a) = show a                                           -- C.2
   show (Sum xs) = showExprList " + " xs                             -- C.3
-  show (Prod a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
+  show (Prod xs) = showExprList " * " xs                            -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
   show (Neg a) = '-' : show a                                       -- C.4
   show (Rec a) = "1/" ++ show a
   show (Exp a p) = show a ++ "^" ++ show p
@@ -80,7 +80,7 @@ showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
 instance (Integral a) => Num (Expr a) where                 -- D.2
   a + b = sum' a b                                          -- D.3
   a - b = sum' a $ Neg b                                    -- D.4
-  (*) = Prod
+  (*) = prod'
   negate = Neg
   signum = undefined                                        -- D.5
   abs = undefined
@@ -91,7 +91,7 @@ instance (Integral a) => Num (Expr a) where                 -- D.2
 -- We make Expr an instance of Fractional so we can use the '/' operator.
 
 instance (Integral a) => Fractional (Expr a) where               -- E.1
-  a / b = Prod a (Rec b)
+  a / b = a * (Rec b)
   fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.2
 
 
@@ -105,6 +105,11 @@ sum' (Sum ns) n          = Sum $ ns ++ [n]
 sum' m n                 = Sum [m, n]                       -- F.3
 
 
+prod' :: (Integral a) => Expr a -> Expr a -> Expr a         -- F.4
+prod' (Prod xs) (Prod ys) = Prod $ xs ++ ys
+prod' n (Prod ns)         = Prod $ n:ns
+prod' (Prod ns) n         = Prod $ ns ++ [n]
+prod' m n                 = Prod [m, n]
 
 
 -- Let us define simplification methods.

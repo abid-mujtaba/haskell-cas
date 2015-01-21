@@ -15,7 +15,7 @@ In this file we have placed the comments that have been made regarding the Haske
 
 ## B. Expr type
 
-**B.1** - We define the new data typeclass 'Expr' which corresponds to a general algebraic expression. This is achieved by using recursion in the definition of the constructors. By defining these carefully one can use patterm-matching to implement various functions for the 'Expr' typeclass.
+**B.1** - We define the new data typeclass 'Expr' which corresponds to a general algebraic expression. This is achieved by using recursion in the definition of the constructors. By defining these carefully one can use pattern-matching to implement various functions for the 'Expr' typeclass.
 
 **B.2** - We declare 'Expr a' to be a type class where 'a' can be any concrete type
 
@@ -45,9 +45,9 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **C.3** - We use the utility function showList to print the expression with its parts separated by the " + " symbol
 
-**C.4** - The negation of an expression is simply appending '-' in front of it. We use the concatenation operator ':' to preprend '-' in front of the String representation of the expression
+**C.4** - The negation of an expression is simply appending '-' in front of it. We use the concatenation operator ':' to prepend '-' in front of the String representation of the expression
 
-**C.5** - Since 's' is a String (from the definition of the 'Symbol' constucor) we don't need to use 'show' here. Had we done so it would have printed the strings surrounded by quotation marks
+**C.5** - Since 's' is a String (from the definition of the 'Symbol' constructor) we don't need to use 'show' here. Had we done so it would have printed the strings surrounded by quotation marks
 
 **C.6**
 
@@ -63,8 +63,8 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **D.1**
 
-* We define Expr to be an instance of the Num class which gives us access to the standard arithematic operations. It is rather evident that we expect the type-parameter 'a' to be an instance of the Num class itself.
-* The really interesting thing is how we will map the arithematic operators on to the constructors of the Expr class. Basically we use the operators to recursivley construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
+* We define Expr to be an instance of the Num class which gives us access to the standard arithmetic operations. It is rather evident that we expect the type-parameter 'a' to be an instance of the Num class itself.
+* The really interesting thing is how we will map the arithmetic operators on to the constructors of the Expr class. Basically we use the operators to recursively construct every more complex expressions. This is why we will have to define simplify to carry out obvious simplification of the expression later on.
 
 **D.2** - We want ONLY constant integers in our expressions so we limit the type-constraint from the usual 'Num a' to 'Integral a'. This means that any calls to the methods defined in this class which uses non-integer Constants will raise an exception.
 
@@ -95,13 +95,15 @@ In this file we have placed the comments that have been made regarding the Haske
 
 
 
-## F. Functions for arithematic operations
+## F. Functions for arithmetic operations
 
 **F.1** - We are carrying out pattern-matching where the first pattern that matches is the one that is used. So our first pattern matches the addition of two Sum expressions with xs and ys matching the lists encapsulated by both. The result is simply another Sum with the two lists concatenated.
 
 **F.2** - The next two patterns match the possibility of a single Sum expression being added to a non-sum expression (since the case of two Sum-s being added corresponds to the pattern at the top). In such a case we simply add the expression to the list within the Sum.
 
 **F.3** - The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added. In this case we simply construct a list of two elements and put it inside the Sum.
+
+**F.4** - ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 
 
 
