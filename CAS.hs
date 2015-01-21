@@ -130,23 +130,24 @@ s (Sum xs) = simplify_sum xs                            -- G.1
        -- If a != b then we simply return the matched pattern (the original Sum) using the name 'o' which we had bound to the original pattern.
 
 
+
 -- We define the simplification method for the list of expressions inside a Sum.
 simplify_sum :: Integral a => [Expr a] -> Expr a
-simplify_sum xs = empty_sum $ collect_const xs
+simplify_sum xs = empty_sum $ collect_sum_const xs
+
 
 -- We define a utility function for collecting Const terms inside a list of expressions which are intended for encapsulation in a Sum.
-collect_const :: Integral a => [Expr a] -> [Expr a]
-collect_const xs = let (c, es) = foldr fold_constants (0, []) xs in           -- H.1
+collect_sum_const :: Integral a => [Expr a] -> [Expr a]
+collect_sum_const xs = let (c, es) = foldr fold_sum_constants (0, []) xs in           -- H.1
                         if c == 0 then es
                         else es ++ [Const c]
 
 
 -- Write a binary function which we will use inside the foldr for collecting constants.
-fold_constants :: Integral a => Expr a -> (a, [Expr a]) -> (a, [Expr a])      -- I.1
-fold_constants e (m, xs) = case e of Const n -> ((m + n), xs)                   -- I.2
+fold_sum_constants :: Integral a => Expr a -> (a, [Expr a]) -> (a, [Expr a])      -- I.1
+fold_sum_constants e (m, xs) = case e of Const n -> ((m + n), xs)                   -- I.2
                                      Neg (Const n) -> ((m - n), xs)             -- I.3
                                      _ -> (m, e:xs)                             -- I.4
-
 
 
 -- A simple function for dealing with the possibility of a sum with no expressions inside
