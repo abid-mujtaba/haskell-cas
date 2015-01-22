@@ -102,8 +102,9 @@ sum' :: Integral a => Expr a -> Expr a -> Expr a
 sum' (Sum xs) (Sum ys)   = s . Sum $ xs ++ ys                   -- F.1
 sum' n (Sum ns)          = s . Sum $ n:ns                       -- F.2
 sum' (Sum ns) n          = s . Sum $ ns ++ [n]
-sum' m n                 = if m == n then s $ (2 * m)           -- F.3
-                           else s $ Sum [m, n]
+sum' m n                                                        -- F.3
+        | m == n         = s $ (2 * m)
+        | otherwise      = s $ Sum [m, n]
 
 
 prod' :: Integral a => Expr a -> Expr a -> Expr a               -- F.4

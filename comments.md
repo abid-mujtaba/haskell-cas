@@ -107,7 +107,7 @@ In this file we have placed the comments that have been made regarding the Haske
 **F.3**
 
 * The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added.
-* We use an ``if`` statement to check if the two expressions being added are equal. If that is the case we convert the Sum in to a Prod by multiplying the expression by ``2``.
+* We use guards to differentiate between two possible scenarios. If the two expressions being added are equal we convert the Sum in to a Prod by multiplying the expression by ``2``; otherwise we simply place both inside a Sum expression.
 
 **F.4** - ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 
