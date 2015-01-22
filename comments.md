@@ -97,11 +97,17 @@ In this file we have placed the comments that have been made regarding the Haske
 
 ## F. Functions for arithmetic operations
 
-**F.1** - We are carrying out pattern-matching where the first pattern that matches is the one that is used. So our first pattern matches the addition of two Sum expressions with xs and ys matching the lists encapsulated by both. The result is simply another Sum with the two lists concatenated.
+**F.1**
+ 
+* We are carrying out pattern-matching where the first pattern that matches is the one that is used. So our first pattern matches the addition of two Sum expressions with xs and ys matching the lists encapsulated by both. The result is simply another Sum with the two lists concatenated.
+* NOTE the use of the simplification method ``s``. This means that every arithmetic operation ``+``, ``*``, etc., concludes with a simplification to ensure that the expressions remain as compact as possible. 
 
 **F.2** - The next two patterns match the possibility of a single Sum expression being added to a non-sum expression (since the case of two Sum-s being added corresponds to the pattern at the top). In such a case we simply add the expression to the list within the Sum.
 
-**F.3** - The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added. In this case we simply construct a list of two elements and put it inside the Sum.
+**F.3**
+
+* The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added.
+* We use an ``if`` statement to check if the two expressions being added are equal. If that is the case we convert the Sum in to a Prod by multiplying the expression by ``2``.
 
 **F.4** - ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 

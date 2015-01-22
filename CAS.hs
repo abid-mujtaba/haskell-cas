@@ -99,17 +99,18 @@ instance Integral a => Fractional (Expr a) where               -- E.1
 -- We define functions that intelligently carry out the various arithematic operations.
 
 sum' :: Integral a => Expr a -> Expr a -> Expr a
-sum' (Sum xs) (Sum ys)   = Sum $ xs ++ ys                   -- F.1
-sum' n (Sum ns)          = Sum $ n:ns                       -- F.2
-sum' (Sum ns) n          = Sum $ ns ++ [n]
-sum' m n                 = Sum [m, n]                       -- F.3
+sum' (Sum xs) (Sum ys)   = s . Sum $ xs ++ ys                   -- F.1
+sum' n (Sum ns)          = s . Sum $ n:ns                       -- F.2
+sum' (Sum ns) n          = s . Sum $ ns ++ [n]
+sum' m n                 = if m == n then s $ (2 * m)           -- F.3
+                           else s $ Sum [m, n]
 
 
-prod' :: Integral a => Expr a -> Expr a -> Expr a         -- F.4
-prod' (Prod xs) (Prod ys) = Prod $ xs ++ ys
-prod' n (Prod ns)         = Prod $ n:ns
-prod' (Prod ns) n         = Prod $ ns ++ [n]
-prod' m n                 = Prod [m, n]
+prod' :: Integral a => Expr a -> Expr a -> Expr a               -- F.4
+prod' (Prod xs) (Prod ys) = s . Prod $ xs ++ ys
+prod' n (Prod ns)         = s . Prod $ n:ns
+prod' (Prod ns) n         = s . Prod $ ns ++ [n]
+prod' m n                 = s $ Prod [m, n]
 
 
 -- Let us define simplification methods.
@@ -117,18 +118,6 @@ prod' m n                 = Prod [m, n]
 s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
 s (Sum xs)  = simplify_sum xs                         -- G.1
 s (Prod xs) = simplify_prod xs
-
-
-
-
---s o@(Sum a b) | a == b = Prod 2 a                                           -- (2)
---              | otherwise = o
-
--- (1) -- We use the 'let' keyword to bind the result of the calculation 'a - b' to the name 'c'. Then we check if c > 0 and based on that return the appropriate result.
-
--- (2) -- Here we use an as-pattern to bind the name 'o' to the pattern we are matching. In this case since it is at the end this constitutes the catch-all pattern.
-       -- Then we use guards to determine the result. If a == b then a + b = a + a = 2 a.
-       -- If a != b then we simply return the matched pattern (the original Sum) using the name 'o' which we had bound to the original pattern.
 
 
 
