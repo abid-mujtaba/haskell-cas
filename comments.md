@@ -160,3 +160,25 @@ In this file we have placed the comments that have been made regarding the Haske
 **J.1** - If the list of expressions destined to be encapsulated by Sum is empty (tested using the ``null`` function) we return a ``Const 0`` which is the logical equivalent of an empty sum (e.g. 3 + -3 = 0).
 
 **J.2** - If the list contains a single expression then we return just that expression (e.g. x + 0 = x). Otherwise we return the list encapsulated by a ``Sum``
+
+
+
+## K. Simplification of a Product Expression
+
+**K.1**
+
+* This is analogous to ``collect_sum_const`` with one major difference. We want to keep the numerator (``n``) and denominator (``d``) constants separate.
+* To that end the accumulator consists of two integers ``n`` and ``d`` and the simplified list of expressions ``es``.
+* ``fold_prod_constants`` takes an element of the list and checks (pattern-matches) agains a constant in either the numerator or denominator.
+* The initial accumulator consists of ``(1, 1, [])`` since the identity element for multiplication is ``1``.
+* NOTE: This is monoid behaviour. Eventually one can implement Sum and Prod as monoids along with the functions ``+`` and ``*`` respectively.
+
+**K.2** - We use the case expression to pattern match against the final values of ``n`` and ``d`` (which we get from the ``foldr``). Since the list of expressions is for a ``Prod`` a constant value of ``1`` is redundant (just as ``0`` is redundant in a sum), so we pattern match to deal with these possibilities.
+
+**K.3** 
+
+* Again we use the case expression to pattern match against the element of the expression list (an arbitrary expression). If it is a ``Const`` we multiply it with the accumulator's numerator value.
+* If it is ``Rec (Const m)`` it is a constant in the denominator so we multiply it with the accumulator's denominator value.
+* Otherwise we simply append the expression to the accumulator's expression list ``es``
+
+**K.4** - A careful study of ``collect_prod_const`` will reveal that there exists a special case where both ``n`` and ``d`` are equal to ``1`` and ``es`` is null (``[]``). In this case the function returns an empty list (a Product with no elements). This actually corresponds to a value of ``1`` which is what the corresponding pattern match returns.

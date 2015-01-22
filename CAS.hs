@@ -163,10 +163,11 @@ empty_sum xs = case xs of [] -> Const 0                     -- J.1
 simplify_prod :: Integral a => [Expr a] -> Expr a
 simplify_prod xs = single_prod $ collect_prod_const xs
 
+
 -- A utility function for collecting the Const terms inside a list of expressions intended for encapsulation by a Prod.
 collect_prod_const :: Integral a => [Expr a] -> [Expr a]
-collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in
-                            case (n, d) of (1, 1) -> es
+collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in             -- K.1
+                            case (n, d) of (1, 1) -> es                                         -- K.2
                                            (1, _) -> (Rec (Const d)):es
                                            (_, 1) -> (Const n):es
                                            _      -> (Const n):(Rec (Const d)):es
@@ -174,16 +175,17 @@ collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs
 
 -- A binary function which is used inside the foldr for collecting constants
 fold_prod_constants :: Integral a => Expr a -> (a, a, [Expr a]) -> (a, a, [Expr a])
-fold_prod_constants e (n, d, es) = case e of Const m -> (n * m, d, es)
+fold_prod_constants e (n, d, es) = case e of Const m -> (n * m, d, es)                          -- K.3
                                              Rec (Const m) -> (n, d * m, es)
                                              _ -> (n, d, e:es)
 
 
 -- A simple function for dealing with the possibility of a product with just one expression
 single_prod :: Integral a => [Expr a] -> Expr a
-single_prod xs = case xs of [] -> error "A product cannot have zero elements."
+single_prod xs = case xs of [] -> Const 1                                                       -- K.4
                             [e] -> e
                             _ -> Prod xs
+
 
 
 -- We implement a full simplification method which we export.
