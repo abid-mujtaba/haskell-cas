@@ -110,6 +110,14 @@ instance Integral a => Fractional (Expr a) where               -- E.1
   fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.2
 
 
+-- We make Expr an instance of Ord so that we can compare and sort expressions
+
+instance Ord a => Ord (Expr a) where                              -- L.1
+  compare (Const a) (Const b)       = compare a b                 -- L.2
+  compare (Const _) (Neg (Const _)) = GT                          -- L.3
+  compare (Neg (Const _)) (Const _) = LT
+  compare (Symbol a) (Symbol b) = compare a b
+  compare a b = undefined
 
 
 -- Calculate the degree of an expression (polynomial)

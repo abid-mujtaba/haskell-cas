@@ -190,3 +190,29 @@ In this file we have placed the comments that have been made regarding the Haske
 * Otherwise we simply append the expression to the accumulator's expression list ``es``
 
 **K.4** - A careful study of ``collect_prod_const`` will reveal that there exists a special case where both ``n`` and ``d`` are equal to ``1`` and ``es`` is null (``[]``). In this case the function returns an empty list (a Product with no elements). This actually corresponds to a value of ``1`` which is what the corresponding pattern match returns.
+
+
+
+## L. Expr instance of Ord
+
+**L.1** - We only need to define the ``compare`` function while making Expr and instance of the Ord class. Since it takes two objects, compares them and generates the resulting ``Ordering`` object (with values of ``LT``, ``EQ`` or ``GT``) we get the remaining comparison operators (``<``, ``<=``, ``==``, ``>``, ``>=``) for free.
+
+**L.2** - We pattern-matched to look at the scenario where we are comparing two ``Const`` objects. We extracted the integers within and then set the result to be equal to the comparison of the encapsulated integers. This is a classic technique in Haskell when dealing with encapsulated objects (also knows an objects with context).
+
+**L.3**
+
+* This is classic Haskell. We write down what something is NOT how to calculate it.
+* In this case we use pattern-matching to define how to calculate the degree for each Value Constructor.
+* Some of them are obvious such as the degree of a constant or a symbol by itself.
+* Others use recursion such as the degree of the negative of an expression is equal to that of the expression itself, hence the definition for ``Neg e``
+
+**L.4** - A product of polynomial expressions has degree equal to the sum of the degrees of its constituent parts (by definition). So we ``map`` ``degree`` (recursively) over the list to get a corresponding list comprising of the degree of each element of ``xs`` and then we use ``sum`` to add all of these number up to get the final result.
+
+**L.5** 
+
+* The degree of the sum of polynomials is the highest (maximum) of the degree of its parts. To calculate this we ``map`` ``degree`` over ``xs`` and then ``foldl1`` the ``max`` function over it.
+* ``max`` is a binary function that returns the larger of its two arguments.
+* We want to implement ``max`` over the whole list so we naturally use a fold. In this case ``fold11`` because with it the first element of the list serves as an accumulator. At first I was mistakenly using ``foldl max 0`` with ``0`` as the initial accumulator but that would have failed for a list with entirely negative degree polynomials. With ``foldl1`` we are guaranteed to get the correct maximum value. ``foldl1`` applies ``max`` successively over the elements of ``xs`` and keeps track of the maximum value to date.
+
+
+
