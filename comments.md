@@ -11,6 +11,8 @@ In this file we have placed the comments that have been made regarding the Haske
 * In the module identifier after the module's name and delimited in parentheses we declare the classes, types and functions we want to export from the module.
 * The parentheses are followed by the keyword where and then the rest of the file is dedicated to defining the various objects that are being exported.
 
+**A.2** - ``Expr(Symbol)`` signifies that ONLY its ``Const`` and ``Symbol`` value constructors are to be exported. All of the other constructors are hidden. Our intention is to allow a user to build up complex expressions by starting with these building blocks and tying them together with arithmetic operations without having to explicitly use the rest of the value constructors.
+
 
 
 ## B. Expr type

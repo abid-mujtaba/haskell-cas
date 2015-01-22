@@ -7,11 +7,10 @@
 --
 -- Details comments to this code are given in the accompanying 'comments.md' file. These are labelled using a simple scheme which consists of an uppercase letter followed by a number, e.g. C.3 (search for this label in the comments file to find the relevant comment)
 
-module CAS                      -- A.1
+module CAS                                                           -- A.1
     (
-      Expr(..)                 -- Data typeclass. The .. means ALL its constructors are to be exported
+      Expr(Const, Symbol)                    -- Data typeclass.      -- A.2
       , x, y, z
-      , z0, z1, z2, z3, z4, z5, z6, z7, z8, z9          -- Used for testing. Will be removed later.
       , simplify
 --      , diff
 --      , eval
