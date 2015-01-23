@@ -120,12 +120,51 @@ instance Integral a => Fractional (Expr a) where               -- E.1
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions
 
-instance Ord a => Ord (Expr a) where                              -- L.1
-  compare (Const a) (Const b)       = compare a b                 -- L.2
-  compare (Const _) (Neg (Const _)) = GT                          -- L.3
-  compare (Neg (Const _)) (Const _) = LT
-  compare (Symbol a) (Symbol b) = compare a b
-  compare a b = undefined
+instance (Ord a, Num a) => Ord (Expr a) where                                 -- L.1
+  compare (Const a) (Const b)         = compare a b                           -- L.2
+  compare (Const _) (Neg (Const _))   = GT                                    -- L.3
+  compare (Neg (Const _)) (Const _)   = LT
+
+  compare (Symbol a) (Symbol b)       = compare a b
+
+  compare (Const _) (Symbol _)        = LT
+  compare (Symbol _) (Const _)        = GT
+
+  compare (Neg a) (Neg b)             = compare a b
+  compare a (Neg b)                   = compare a b
+  compare (Neg a) b                   = compare a b
+
+  compare (Rec a) (Rec b)             = compare b a
+  compare a (Rec b)                   = GT
+  compare (Rec a) b                   = LT
+
+  compare a b = compareDegree a b
+
+
+-- A function for doing a degree based comparison of two expressions:
+compareDegree :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
+compareDegree (Exp a pa) (Exp b pb)
+                                | pa == pb  = compare a b
+                                | da < db   = LT
+                                | da > db   = GT
+                                | otherwise = undefined
+                                    where
+                                        da = pa * degree a
+                                        db = pb * degree b
+-- ToDo compare exponent with non-exponent expressions
+compareDegree a b
+            | da < db       = LT
+            | da > db       = GT
+            | otherwise     = compare' a b
+                where
+                    da = degree a
+                    db = degree b
+
+
+-- A function for comparing expressions with equal degree
+compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
+compare' a b = undefined
+
 
 
 -- Calculate the degree of an expression (polynomial)
