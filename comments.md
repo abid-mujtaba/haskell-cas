@@ -127,15 +127,22 @@ In this file we have placed the comments that have been made regarding the Haske
 
 ## H. Collection of Const terms inside a Sum
 
-**H.1**
+**H.1** 
 
-* We use a let expression to bind ``(c, es)`` to the result of the ``foldr``. We use this binding in the if statement that follows. If after the ``foldr`` the collected constant value is 0 we simply return the collected list ``es``.
-* If ``c != 0`` then we simply append a ``Const`` expression corresponding to ``c`` at the end of the list of expressions ``es``
+* We use a let expression to bind ``(c, es)`` to the result of the ``foldr``. We use this binding in the function evaluation that follows. 
 * The ``foldr`` takes a binary function, an initial accumulator which in this case is the tuple ``(0, [])`` and then folds the function over the list of expressions.
 * The idea is that the current accumulator and one element of the list is fed to the binary function ``fold_constants``. The function analyzes the element. If the element is a ``Const`` then its value is added to the first member of the accumulator which keeps track of the sum of constant values.
 * If the element passed in to ``fold_constants`` is NOT a ``Const`` then we leave the sum value unchanged and append the element to the list of expressions which forms the second part of the accumulator.
 * With this in mind it is obvious that the initial accumulator which appears in ``foldr`` must be ``(0, [])`` because we start with a constants sum value of 0 (and add to it element by element) and we start with an empty list to which we append non-Const expressions as we fold over the list ``xs``
 * By using a ``foldr`` here we get to keep the order of elements from the original list
+
+**H.2** - The collected constant value ``c`` along with the simplified list of expressions ``es`` returned by the ``foldr`` is passed to the function ``append_constant`` which is defined using the ``where`` keyboard. We structure it this way because using guards in a function is the cleanest way of explaining what the code does.
+
+**H.3.**
+
+* If after the ``foldr`` the collected constant value ``c`` is 0 we simply return the collected list of expressions ``es``.
+* If ``c > 0`` then we simply append a ``Const`` expression corresponding to ``c`` at the end ``es``.
+* The remaining case corresponds to ``c < 0`` and we append it as a positive constant encapsulated in a ``Neg``. The idea is to keep *all constants in all expressions strictly positive* and use ``Neg`` where necessary.
 
 
 

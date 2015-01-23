@@ -92,14 +92,16 @@ foldListElement acc e = acc ++ showActual e ++ ", "
 
 -- D.1
 
-instance Integral a => Num (Expr a) where                 -- D.2
+instance Integral a => Num (Expr a) where                   -- D.2
   a + b = sum' a b                                          -- D.3
   a - b = sum' a $ Neg b                                    -- D.4
   (*) = prod'
   negate = Neg
   signum = undefined                                        -- D.5
   abs = undefined
-  fromInteger a = Const (fromInteger a)                     -- D.6
+  fromInteger a
+                | a < 0                = Neg (Const (abs $ fromInteger a))
+                | otherwise            = Const (fromInteger a)                     -- D.6
 
 
 
@@ -165,9 +167,11 @@ simplify_sum xs = empty_sum $ collect_sum_const xs
 
 -- We define a utility function for collecting Const terms inside a list of expressions which are intended for encapsulation in a Sum.
 collect_sum_const :: Integral a => [Expr a] -> [Expr a]
-collect_sum_const xs = let (c, es) = foldr fold_sum_constants (0, []) xs in           -- H.1
-                        if c == 0 then es
-                        else es ++ [Const c]
+collect_sum_const xs = let (c, es) = foldr fold_sum_constants (0, []) xs in                                             -- H.1
+                            append_constant c es                                                                        -- H.2
+                                    where append_constant c es | c == 0    = es                                         -- H.3
+                                                               | c > 0     = es ++ [Const c]
+                                                               | otherwise = es ++ [Neg (Const (abs c))]
 
 
 -- Write a binary function which we will use inside the foldr for collecting constants.
