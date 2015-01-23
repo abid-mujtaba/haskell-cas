@@ -9,8 +9,9 @@
 
 module CAS                                                           -- A.1
     (
-      Expr(Const, Symbol)                    -- Data typeclass.      -- A.2
+      Expr(Symbol)                    -- Data typeclass.             -- A.2
       , x, y, z
+      , const'                                                       -- A.3
       , simplify
 --      , diff
 --      , eval
@@ -39,16 +40,21 @@ z = Symbol "z"
 
 -- Define the first 10 integers for testing.
 z0, z1, z2, z3, z4, z5, z6, z7, z8, z9 :: (Integral a) => Expr a
-z0 = Const 0
-z1 = Const 1
-z2 = Const 2
-z3 = Const 3
-z4 = Const 4
-z5 = Const 5
-z6 = Const 6
-z7 = Const 7
-z8 = Const 8
-z9 = Const 9
+z0 = const' 0
+z1 = const' 1
+z2 = const' 2
+z3 = const' 3
+z4 = const' 4
+z5 = const' 5
+z6 = const' 6
+z7 = const' 7
+z8 = const' 8
+z9 = const' 9
+
+
+const' :: Integral a => Int -> Expr a                               -- N.1
+const' c | c < 0     = Neg (Const $ abs . fromIntegral $ c)         -- N.2
+         | otherwise = Const $ fromIntegral c
 
 
 -- C.1

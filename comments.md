@@ -11,7 +11,9 @@ In this file we have placed the comments that have been made regarding the Haske
 * In the module identifier after the module's name and delimited in parentheses we declare the classes, types and functions we want to export from the module.
 * The parentheses are followed by the keyword where and then the rest of the file is dedicated to defining the various objects that are being exported.
 
-**A.2** - ``Expr(Symbol)`` signifies that ONLY its ``Const`` and ``Symbol`` value constructors are to be exported. All of the other constructors are hidden. Our intention is to allow a user to build up complex expressions by starting with these building blocks and tying them together with arithmetic operations without having to explicitly use the rest of the value constructors.
+**A.2** - ``Expr(Symbol)`` signifies that ONLY its ``Symbol`` value constructor is to be exported. All of the other constructors are hidden. Our intention is to allow a user to build up complex expressions by starting with ``Symbol``s and ``Const`` values as building blocks and tying them together with arithmetic operations without having to explicitly use the rest of the value constructors. To access ``Const`` values we use the ``const'`` function described in *A.3*
+
+**A.3** - We export the ``const'`` function as it provides the only mechanism available outside the module for creating ``Const`` objects (since we did NOT export ``Const``).
 
 
 
@@ -248,3 +250,16 @@ In this file we have placed the comments that have been made regarding the Haske
 * The purpose of this function is to be used in a ``foldl``. It is supposed to be mapped over a list of expressions converting them in to ``showActual`` Strings and then concatenating them separated by ``", "``.
 * To the accumulator we add first the String ", " and then the String representation of the current element (expression) by recursively calling ``showActual``.
 * Note: By adding ``", "`` before each element we end up with a String that has ``", "`` at the start but NOT at the end. We like it this way because removing elements from the start of a list is much easier (and more efficient) than from the end of a list (simply use ``drop 2``).
+
+
+## N. ``Const`` Constructor
+
+*A function for creating and returning a ``Const`` object.
+
+**N.1** - The purpose of this function is to act as a constructor. We need a special function for this because we want to ensure that **ALL** ``Const`` objects **ONLY** contain positive integers.
+ 
+**N.2**
+
+* Note the use of ``fromIntegral`` to convert the ``Integral`` ``c`` to an ``Int`` which is what is required by the ``Const`` constructor by definition.
+* When using function composition the argument to the composition needs to be separated because composition has lower precedence than function application, hence the ``$`` before the argument ``c``.
+* Once again we need a ``$`` to separate ``abs.fromIntegral`` from ``Const`` so that everything on the RHS of ``Const`` is calculated first, before it is used as an argument by ``Const``. An equivalent construction would be ``Const . abs . fromIntegral $ c`` where we include the ``Const`` constructor in the function composition because the constructor is after all like any other function. The choice of which construct to use is a preference, in this case the readability of the code.
