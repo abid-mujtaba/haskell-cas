@@ -60,22 +60,22 @@ const' c | c < 0     = Neg (Const $ abs . fromIntegral $ c)         -- N.2
 -- C.1
 
 instance Show a => Show (Expr a) where
-  show (Const a) = show a                                           -- C.2
-  show (Sum xs) = showExprList " + " xs                             -- C.3
-  show (Prod xs) = showExprList " * " xs                            -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
-  show (Neg a) = '-' : show a                                       -- C.4
-  show (Rec a) = "1/" ++ show a
-  show (Exp a p) = show a ++ "^" ++ show p
-  show (Symbol s) = s                                               -- C.5
+  show (Const a)    = show a                                            -- C.2
+  show (Sum xs)     = showExprList " + " xs                             -- C.3
+  show (Prod xs)    = showExprList " * " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
+  show (Neg a)      = '-' : show a                                      -- C.4
+  show (Rec a)      = "1/" ++ show a
+  show (Exp a p)    = show a ++ "^" ++ show p
+  show (Symbol sym) = sym                                               -- C.5
 
 
-showExprList :: Show a => String -> [Expr a] -> String              -- C.6
-showExprList _ [] = "(0)"
+showExprList :: Show a => String -> [Expr a] -> String                  -- C.6
+showExprList _ []   = "(0)"
 showExprList sep es = "(" ++ showExprList' sep es ++ ")"
 
-showExprList' :: Show a => String -> [Expr a] -> String             -- C.7
-showExprList' _ [] = ""
-showExprList' _ [e] = show e
+showExprList' :: Show a => String -> [Expr a] -> String                 -- C.7
+showExprList' _ []       = ""
+showExprList' _ [e]      = show e
 showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
 
 
@@ -98,16 +98,16 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 
 -- D.1
 
-instance Integral a => Num (Expr a) where                   -- D.2
-  a + b = sum' a b                                          -- D.3
-  a - b = sum' a $ Neg b                                    -- D.4
-  (*) = prod'
-  negate = Neg
-  signum = undefined                                        -- D.5
-  abs = undefined
+instance Integral a => Num (Expr a) where                       -- D.2
+  a + b     = sum' a b                                          -- D.3
+  a - b     = sum' a $ Neg b                                    -- D.4
+  (*)       = prod'
+  negate    = Neg
+  signum    = undefined                                         -- D.5
+  abs       = undefined
   fromInteger a
-                | a < 0                = Neg (Const (abs $ fromInteger a))
-                | otherwise            = Const (fromInteger a)                     -- D.6
+                | a < 0      = Neg (Const (abs $ fromInteger a))
+                | otherwise  = Const (fromInteger a)                     -- D.6
 
 
 
