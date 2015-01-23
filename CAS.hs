@@ -127,23 +127,23 @@ instance (Ord a, Num a) => Ord (Expr a) where                                 --
 
   compare (Symbol a) (Symbol b)       = compare a b
 
-  compare (Const _) (Symbol _)        = LT
+  compare (Const _) (Symbol _)        = LT                                    -- L.4
   compare (Symbol _) (Const _)        = GT
 
-  compare (Neg a) (Neg b)             = compare a b
+  compare (Neg a) (Neg b)             = compare a b                           -- L.5
   compare a (Neg b)                   = compare a b
   compare (Neg a) b                   = compare a b
 
   compare (Rec a) (Rec b)             = compare b a
-  compare a (Rec b)                   = GT
+  compare a (Rec b)                   = GT                                    -- L.6
   compare (Rec a) b                   = LT
 
-  compare a b = compareDegree a b
+  compare a b = compareDegree a b                                             -- L.7
 
 
 -- A function for doing a degree based comparison of two expressions:
 compareDegree :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
-compareDegree (Exp a pa) (Exp b pb)
+compareDegree (Exp a pa) (Exp b pb)                                           -- L.8
                                 | pa == pb  = compare a b
                                 | da < db   = LT
                                 | da > db   = GT
@@ -152,7 +152,7 @@ compareDegree (Exp a pa) (Exp b pb)
                                         da = pa * degree a
                                         db = pb * degree b
 -- ToDo compare exponent with non-exponent expressions
-compareDegree a b
+compareDegree a b                                                             -- L.9
             | da < db       = LT
             | da > db       = GT
             | otherwise     = compare' a b
@@ -163,18 +163,18 @@ compareDegree a b
 
 -- A function for comparing expressions with equal degree
 compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
-compare' a b = undefined
+compare' a b = undefined                                                     -- L.10
 
 
 
 -- Calculate the degree of an expression (polynomial)
-degree :: Num a => Expr a -> Int                                  -- L.4
+degree :: Num a => Expr a -> Int                                  -- O.1
 degree (Const _)   = 0
 degree (Symbol _)  = 1
 degree (Neg e)     = degree e
 degree (Rec e)     = negate $ degree e
-degree (Prod xs)   = sum $ map degree xs                          -- L.5
-degree (Sum xs)    = foldl1 max $ map degree xs                   -- L.6
+degree (Prod xs)   = sum $ map degree xs                          -- O.2
+degree (Sum xs)    = foldl1 max $ map degree xs                   -- O.3
 degree (Exp e pwr) = pwr * degree e
 
 
