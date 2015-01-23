@@ -15,9 +15,13 @@ module CAS                                                           -- A.1
       , simplify
 --      , diff
 --      , eval
+      , (^)                                                          -- A.4
     )
     where
 
+
+import Prelude hiding ((^))                 -- P.1
+import qualified Prelude                    -- P.2
 
 
 data Expr a =                               -- B.1, B.2
@@ -106,7 +110,7 @@ instance Integral a => Num (Expr a) where                       -- D.2
   signum    = undefined                                         -- D.5
   abs       = undefined
   fromInteger a
-                | a < 0      = Neg (Const (abs $ fromInteger a))
+                | a < 0      = Neg (Const (negate $ fromInteger a))
                 | otherwise  = Const (fromInteger a)                     -- D.6
 
 
@@ -116,6 +120,14 @@ instance Integral a => Num (Expr a) where                       -- D.2
 instance Integral a => Fractional (Expr a) where               -- E.1
   a / b = a * (Rec b)
   fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.2
+
+
+-- We provide our own definition of the ^ function for exponentiation
+
+(^) :: (Integral a, Integral b) => Expr a -> b -> Expr a                      -- Q.1
+(Const c) ^ p           = Const $ (Prelude.^) c p                             -- Q.2
+(Neg (Const c)) ^ p     = s . Const $ (Prelude.^) (negate c) p                -- Q.3
+a ^ p                   = Exp a (fromIntegral p)
 
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions
@@ -200,7 +212,10 @@ prod' m n                 = s $ Prod [m, n]
 -- Let us define simplification methods.
 
 s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
-s (Sum xs)  = simplify_sum xs                         -- G.1
+s o@(Const c) | c < 0     = Neg (Const $ negate c)    -- G.1
+              | otherwise   = o
+
+s (Sum xs)  = simplify_sum xs                         -- G.2
 s (Prod xs) = simplify_prod xs
 
 

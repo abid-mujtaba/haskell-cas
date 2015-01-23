@@ -15,6 +15,8 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **A.3** - We export the ``const'`` function as it provides the only mechanism available outside the module for creating ``Const`` objects (since we did NOT export ``Const``).
 
+**A.4** - We export the ``^`` infix function which we have defined in the module (overriding the Prelude definition of the same)
+
 
 
 ## B. Expr type
@@ -120,6 +122,14 @@ In this file we have placed the comments that have been made regarding the Haske
 ## G. Simplification functions for expressions
 
 **G.1**
+
+* The purpose of the simplification of a ``Const`` is to ensure that NO ``Const`` object encapsulates a negative integer.
+* We use guards to check if the polarity of ``c`` is negative in which case we transform the ``Const`` in to a ``Neg (Const _)``.
+* When ``c`` is NOT negative the original ``Const`` should be returned.
+* We use the ``@`` symbol to generate an *as-pattern* with which we bind the name ``o`` to the pattern that has been successfully matched against on this line.
+* We use the name ``o`` to refer to the original ``Const`` when we return it with the last ``otherwise`` guard.
+
+**G.2**
 
 * We define the simplification for a Sum expression that encapsulates a list of expressions.
 * We use pattern matching on the RHS to get the list of expressions 'xs'
@@ -290,3 +300,33 @@ In this file we have placed the comments that have been made regarding the Haske
 * The degree of the sum of polynomials is the highest (maximum) of the degree of its parts. To calculate this we ``map`` ``degree`` over ``xs`` and then ``foldl1`` the ``max`` function over it.
 * ``max`` is a binary function that returns the larger of its two arguments.
 * We want to implement ``max`` over the whole list so we naturally use a fold. In this case ``fold11`` because with it the first element of the list serves as an accumulator. At first I was mistakenly using ``foldl max 0`` with ``0`` as the initial accumulator but that would have failed for a list with entirely negative degree polynomials. With ``foldl1`` we are guaranteed to get the correct maximum value. ``foldl1`` applies ``max`` successively over the elements of ``xs`` and keeps track of the maximum value to date.
+
+
+
+## P. *import* statements
+
+**P.1**
+
+* The exponentiation function ``^`` that normally raises a ``Num`` object by an ``Integer`` to produce an ``Integer`` i.e. it has signature: ``(^) :: (Integral b, Num a) => a -> b -> a``.
+* We want to use ``^`` to implement exponentiation of ``Expr`` objects by integers.
+* The problem is that ``^`` is implemented in the ``Prelude`` and not in any type-class. Thus we can't make ``Expr`` and instance of some type-class to override ``^``.
+* Therefore to override ``^`` we must suppress the definition in the ``Prelude`` to which end we import ``Prelude`` while hiding the function ``(^)``.
+* With this in place we can now define ``^`` ourselves.
+
+**P.2** - We make a qualified import of Prelude which will allow us to access it by name and access its members using the ``.`` terminology. It will allow us to refer to the hidden/suppressed ``^`` as ``Prelude.^``.
+
+
+
+## Q. Exponentiation using ^
+
+**Q.1** - Since we have hidden/suppressed ``Prelude.^`` we can give our construction of ``^`` any signature we want. In this case we keep it in line with the ``Exp`` value constructor since that is what we want the output of the function to be. So ``^`` takes an ``Expr`` and an ``Integral`` and returns an ``Expr``.
+
+**Q.2**
+
+* If we use ``^`` to raise an integer by an integer power the signature of the function and the ``fromInteger`` function defined in the instance of ``Num`` will transform the first integer in to a ``Const`` value.
+* We don't want the exponentiation of a ``Const`` to be stored inside an ``Exp`` object so we use pattern-matching to detect this possibility and construct the corresponding ``Const`` object.
+* To do so we use the ``^`` function from ``Prelude`` using the qualified import we made earlier. It raises the integer value inside the ``Const`` to the relevant power and then we store the result in a ``Const`` value to get back an ``Expr a`` as the function expects.
+
+**Q.3** - Separate pattern for negative constant raised to a power since that isn't matched by the first pattern. Note the use of ``s`` to simplify the final ``Const`` in case the integer inside is negative. ``s`` will change that to a ``Neg (Const _)``
+
+**Q.4** - The catch-all pattern simply constructs an ``Exp``object. Since ``p`` is of type ``Integral`` as defined by the signature while ``Exp`` expects an ``Int`` we have to use the ``fromIntegral`` function here.
