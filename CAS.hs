@@ -75,18 +75,18 @@ showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
 
 -- Utility (Debugging) method for printing out the expression as it really is (in terms of its Constructors)
 showActual :: Show a => Expr a -> String
-showActual (Const c)    = "Const " ++ show c
-showActual (Symbol sym) = sym
-showActual (Neg e)      = "Neg (" ++ showActual e ++ ")"
+showActual (Const c)    = "Const " ++ show c                                                                -- M.1
+showActual (Symbol sym) = sym                                                                               -- M.2
+showActual (Neg e)      = "Neg (" ++ showActual e ++ ")"                                                    -- M.3
 showActual (Rec e)      = "Rec (" ++ showActual e ++ ")"
 showActual (Exp e p)    = "Exp (" ++ showActual e ++ ")(" ++ show p ++ ")"
-showActual (Sum xs)     = "Sum [" ++ (init $ init (foldl foldListElement "" xs)) ++ "]"
-showActual (Prod xs)    = "Prod [" ++ (init $ init (foldl foldListElement "" xs)) ++ "]"
+showActual (Sum xs)     = "Sum [" ++ (drop 2 $ foldl foldListElement "" xs) ++ "]"                          -- M.4
+showActual (Prod xs)    = "Prod [" ++ (drop 2 $ foldl foldListElement "" xs) ++ "]"
 
 
 -- Binary function that is used to show a list of expressions. It is intended for use in a fold.
 foldListElement :: Show a => String -> Expr a -> String
-foldListElement acc e = acc ++ showActual e ++ ", "
+foldListElement acc e = acc ++ ", " ++ showActual e                                                         -- M.5
 
 
 

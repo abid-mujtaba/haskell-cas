@@ -223,3 +223,26 @@ In this file we have placed the comments that have been made regarding the Haske
 
 
 
+## M. showActual
+
+*Method for showing the actual structure of an ``Expr`` by printing out how it is made up of the constituent Value Constructors. It is used for debugging.*
+
+**M.1** - The simplest pattern to deal with. If an expression is simply a ``Const`` we simply print out ``Const <constant>``. Note the use of string concatenation using ``++`` and the use of the ``show`` function to convert the integer constant ``c`` in to its String representation.
+
+**M.2** - For ``Symbol`` we simply return the String it encapsulates. Note that we don't use ``show`` here because using it on Strings adds additional quotes around the object which we don't want.
+
+**M.3** - For ``Neg`` we use a parenthesis to indicate its bounds and we use recursion by calling ``showActual`` on the expression inside the ``Neg``.
+
+**M.4**
+
+* We output is bounded on either side by ``"Sum ["`` and ``"]"``. 
+* The text in the middle is created by applying a ``foldl`` over the list of expressions inside the ``Sum``.
+* The ``foldl`` uses the ``foldListElement`` over the elements and starts with an empty String as the accumulator.
+* After the ``foldl`` we have a String which corresponds to a comma-separated list of String representations of elements.
+* Because of the way the ``foldListElement`` is implemented this String has an extraneous ``", "`` at the beginning. We get rid of it by using the ``drop 2`` function which removes the first two elements of the String.
+
+**M.5**
+
+* The purpose of this function is to be used in a ``foldl``. It is supposed to be mapped over a list of expressions converting them in to ``showActual`` Strings and then concatenating them separated by ``", "``.
+* To the accumulator we add first the String ", " and then the String representation of the current element (expression) by recursively calling ``showActual``.
+* Note: By adding ``", "`` before each element we end up with a String that has ``", "`` at the start but NOT at the end. We like it this way because removing elements from the start of a list is much easier (and more efficient) than from the end of a list (simply use ``drop 2``).
