@@ -129,7 +129,15 @@ In this file we have placed the comments that have been made regarding the Haske
 * We use the ``@`` symbol to generate an *as-pattern* with which we bind the name ``o`` to the pattern that has been successfully matched against on this line.
 * We use the name ``o`` to refer to the original ``Const`` when we return it with the last ``otherwise`` guard.
 
+
 **G.2**
+
+* We don't want the exponentiation of a ``Const`` to be stored inside an ``Exp`` object so we use pattern-matching to detect this possibility and construct the corresponding ``Const`` object.
+* To do so we use the ``^`` function from ``Prelude`` using the qualified import we made earlier. It raises the integer value inside the ``Const`` to the relevant power and then we store the result in a ``Const`` value to get back an ``Expr a`` as the function expects.
+
+**G.3** - Separate pattern for negative constant raised to a power since that isn't matched by the first pattern. Note the use of ``s`` to simplify the final ``Const`` in case the integer inside is negative. ``s`` will change that to a ``Neg (Const _)``
+
+**G.4**
 
 * We define the simplification for a Sum expression that encapsulates a list of expressions.
 * We use pattern matching on the RHS to get the list of expressions 'xs'
@@ -321,12 +329,8 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **Q.1** - Since we have hidden/suppressed ``Prelude.^`` we can give our construction of ``^`` any signature we want. In this case we keep it in line with the ``Exp`` value constructor since that is what we want the output of the function to be. So ``^`` takes an ``Expr`` and an ``Integral`` and returns an ``Expr``.
 
-**Q.2**
 
-* If we use ``^`` to raise an integer by an integer power the signature of the function and the ``fromInteger`` function defined in the instance of ``Num`` will transform the first integer in to a ``Const`` value.
-* We don't want the exponentiation of a ``Const`` to be stored inside an ``Exp`` object so we use pattern-matching to detect this possibility and construct the corresponding ``Const`` object.
-* To do so we use the ``^`` function from ``Prelude`` using the qualified import we made earlier. It raises the integer value inside the ``Const`` to the relevant power and then we store the result in a ``Const`` value to get back an ``Expr a`` as the function expects.
+**Q.2** 
 
-**Q.3** - Separate pattern for negative constant raised to a power since that isn't matched by the first pattern. Note the use of ``s`` to simplify the final ``Const`` in case the integer inside is negative. ``s`` will change that to a ``Neg (Const _)``
-
-**Q.4** - The catch-all pattern simply constructs an ``Exp``object. Since ``p`` is of type ``Integral`` as defined by the signature while ``Exp`` expects an ``Int`` we have to use the ``fromIntegral`` function here.
+* An expression raised to an integer power is simply put the Exp constructor
+* We pass the created ``Exp`` to the simplification method ``s`` so that it can automatically deal with the possibility of a ``Const`` object raised to a power which we immediately want turned in to a ``Const`` and not left as an ``Exp``.

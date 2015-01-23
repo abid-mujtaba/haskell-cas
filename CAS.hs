@@ -124,10 +124,8 @@ instance Integral a => Fractional (Expr a) where               -- E.1
 
 -- We provide our own definition of the ^ function for exponentiation
 
-(^) :: (Integral a, Integral b) => Expr a -> b -> Expr a                      -- Q.1
-(Const c) ^ p           = Const $ (Prelude.^) c p                             -- Q.2
-(Neg (Const c)) ^ p     = s . Const $ (Prelude.^) (negate c) p                -- Q.3
-a ^ p                   = Exp a (fromIntegral p)
+(^) :: (Integral a) => Expr a -> Int -> Expr a                                  -- Q.1
+a ^ p = s $ Exp a p                                                             -- Q.2
 
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions
@@ -212,10 +210,14 @@ prod' m n                 = s $ Prod [m, n]
 -- Let us define simplification methods.
 
 s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
-s o@(Const c) | c < 0     = Neg (Const $ negate c)    -- G.1
-              | otherwise   = o
 
-s (Sum xs)  = simplify_sum xs                         -- G.2
+s o@(Const c) | c < 0           = Neg (Const $ negate c)                                -- G.1
+              | otherwise       = o
+
+s (Exp (Const c) p)             = Const $ (Prelude.^) c p                               -- G.2
+s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p                  -- G.3
+
+s (Sum xs)  = simplify_sum xs                                                           -- G.4
 s (Prod xs) = simplify_prod xs
 
 
