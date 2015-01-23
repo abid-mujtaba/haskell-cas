@@ -220,6 +220,8 @@ s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p          
 s (Sum xs)  = simplify_sum xs                                                           -- G.4
 s (Prod xs) = simplify_prod xs
 
+s e         = e                                                                         -- G.5
+
 
 
 -- We define the simplification method for the list of expressions inside a Sum.

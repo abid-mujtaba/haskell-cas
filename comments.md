@@ -143,6 +143,8 @@ In this file we have placed the comments that have been made regarding the Haske
 * We use pattern matching on the RHS to get the list of expressions 'xs'
 * The actual simplification is carried out by the ``simplify_sum`` utility function (this is analogous to how the action of ``+`` is carried out by ``sum'``).
 
+**G.5** - When we run out of patterns to match for simplification it means the expression cannot be simplified and so we return it as is.
+
 
 
 ## H. Collection of Const terms inside a Sum
