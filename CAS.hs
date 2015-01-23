@@ -123,13 +123,13 @@ instance Ord a => Ord (Expr a) where                              -- L.1
 
 
 -- Calculate the degree of an expression (polynomial)
-degree :: Num a => Expr a -> Int                                  -- L.3
+degree :: Num a => Expr a -> Int                                  -- L.4
 degree (Const _)   = 0
 degree (Symbol _)  = 1
 degree (Neg e)     = degree e
 degree (Rec e)     = negate $ degree e
-degree (Prod xs)   = sum $ map degree xs                          -- L.4
-degree (Sum xs)    = foldl1 max $ map degree xs                   -- L.5
+degree (Prod xs)   = sum $ map degree xs                          -- L.5
+degree (Sum xs)    = foldl1 max $ map degree xs                   -- L.6
 degree (Exp e pwr) = pwr * degree e
 
 

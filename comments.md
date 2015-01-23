@@ -202,20 +202,22 @@ In this file we have placed the comments that have been made regarding the Haske
 
 ## L. Expr instance of Ord
 
-**L.1** - We only need to define the ``compare`` function while making Expr and instance of the Ord class. Since it takes two objects, compares them and generates the resulting ``Ordering`` object (with values of ``LT``, ``EQ`` or ``GT``) we get the remaining comparison operators (``<``, ``<=``, ``==``, ``>``, ``>=``) for free.
+**L.1** - We only need to define the ``compare`` function while making Expr an instance of the Ord class. Since it takes two objects, compares them and generates the resulting ``Ordering`` object (with values of ``LT``, ``EQ`` or ``GT``) we get the remaining comparison operators (``<``, ``<=``, ``==``, ``>``, ``>=``) for free.
 
 **L.2** - We pattern-matched to look at the scenario where we are comparing two ``Const`` objects. We extracted the integers within and then set the result to be equal to the comparison of the encapsulated integers. This is a classic technique in Haskell when dealing with encapsulated objects (also knows an objects with context).
 
-**L.3**
-
+**L.3** - In this pattern we are assuming that all ``Const`` objects ONLY encapsulate **positive** integers. This is guaranteed to work because of the way we handle expression construction in which we are careful to keep ``Const`` objects positive.
+ 
+ **L.4**
+ 
 * This is classic Haskell. We write down what something is NOT how to calculate it.
-* In this case we use pattern-matching to define how to calculate the degree for each Value Constructor.
+* In this case we use pattern-matching to define the degree for each Value Constructor.
 * Some of them are obvious such as the degree of a constant or a symbol by itself.
 * Others use recursion such as the degree of the negative of an expression is equal to that of the expression itself, hence the definition for ``Neg e``
 
-**L.4** - A product of polynomial expressions has degree equal to the sum of the degrees of its constituent parts (by definition). So we ``map`` ``degree`` (recursively) over the list to get a corresponding list comprising of the degree of each element of ``xs`` and then we use ``sum`` to add all of these number up to get the final result.
+**L.5** - A product of polynomial expressions has degree equal to the sum of the degrees of its constituent parts (by definition). So we ``map`` ``degree`` (recursively) over the list to get a corresponding list comprising of the degree of each element of ``xs`` and then we use ``sum`` to add all of these number up to get the final result.
 
-**L.5** 
+**L.6** 
 
 * The degree of the sum of polynomials is the highest (maximum) of the degree of its parts. To calculate this we ``map`` ``degree`` over ``xs`` and then ``foldl1`` the ``max`` function over it.
 * ``max`` is a binary function that returns the larger of its two arguments.
