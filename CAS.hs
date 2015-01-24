@@ -232,13 +232,34 @@ prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                       
 
 prod' sa@(Symbol _) e@(Exp _ _ )        = Prod [sa, e]                              -- R.8
 
+prod' ea@(Exp (Symbol a) pa) eb@(Exp (Symbol b) pb)                                 -- R.9
+                                | a == b    = undefined     -- ToDo: use exp'
+                                | a < b     = Prod [ea, eb]
+                                | otherwise = Prod [eb, ea]
+
+prod' ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- R.10
+prod' ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
+prod' ea@(Exp _ _) eb@(Exp _ _)            = Prod [ea, eb]
+
+-- ToDo: Consider the possibility of defining Prod such that the Const and Rec parts are explicitly separate from the remaning list of expressions that form part of the product. This might simplify pattern matching and implementation of various functions.
+prod' cc@(Const c) (Prod ps)       = let h:hs = ps in                                  -- R.11
+                                        case h of
+                                            (Const hc) -> Prod $ (Const (c * hc)):hs
+                                            _          -> Prod $ cc:ps
+
+prod' (Symbol s) (Prod ps)              = undefined
+prod' (Exp b p) (Prod ps)               = undefined
+
+-- ToDo: Implement multiplication rules for ``Rec``
+-- ToDo: Implement multiplication rules for ``Sum``
+
 
 --prod' (Prod xs) (Prod ys) = s . Prod $ xs ++ ys
 --prod' n (Prod ns)         = s . Prod $ n:ns
 --prod' (Prod ns) n         = s . Prod $ ns ++ [n]
 --prod' m n                 = s $ Prod [m, n]
 
-prod' m n                 = prod' n m                                               -- R.9
+prod' m n                 = prod' n m                                               -- R.12
 
 
 -- Let us define simplification methods.
