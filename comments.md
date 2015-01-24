@@ -115,8 +115,6 @@ In this file we have placed the comments that have been made regarding the Haske
 * The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added.
 * We use guards to differentiate between two possible scenarios. If the two expressions being added are equal we convert the Sum in to a Prod by multiplying the expression by ``2``; otherwise we simply place both inside a Sum expression.
 
-**F.4** - ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
-
 
 
 ## G. Simplification functions for expressions
@@ -336,3 +334,38 @@ In this file we have placed the comments that have been made regarding the Haske
 
 * An expression raised to an integer power is simply put the Exp constructor
 * We pass the created ``Exp`` to the simplification method ``s`` so that it can automatically deal with the possibility of a ``Const`` object raised to a power which we immediately want turned in to a ``Const`` and not left as an ``Exp``.
+
+
+
+## R. Multiplying expressions
+
+**R.1** 
+
+* ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
+* We use pattern matching to define the common multiplication scenarios. This will save us time when we won't have to simplify terms afterwards (and repeatedly).
+
+**R.2** 
+
+* Our aim is to ensure that all the components of ``Prod`` (all the elements inside the ``Prod``) are **always** positive.
+* To represent an expression which consists of the product of simple terms (``Const`` and ``Symbol``) which is negative overall we encapsulate the ``Prod`` inside a ``Neg`` which is the outermost expression. There will be no ``Neg`` *inside* a ``Prod``.
+* To that end we define the behaviour of ``Neg`` expressions in multiplication first keeping the above requirement/assumption in mind.
+* The product of two ``Neg`` expressions is simply the positive product of the content of the ``Neg``s.
+* Multiplying a negative expression with a positive expression gives an overall negative product.
+* Note how this will automatically deal with the possibility of the multiplication of ``Const`` and ``Symbol`` objects.
+* Note that with the ``Neg`` conditions implemented at the top none of the following patterns will concern themselves with ``Neg``.
+* Note also that the case of ``prod' a (Neg b)`` is taken care of the commutativity relation implemented by the very last pattern (at the bottom).
+
+**R.3** -  This pattern matches two positive constants being multiplied and the result is a ``Const`` and not a ``Prod``. This ensures that ``Const`` multiplication is automatically simplified.
+
+**R.3** - Since multiplication is commutative we implement it in the pattern matching by using as-patterns and reversing there order.
+
+**R.4**
+
+* Note that the ``Prod`` is constructed with the ``Const`` first and the ``Symbol`` afterwards. This saves on simplification.
+* The case of ``prod' (Symbol _) (Const _)`` is taken care of by the commutation implemented in the last pattern which sends that case to this pattern by switching the arguments around and once again ensuring that the ``Const`` comes first in the product.
+
+**R.5**
+
+* This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
+* Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
+* So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.

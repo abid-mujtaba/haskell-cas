@@ -209,11 +209,24 @@ sum' m n                                                        -- F.3
         | otherwise      = s $ Sum [m, n]
 
 
-prod' :: Integral a => Expr a -> Expr a -> Expr a               -- F.4
-prod' (Prod xs) (Prod ys) = s . Prod $ xs ++ ys
-prod' n (Prod ns)         = s . Prod $ n:ns
-prod' (Prod ns) n         = s . Prod $ ns ++ [n]
-prod' m n                 = s $ Prod [m, n]
+
+-- Multiplying expressions
+
+prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1
+
+prod' (Neg a) (Neg b)                   = prod' a b                                 -- R.2
+prod' (Neg a) b                         = Neg (prod' a b)
+
+prod' (Const a) (Const b)               = Const (a*b)                               -- R.3
+prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- R.4
+prod' a@(Symbol _) b@(Symbol _)         = Prod [a, b]
+
+--prod' (Prod xs) (Prod ys) = s . Prod $ xs ++ ys
+--prod' n (Prod ns)         = s . Prod $ n:ns
+--prod' (Prod ns) n         = s . Prod $ ns ++ [n]
+--prod' m n                 = s $ Prod [m, n]
+
+prod' m n                 = prod' n m                                               -- R.5
 
 
 -- Let us define simplification methods.
@@ -227,7 +240,9 @@ s (Exp (Const c) p)             = Const $ (Prelude.^) c p                       
 s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p                  -- G.3
 
 s (Sum xs)  = simplify_sum xs                                                           -- G.4
-s (Prod xs) = simplify_prod xs
+
+-- Turned off while we develop a more elegent approach to the creation of Prod expressions
+--s (Prod xs) = simplify_prod xs
 
 s e         = e                                                                         -- G.5
 
