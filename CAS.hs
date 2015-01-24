@@ -219,14 +219,26 @@ prod' (Neg a) b                         = Neg (prod' a b)
 
 prod' (Const a) (Const b)               = Const (a*b)                               -- R.3
 prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- R.4
-prod' a@(Symbol _) b@(Symbol _)         = Prod [a, b]
+prod' sa@(Symbol a) sb@(Symbol b)                                                   -- R.5
+                                | a == b     = Exp sa 2
+                                | a < b      = Prod [sa, sb]
+                                | otherwise  = Prod [sb, sa]
+
+prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- R.6
+prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                           -- R.7
+                                        | a == b     = undefined        -- ToDo: set = exp' sa (p + 1) and let the function take care of the rest
+                                        | a < b      = Prod [sa, eb]
+                                        | otherwise  = Prod [eb, sa]
+
+prod' sa@(Symbol _) e@(Exp _ _ )        = Prod [sa, e]                              -- R.8
+
 
 --prod' (Prod xs) (Prod ys) = s . Prod $ xs ++ ys
 --prod' n (Prod ns)         = s . Prod $ n:ns
 --prod' (Prod ns) n         = s . Prod $ ns ++ [n]
 --prod' m n                 = s $ Prod [m, n]
 
-prod' m n                 = prod' n m                                               -- R.5
+prod' m n                 = prod' n m                                               -- R.9
 
 
 -- Let us define simplification methods.

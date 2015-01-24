@@ -366,6 +366,24 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.5**
 
+* Note the use of both as-patterns and pattern-matching within the ``Symbol`` construct to gain access to both the ``Symbol``s as a whole and their contents. 
+* We use ``a`` and ``b``, the ``String``s inside the ``Symbol``s to determine whether they match or not and if not the order between them.
+* We use guards to look at the various scenarios.
+* We explicitly implement the ordering of symbols inside the product.
+* Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
+
+**R.6** - This is based on the assumption that no exponent will ever have a ``Const`` in its base because such exponents will already have been converted in to the resulting ``Const`` values.
+
+**R.7**
+
+* Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
+* We have left the ``a == b`` case where the base is equal to the ``Symbol`` being multiplied undefined since we want to use the future implementation of ``exp'`` here.
+* For the other cases we implement the expected order of variables (alphabetic).
+
+**R.8** - This is a place-holder of sorts which deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented no ordering other than the ``Symbol`` always appearing before the ``Exp``.
+
+**R.9**
+
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
