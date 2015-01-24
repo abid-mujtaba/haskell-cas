@@ -241,7 +241,7 @@ s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p          
 
 s (Sum xs)  = simplify_sum xs                                                           -- G.4
 
--- Turned off while we develop a more elegent approach to the creation of Prod expressions
+-- Turned off while we develop a more elegent    approach to the creation of Prod expressions
 --s (Prod xs) = simplify_prod xs
 
 s e         = e                                                                         -- G.5
