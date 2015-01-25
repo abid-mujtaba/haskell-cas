@@ -395,15 +395,17 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.11**
 
-* In the case of a ``Const`` being multiplied with a pre-existing ``Prod`` we assume (that by construction) if the ``Prod`` has a constant value it will be the *first* element of the list.
-* We use a let expression to extract the head ``h`` and tail ``hs`` of the expression list ``ps``.
-* We use case to pattern-match on the first element of the list to determine if it is in fact a ``Const``.
-* If it is we simply multiply the constant values together and attach them at the head of the tail ``hs``.
-* If not then we attach the multiplied constant at the head of the full list (thus fulfilling the requirement that the ``Const`` always be at the head of the product list.
-* Note the use of ``_`` in the last pattern for the ``case`` which is used as a catch-all pattern.
+* This entire function is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element. ``Const`` is also optional.
+* We use ``where`` to define a function for handling this construction. ``mul_const`` takes the integer value inside the ``Const`` along with the list of expressions inside the ``Prod`` we are multiplying with.
 * Note that the case of the product and/or the constant being negative is handled by the rules defined for abstract ``Neg`` objects being multiplied which use recursion.
 
-**R.12**
+**R.12** - We use pattern-matching inside ``mul_const`` to handle all of the scenarios. The first one is the first element of the list of elements being a ``Const`` as well. We multiply the constant values together and append it to the rest of the list of expressions ``es`` which we get by pattern-matching.
+
+**R.13** - If the first element is a ``Rec`` we keep it in place and then use recursion to multiply the ``Const`` with the rest of the ``Prod`` elements. This preserves the order of the ``Prod`` elements and get the ``Const`` where it needs to be inside the list.
+
+**R.14** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list. Note how we didn't need to do a head:tail split and how we use ``cc`` defined in the as-pattern at the very top to refer to the whole ``Const`` object without having to reconstruct it.
+
+**R.15**
 
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
