@@ -226,7 +226,7 @@ prod' sa@(Symbol a) sb@(Symbol b)                                               
 
 prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- R.6
 prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                           -- R.7
-                                        | a == b     = undefined        -- ToDo: set = exp' sa (p + 1) and let the function take care of the rest
+                                        | a == b     = Exp sa (p + 1)        -- ToDo: set = exp' sa (p + 1) and let the function take care of the rest
                                         | a < b      = Prod [sa, eb]
                                         | otherwise  = Prod [eb, sa]
 
@@ -249,7 +249,25 @@ prod' cc@(Const c) (Prod ps)       = Prod $ mul_const c ps                      
                                             mul_const ca ((Rec e):es)    = (Rec e):(mul_const ca es)                -- R.13
                                             mul_const _  es              = cc:es                                    -- R.14
 
---prod' (Symbol s) (Prod ps)         =
+
+prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                                                         -- R.15
+                                        where
+                                            mul_symbol b (c@(Const _):es)      = c:(mul_symbol b es)                -- R.16
+                                            -- ToDo: Add functionality for cancellation of symbol with Rec
+                                            mul_symbol _ (r@(Rec _):es)        = r:(mul_symbol a es)
+
+                                            mul_symbol b (sc@(Symbol c):es)                                         -- R.17
+                                                            | b < c      = sa:sc:es
+                                                            | b > c      = sc:(mul_symbol b es)
+                                                            | otherwise  = (Exp sa 2):es            -- ToDo use exp' as 2
+
+                                            mul_symbol b (e@(Exp (Symbol c) p):es)                                  -- R.18
+                                                            | b < c     = sa:e:es
+                                                            | b > c     = e:(mul_symbol b es)
+                                                            | otherwise = (Exp sa (p+1)):es         -- ToDo use exp' sa (p + 1)
+
+                                            mul_symbol _ es                         = sa:es                         -- R.19
+
 
 prod' (Exp b p) (Prod ps)               = undefined
 

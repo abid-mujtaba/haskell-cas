@@ -395,7 +395,7 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.11**
 
-* This entire function is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element. ``Const`` is also optional.
+* This entire function is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element). ``Const`` is also optional.
 * We use ``where`` to define a function for handling this construction. ``mul_const`` takes the integer value inside the ``Const`` along with the list of expressions inside the ``Prod`` we are multiplying with.
 * Note that the case of the product and/or the constant being negative is handled by the rules defined for abstract ``Neg`` objects being multiplied which use recursion.
 
@@ -405,7 +405,27 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.14** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list. Note how we didn't need to do a head:tail split and how we use ``cc`` defined in the as-pattern at the very top to refer to the whole ``Const`` object without having to reconstruct it.
 
-**R.15**
+**R.15** - Analogous to (R.11) we use ``where`` to specify a function with pattern-matching to handle the insertion of a ``Symbol`` in to an existing ``Product``.
+
+**R.16** - Any symbol must be inserted after the ``Const`` part. We place the ``Const`` in the front and then use recursion to insert the ``Symbol`` in the remaining list of expressions.
+
+**R.17** 
+
+* An excellent example of mixing guards and pattern-matching.
+* We use pattern-matching to identify the scenario where the first element in the list is ``Symbol``. Then we use guards to compare the two Symbols, the one passed in and the one at the head of the list.
+* The first guard deals with the possibility of the incoming ``Symbol`` String being lexically smaller than the head ``Symbol`` String. In this case we simply place the incoming (smaller) ``Symbol`` first, followed by the head ``Symbol``, followed by the rest of the list and the recursion terminates.
+* Note that we tested ``b < c`` first and left ``b == c`` for later. This is based on the assumption that with a number of ``Symbol``s in an expression, equality is the least likely outcome so we use more likely matches first to make the algorithm faster.
+* When ``b > c`` it means the incoming ``Symbol`` is lexically higher than the current symbol and so we place ``sc`` first and then use recursion to insert ``sa`` in the remaining list.
+* When ``b == c`` we replace ``sc`` with an exponent power 2 to represent the multiplication of the two symbols.
+
+**R.18** - Analogous to (R.17) but with a focus on multiplying symbols with possibly their own exponents.
+
+**R.19**
+
+* Catch-all pattern. If none of the patterns above match this catch-all assumes that the list of expressions is bizarre enough to warrant simply plopping the symbol ahead of it.
+* Note that this pattern will also match the scenario where ``es`` is ``[]`` (empty, possible in a recursion scenario) which correponds to the symbol ending up at the end of the list.
+
+**R.20**
 
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
