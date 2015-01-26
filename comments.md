@@ -344,7 +344,7 @@ In this file we have placed the comments that have been made regarding the Haske
 * ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 * We use pattern matching to define the common multiplication scenarios. This will save us time when we won't have to simplify terms afterwards (and repeatedly).
 
-**R.2** 
+**R.2a** 
 
 * Our aim is to ensure that all the components of ``Prod`` (all the elements inside the ``Prod``) are **always** positive.
 * To represent an expression which consists of the product of simple terms (``Const`` and ``Symbol``) which is negative overall we encapsulate the ``Prod`` inside a ``Neg`` which is the outermost expression. There will be no ``Neg`` *inside* a ``Prod``.
@@ -354,6 +354,12 @@ In this file we have placed the comments that have been made regarding the Haske
 * Note how this will automatically deal with the possibility of the multiplication of ``Const`` and ``Symbol`` objects.
 * Note that with the ``Neg`` conditions implemented at the top none of the following patterns will concern themselves with ``Neg``.
 * Note also that the case of ``prod' a (Neg b)`` is taken care of the commutativity relation implemented by the very last pattern (at the bottom).
+
+**R.2b**
+
+* We implement the most basic identities for multiplication.
+* Multiplying **anything** by zero results in zero. Note the use of ``_`` to represent an arbitrary expression we do not wish to use in the following definition.
+* Multiplying **anything** by one results in the same thing being returned. We use pattern matching to name the matched expression ``e`` and simply return it as is.
 
 **R.3** -  This pattern matches two positive constants being multiplied and the result is a ``Const`` and not a ``Prod``. This ensures that ``Const`` multiplication is automatically simplified.
 

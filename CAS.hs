@@ -154,8 +154,8 @@ instance (Ord a, Num a) => Ord (Expr a) where                                 --
   compare (Neg a) b                   = compare a b
 
   compare (Rec a) (Rec b)             = compare b a
-  compare a (Rec b)                   = GT                                    -- L.6
-  compare (Rec a) b                   = LT
+  compare _ (Rec _)                   = GT                                    -- L.6
+  compare (Rec _) _                   = LT
 
   compare a b = compareDegree a b                                             -- L.7
 
@@ -214,8 +214,11 @@ sum' m n                                                        -- F.3
 
 prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1
 
-prod' (Neg a) (Neg b)                   = prod' a b                                 -- R.2
+prod' (Neg a) (Neg b)                   = prod' a b                                 -- R.2a
 prod' (Neg a) b                         = Neg (prod' a b)
+
+prod' (Const 0) _                       = Const 0                                   -- R.2b
+prod' (Const 1) e                       = e
 
 prod' (Const a) (Const b)               = Const (a*b)                               -- R.3
 prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- R.4
