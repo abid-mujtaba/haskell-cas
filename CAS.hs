@@ -232,8 +232,8 @@ prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                       
 
 prod' sa@(Symbol _) e@(Exp _ _ )        = Prod [sa, e]                              -- R.8
 
-prod' ea@(Exp (Symbol a) pa) eb@(Exp (Symbol b) pb)                                 -- R.9
-                                | a == b    = undefined     -- ToDo: use exp'
+prod' ea@(Exp sa@(Symbol a) pa) eb@(Exp (Symbol b) pb)                              -- R.9
+                                | a == b    = Exp sa (pa + pb)           -- ToDo: use exp'
                                 | a < b     = Prod [ea, eb]
                                 | otherwise = Prod [eb, ea]
 
@@ -287,17 +287,15 @@ prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                 
                                                 mul_exp _ _ es              = ea:es
 
 
+prod' (Prod ps) p2@(Prod _)      = mul_prod ps p2                                                                   -- R.21
+                                        where
+                                            mul_prod [] p = p
+                                            mul_prod (e:es) p = mul_prod es (prod' e p)
 
 -- ToDo: Implement multiplication rules for ``Rec``
 -- ToDo: Implement multiplication rules for ``Sum``
 
-
---prod' (Prod xs) (Prod ys) = s . Prod $ xs ++ ys
---prod' n (Prod ns)         = s . Prod $ n:ns
---prod' (Prod ns) n         = s . Prod $ ns ++ [n]
---prod' m n                 = s $ Prod [m, n]
-
-prod' m n                 = prod' n m                                               -- R.21
+prod' m n                 = prod' n m                                               -- R.22
 
 
 -- Let us define simplification methods.

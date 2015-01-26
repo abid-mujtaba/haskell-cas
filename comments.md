@@ -433,6 +433,15 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.21**
 
+* This rule really shows the power of Haskell, in particular recursion.
+* When multiplying two ``Prod``s together simply treat the first one as a list of expressions and multiply them successively to the second ``Prod`` building up the solution recursively.
+* This lets all of the above-defined rules do all the heavy-lifting and ensures that all of the necessary rules are met.
+* The actual function that does the work is ``mul_prod`` which uses classic recursion.
+* The first pattern matches the edge-case of the list of expressions being empty. In this case we simply return the second ``Prod`` as is.
+* The second pattern extracts the first element from the list ``ps``, multiplies it with the second product ``p`` to get a new ``Prod`` and then recursively calls itself on the remaining part of the first list ``es`` and the new ``Prod`` just created. The recursion will ensure that the result is built up by multiplying one element at a time till they are all exhausted.
+
+**R.22**
+
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
