@@ -329,11 +329,7 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **Q.1** - Since we have hidden/suppressed ``Prelude.^`` we can give our construction of ``^`` any signature we want. In this case we keep it in line with the ``Exp`` value constructor since that is what we want the output of the function to be. So ``^`` takes an ``Expr`` and an ``Integral`` and returns an ``Expr``.
 
-
-**Q.2** 
-
-* An expression raised to an integer power is simply put the Exp constructor
-* We pass the created ``Exp`` to the simplification method ``s`` so that it can automatically deal with the possibility of a ``Const`` object raised to a power which we immediately want turned in to a ``Const`` and not left as an ``Exp``.
+**Q.2** - We use the ``exp_`` utility function to construct the exponent. This allows us to use pattern-matching to carry out the proper construction. 
 
 
 
@@ -451,3 +447,30 @@ In this file we have placed the comments that have been made regarding the Haske
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
+
+
+
+## S. Exponentiation
+
+**S.1**
+
+* We define an intermediary function between ``(^)`` and ``exp'``.
+* Its purpose it to deal with the possibility of negative powers in an exponent without falling in to an infinite recursion.
+* When the power is negative we place the exponent inside a ``Rec`` and send the absolute value of ``p`` to the ``exp'`` call.
+* When the power is zero we return ``1``. This will in all likelihood shadow the rule ``exp` _ 0 = Const 1`` but we leave the latter in place for the sake of completeness.
+
+**S.2**
+
+* The first pattern we match is for a negative base.
+* We extract the expression within the ``Neg``.
+* If the power is even we realise that the negative part is turned to a positive ``(-1)^(2n) = 1`` so we simply return the expression inside the ``Neg`` exponentiated using a recursive call.
+* If the power is odd the result must be negative overall because ``(-1)^(2n+1) = -1`` and so we surround the recursive exponent with a final ``Neg``.
+
+**S.3** - The exponent of an inverse expression is the inverse of the exponent of the expression.
+
+**S.4**
+
+* Note the use of ``Prelude.^`` to refer to the ``^`` inside ``Prelude`` which we hid when we imported ``Prelude``. Here is where the qualified import of ``Prelude`` comes in handy.
+* We overrode ``^`` to only work with the first argument being ``Expr a`` while here we want to raise in Int to an Int power for which we must use the function defined inside ``Prelude``.
+
+**S.5** - When our patterns are exhausted we simply exponent the expression (this can be ``Symbol``, ``Sum`` or ``Prod``).

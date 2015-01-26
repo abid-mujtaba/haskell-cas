@@ -134,7 +134,7 @@ instance Integral a => Fractional (Expr a) where               -- E.1
 -- We provide our own definition of the ^ function for exponentiation
 
 (^) :: (Integral a) => Expr a -> Int -> Expr a                                  -- Q.1
-a ^ p = s $ Exp a p                                                             -- Q.2
+a ^ p = s $ exp_ a p                                                            -- Q.2
 
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions
@@ -229,14 +229,14 @@ prod' sa@(Symbol a) sb@(Symbol b)                                               
 
 prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- R.6
 prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                           -- R.7
-                                        | a == b     = Exp sa (p + 1)        -- ToDo: set = exp' sa (p + 1) and let the function take care of the rest
+                                        | a == b     = exp' sa (p + 1)
                                         | a < b      = Prod [sa, eb]
                                         | otherwise  = Prod [eb, sa]
 
 prod' sa@(Symbol _) e@(Exp _ _ )        = Prod [sa, e]                              -- R.8
 
 prod' ea@(Exp sa@(Symbol a) pa) eb@(Exp (Symbol b) pb)                              -- R.9
-                                | a == b    = Exp sa (pa + pb)           -- ToDo: use exp'
+                                | a == b    = exp' sa (pa + pb)
                                 | a < b     = Prod [ea, eb]
                                 | otherwise = Prod [eb, ea]
 
@@ -262,12 +262,12 @@ prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                     
                                             mul_symbol b (sc@(Symbol c):es)                                         -- R.17
                                                             | b < c      = sa:sc:es
                                                             | b > c      = sc:(mul_symbol b es)
-                                                            | otherwise  = (Exp sa 2):es            -- ToDo use exp' as 2
+                                                            | otherwise  = (exp' sa 2):es
 
                                             mul_symbol b (e@(Exp (Symbol c) p):es)                                  -- R.18
                                                             | b < c      = sa:e:es
                                                             | b > c      = e:(mul_symbol b es)
-                                                            | otherwise  = (Exp sa (p+1)):es         -- ToDo use exp' sa (p + 1)
+                                                            | otherwise  = (exp' sa (p + 1)):es
 
                                             mul_symbol _ es              = sa:es                                    -- R.19
 
@@ -280,12 +280,12 @@ prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                 
                                                 mul_exp b p (sc@(Symbol c):es)
                                                                 | b < c     = ea:sc:es
                                                                 | b > c     = sc:(mul_exp b p es)
-                                                                | otherwise = (Exp (Symbol b) (p+1)):es         -- ToDo use exp'
+                                                                | otherwise = (exp' (Symbol b) (p+1)):es
 
                                                 mul_exp b p (ec@(Exp (Symbol c) pc):es)
                                                                 | b < c     = ea:ec:es
                                                                 | b > c     = ec:(mul_exp b p es)
-                                                                | otherwise = (Exp (Symbol b) (p + pc)):es      -- ToDo use exp'
+                                                                | otherwise = (exp' (Symbol b) (p + pc)):es
 
                                                 mul_exp _ _ es              = ea:es
 
@@ -301,15 +301,40 @@ prod' (Prod ps) p2@(Prod _)      = mul_prod ps p2                               
 prod' m n                 = prod' n m                                               -- R.22
 
 
+-- Exponentiation of expressions
+
+exp_ :: Integral a => Expr a -> Int -> Expr a
+exp_ e p                                                        -- S.1
+    | p > 0     = exp' e p
+    | p < 0     = Rec (exp' e $ abs p)                   -- ToDo: Implement a rec' function for smart reciprocal of expressions including Rec (Rec _)
+    | otherwise = Const 1
+
+
+exp':: Integral a => Expr a -> Int -> Expr a
+
+exp' (Neg e) p                                                  -- S.2
+        | odd p     = Neg (exp' e p)
+        | otherwise = exp' e p
+
+exp' (Rec e) p      = Rec (exp' e p)                            -- S.3
+
+exp' _ 0 = Const 1
+exp' e 1 = e
+
+exp' (Const c) p     = Const (c Prelude.^ p)                    -- S.4
+exp' (Exp e p) q     = Exp e (p * q)
+exp' e p             = Exp e p                                  -- S.5
+
+
 -- Let us define simplification methods.
 
 s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
 
-s o@(Const c) | c < 0           = Neg (Const $ negate c)                                -- G.1
-              | otherwise       = o
-
-s (Exp (Const c) p)             = Const $ (Prelude.^) c p                               -- G.2
-s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p                  -- G.3
+--s o@(Const c) | c < 0           = Neg (Const $ negate c)                                -- G.1
+--              | otherwise       = o
+--
+--s (Exp (Const c) p)             = Const $ (Prelude.^) c p                               -- G.2
+--s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p                  -- G.3
 
 s (Sum xs)  = simplify_sum xs                                                           -- G.4
 
