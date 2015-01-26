@@ -262,14 +262,31 @@ prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                     
                                                             | otherwise  = (Exp sa 2):es            -- ToDo use exp' as 2
 
                                             mul_symbol b (e@(Exp (Symbol c) p):es)                                  -- R.18
-                                                            | b < c     = sa:e:es
-                                                            | b > c     = e:(mul_symbol b es)
-                                                            | otherwise = (Exp sa (p+1)):es         -- ToDo use exp' sa (p + 1)
+                                                            | b < c      = sa:e:es
+                                                            | b > c      = e:(mul_symbol b es)
+                                                            | otherwise  = (Exp sa (p+1)):es         -- ToDo use exp' sa (p + 1)
 
-                                            mul_symbol _ es                         = sa:es                         -- R.19
+                                            mul_symbol _ es              = sa:es                                    -- R.19
 
 
-prod' (Exp b p) (Prod ps)               = undefined
+prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                                                     -- R.20
+                                            where
+                                                mul_exp b p (c@(Const _):es)    = c:(mul_exp b p es)
+                                                mul_exp b p (r@(Rec _): es)     = r:(mul_exp b p es)
+
+                                                mul_exp b p (sc@(Symbol c):es)
+                                                                | b < c     = ea:sc:es
+                                                                | b > c     = sc:(mul_exp b p es)
+                                                                | otherwise = (Exp (Symbol b) (p+1)):es         -- ToDo use exp'
+
+                                                mul_exp b p (ec@(Exp (Symbol c) pc):es)
+                                                                | b < c     = ea:ec:es
+                                                                | b > c     = ec:(mul_exp b p es)
+                                                                | otherwise = (Exp (Symbol b) (p + pc)):es      -- ToDo use exp'
+
+                                                mul_exp _ _ es              = ea:es
+
+
 
 -- ToDo: Implement multiplication rules for ``Rec``
 -- ToDo: Implement multiplication rules for ``Sum``
@@ -280,7 +297,7 @@ prod' (Exp b p) (Prod ps)               = undefined
 --prod' (Prod ns) n         = s . Prod $ ns ++ [n]
 --prod' m n                 = s $ Prod [m, n]
 
-prod' m n                 = prod' n m                                               -- R.15
+prod' m n                 = prod' n m                                               -- R.21
 
 
 -- Let us define simplification methods.

@@ -427,6 +427,12 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.20**
 
+* Rules for multiplying an exponent of a symbol with a general product.
+* This is completely analogous to the rules for multiplying a symbol with a general product.
+* Note how we pass in the String inside the ``Symbol`` and the associated power from the exponent to the ``mult_exp`` function defined using ``where`` syntax.
+
+**R.21**
+
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
