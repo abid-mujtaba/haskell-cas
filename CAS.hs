@@ -297,6 +297,15 @@ prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                 
 
                                                 mul_exp _ _ es              = ea:es
 
+
+
+-- Rules for multiplyng Rec with other expressions
+prod' (Rec ra) (Rec rb)                  = Rec (prod' ra rb)            -- ToDo: Implement cancellation.
+prod' r@(Rec _) sm@(Sum _)               = Prod [r, sm]
+prod' rc@(Rec _) (Prod (rp@(Rec _):es))  = prod' (prod' rc rp) $ foldr1 prod_ es       -- R.23
+prod' rc@(Rec _) (Prod es)               = Prod $ rc:es                                -- R.24
+
+
 -- Rules for multiplying Sum with other expressions
 prod' sa@(Sum _) sb@(Sum _) = Prod [sa, sb]                                            -- R.25
 
