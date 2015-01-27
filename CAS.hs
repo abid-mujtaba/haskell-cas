@@ -235,6 +235,20 @@ prod_ epa@(Exp ea pa) eb                                -- R.1c
 
 prod_ ea epb@(Exp _ _)    = prod_ epb ea                -- R.1d
 
+-- Rules for multiplying Prod with other expressions
+prod_ (Prod ps) p2@(Prod _)      = mul_prod ps p2                        -- R.21
+                                        where
+                                            mul_prod [] p = p
+                                            mul_prod (e:es) p = mul_prod es (prod_ e p)
+
+prod_ a b@(Prod ps)                                                 -- R.1e
+            | elem a ps = Prod $ mul_elem a ps
+            | otherwise = prod' a b
+                where
+                    mul_elem c (e:es)                               -- R.1f
+                            | c == e = (exp' c 2):es
+                            | otherwise = e:(mul_elem c es)
+
 prod_ ea eb                                             -- R.1e
         | ea == eb      = exp_ ea 2
         | otherwise     = prod' ea eb
@@ -277,8 +291,7 @@ prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                     
 
                                             mul_symbol b (sc@(Symbol c):es)                                         -- R.17
                                                             | b < c      = sa:sc:es
-                                                            | b > c      = sc:(mul_symbol b es)
-                                                            | otherwise  = (exp' sa 2):es
+                                                            | otherwise  = sc:(mul_symbol b es)
 
                                             mul_symbol b (e@(Exp (Symbol c) p):es)                                  -- R.18
                                                             | b < c      = sa:e:es
@@ -346,12 +359,6 @@ prod' sa@(Sum _) (Prod ps) = Prod $ mul_sum sa ps                               
 
                                     mul_sum sb (e:es)   = e:(mul_sum sb es)
 
-
--- Rules for multiplying Prod with other expressions
-prod' (Prod ps) p2@(Prod _)      = mul_prod ps p2                                                                   -- R.21
-                                        where
-                                            mul_prod [] p = p
-                                            mul_prod (e:es) p = mul_prod es (prod' e p)
 
 
 -- Catch-all rule that implements commutation

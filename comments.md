@@ -352,9 +352,17 @@ At the bottom of the file are general comments about the development process and
 
 **R.1d** - Implements the commutation of (R.1c) by switching the arguments and calling ``prod_`` recursively. Saves us from having to implement the same logic all over again.
 
-**R.1e** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
+**R.1e**
 
-**R.1f**
+* This pattern matches for an arbitrary expression multiplied by a product. It implements the general rule that if the expression exists inside the product the result is the product with that expression squared.
+* The first guard checks if the element is in the list inside the ``Prod``. If it matches we use ``mul_elem`` to square the expression.
+* If the element is not in the list we simply use ``prod'`` to multiply the expression with the ``Prod``.
+
+**R.1f** - Uses successive element analysis and recursion to find the matching element and replace it with its exponent power 2.
+
+**R.1g** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
+
+**R.1h**
 
 * ``prod'`` is a utility function for multiplying two expressions. It is called by ``prod_``. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 * We use pattern matching to define the common multiplication scenarios. This will save us time when we won't have to simplify terms afterwards (and repeatedly).
