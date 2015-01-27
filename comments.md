@@ -490,3 +490,20 @@ In this file we have placed the comments that have been made regarding the Haske
 * We overrode ``^`` to only work with the first argument being ``Expr a`` while here we want to raise in Int to an Int power for which we must use the function defined inside ``Prelude``.
 
 **S.5** - When our patterns are exhausted we simply exponent the expression (this can be ``Symbol``, ``Sum`` or ``Prod``).
+
+
+## Debugging
+
+### ``trace``
+
+Source: *https://wiki.haskell.org/Debugging*
+
+``trace`` is an extremely useful function for debugging Haskell code and is invaluable during development. It should however never be left in production code.
+
+The signature of ``trace`` is ``String -> a -> a``. You pass it a ``String`` which is usually a debugging message (sort of a ``printf``) and the actual value you want the function to return and ``trace`` will print the message and then return the value.
+
+Basically it allows us to print a message (as a side-effect) without altering the actual purpose of our code. Invaluable.
+
+To use ``trace`` one must import the ``Debug.Trace`` module. A qualified import using ``import qualified Debug.Trace as T`` works best since it doesn't pollute the name space.
+
+A point to note is that any function that uses ``trace`` will probably need access to the ``Show`` type-class so ``Show a`` may have to be added as a type constraint to the calling function.
