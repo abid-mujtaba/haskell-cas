@@ -464,6 +464,10 @@ In this file we have placed the comments that have been made regarding the Haske
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
 
+**R.25** - The possibility of the two sums being equal is handled earlier by ``prod_``.
+
+**R.26** - We use pattern-matching to handle the possibility that the sum exists in the product already and therefore needs to be handled using exponentiation.
+
 
 
 ## S. Exponentiation

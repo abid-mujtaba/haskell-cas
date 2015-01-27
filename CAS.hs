@@ -297,15 +297,30 @@ prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                 
 
                                                 mul_exp _ _ es              = ea:es
 
+-- Rules for multiplying Sum with other expressions
+prod' sa@(Sum _) sb@(Sum _) = Prod [sa, sb]                                            -- R.25
 
+prod' sa@(Sum _) (Prod ps) = Prod $ mul_sum sa ps                                      -- R.26
+                                where
+                                    mul_sum sb (sc@(Sum _):es)
+                                                | sb == sc      = (exp' sb 2):es       -- ToDo: Handle this generically in prod_
+                                                | otherwise     = sc:(mul_sum sb es)
+
+                                    mul_sum sb (ec@(Exp sc@(Sum _) p):es)
+                                                | sb == sc      = (exp' sb (p + 1)):es  -- ToDo: Handle this generically in prod_
+                                                | otherwise     = ec:(mul_sum sb es)
+
+                                    mul_sum sb (e:es)   = e:(mul_sum sb es)
+
+
+-- Rules for multiplying Prod with other expressions
 prod' (Prod ps) p2@(Prod _)      = mul_prod ps p2                                                                   -- R.21
                                         where
                                             mul_prod [] p = p
                                             mul_prod (e:es) p = mul_prod es (prod' e p)
 
--- ToDo: Implement multiplication rules for ``Rec``
--- ToDo: Implement multiplication rules for ``Sum``
 
+-- Catch-all rule that implements commutation
 prod' m n                 = prod' n m                                               -- R.22
 
 
