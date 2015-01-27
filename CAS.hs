@@ -242,12 +242,25 @@ prod_ (Prod ps) p2@(Prod _)      = mul_prod ps p2                        -- R.21
                                             mul_prod (e:es) p = mul_prod es (prod_ e p)
 
 prod_ a b@(Prod ps)                                                 -- R.1e
-            | elem a ps = Prod $ mul_elem a ps
-            | otherwise = prod' a b
+            | elem a ps     = Prod $ mul_elem a ps                  -- R.1f
+            | elem_exp a ps = Prod $ mul_elem_exp a ps              -- R.1g
+            | otherwise     = prod' a b                             -- R.1h
                 where
-                    mul_elem c (e:es)                               -- R.1f
+                    mul_elem c (e:es)                               -- R.1i     -- ToDo: Use Just x / Nothing
                             | c == e = (exp' c 2):es
                             | otherwise = e:(mul_elem c es)
+
+                    elem_exp _ []               = False             -- R.1j
+                    elem_exp c ((Exp d _):es)
+                            | c == d            = True
+                            | otherwise         = elem_exp c es
+                    elem_exp c (_:es)           = elem_exp c es
+
+                    mul_elem_exp c (ea@(Exp d p):es)                -- R.1k
+                            | c == d      = (exp' d (p + 1)):es
+                            | otherwise   = ea:(mul_elem_exp c es)
+                    mul_elem_exp c (e:es) = e:(mul_elem_exp c es)
+
 
 prod_ ea eb                                             -- R.1e
         | ea == eb      = exp_ ea 2

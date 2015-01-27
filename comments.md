@@ -354,11 +354,33 @@ At the bottom of the file are general comments about the development process and
 
 **R.1e**
 
-* This pattern matches for an arbitrary expression multiplied by a product. It implements the general rule that if the expression exists inside the product the result is the product with that expression squared.
-* The first guard checks if the element is in the list inside the ``Prod``. If it matches we use ``mul_elem`` to square the expression.
-* If the element is not in the list we simply use ``prod'`` to multiply the expression with the ``Prod``.
+* This pattern matches for an arbitrary expression multiplied by a product.
+* It implements the two general rules obeyed by multiplication.
+* One, if the expression exists inside the product the result is the product with that expression squared.
+* Two, if there exists an exponent inside the product which has the expression as a base then the result is the product with the exponent with an incremented power.
 
-**R.1f** - Uses successive element analysis and recursion to find the matching element and replace it with its exponent power 2.
+**R.1f** - The first guard checks if the element is in the list inside the ``Prod`` (by using ``elem``). If it matches we use ``mul_elem`` to square the expression.
+
+**R.1g** - The second guard checks if the element corresponds to an exponent inside the ``Prod``. It uses ``elem_exp`` to do so (which is defined below using ``where``). If ``elem_exp`` returns we use ``mul_elem_exp`` to construct the correct result.
+
+**R.1h** - If the element is not in the list we simply use ``prod'`` to multiply the expression with the ``Prod``.
+
+**R.1i** - Uses successive element analysis and recursion to find the matching element and replace it with its exponent power 2.
+
+**R.1j**
+
+* The purpose of this function is to determine whether the list contains an exponent with the specified expression (first argument) as its base.
+* The base case (for recursion) is based on the fact that the answer is obviously False for an empty list.
+* In the next pattern we extract the base of an exponent expression and then use guards to determine if the base matches the specified expression ``c``.
+* If the match fails we use a recursive call on the tail of the list.
+* If the element is not an exponent we just skip to the tail of the list (recursively).
+
+**R.1k**
+
+* The purpose of this function is to find the element where an exponent has a base equal to the specified expression, then replace it with an exponent with an incremented power. 
+* The structure is analogous to (R.1j) with one addition.
+* We use a pattern to match for an exponent and then use guards to compare the base with the expression just like (R.1j).
+* We use a second pattern to match for not-an-exponent in which case we simply move the recursion forward.
 
 **R.1g** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
 
