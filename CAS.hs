@@ -302,7 +302,10 @@ prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                 
 -- Rules for multiplyng Rec with other expressions
 prod' (Rec ra) (Rec rb)                  = Rec (prod' ra rb)            -- ToDo: Implement cancellation.
 prod' r@(Rec _) sm@(Sum _)               = Prod [r, sm]
-prod' rc@(Rec _) (Prod (rp@(Rec _):es))  = prod' (prod' rc rp) $ foldr1 prod_ es       -- R.23
+prod' rc@(Rec _) (Prod (rp@(Rec _):es))  = multiply $ (prod' rc rp):es                  -- R.23
+                                                where
+                                                    multiply [e]    = e
+                                                    multiply (a:as) = prod' a (multiply as)
 prod' rc@(Rec _) (Prod es)               = Prod $ rc:es                                -- R.24
 
 

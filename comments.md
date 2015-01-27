@@ -464,12 +464,7 @@ In this file we have placed the comments that have been made regarding the Haske
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
 
-**R.23**
-
-* Recursion galore.
-* We combine the two ``Rec`` expression together by calling ``prod'`` recursively which handles this case to create a single combined ``Rec``.
-* On the other hand we use ``foldr1`` along with ``prod_`` to create a new ``Prod`` out of the elements of ``es``. By construction ``es`` must have at least one member so the ``foldr1`` won't fail (for a single element list it returns the element as is).
-* We then use another call to ``prod'`` to stitch the new ``Rec`` with the ``Prod`` consisting of the rest of the elements in the list (created using the ``foldr1``).
+**R.23** - We multiply the two ``Rec`` together and then multiply it with the rest of the elements using ``multiply`` which builds the product back up piece by piece using recursion.
 
 **R.24** - By construction the **single** ``Rec`` expression is always the first element of the ``Prod`` (if it exists).
 
