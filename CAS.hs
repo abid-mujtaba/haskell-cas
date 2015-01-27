@@ -116,7 +116,7 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 instance Integral a => Num (Expr a) where                       -- D.2
   a + b     = sum' a b                                          -- D.3
   a - b     = sum' a $ Neg b                                    -- D.4
-  (*)       = prod'
+  (*)       = prod_
   negate    = Neg
   signum    = undefined                                         -- D.5
   abs       = undefined
@@ -214,13 +214,33 @@ sum' m n                                                        -- F.3
 
 -- Multiplying expressions
 
-prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1
+prod_ :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1a
 
-prod' (Neg a) (Neg b)                   = prod' a b                                 -- R.2a
-prod' (Neg a) b                         = Neg (prod' a b)
+prod_ (Neg a) (Neg b)   = prod_ a b
+prod_ (Neg a) b         = Neg (prod_ a b)
+prod_ a (Neg b)         = Neg (prod_ a b)
 
-prod' (Const 0) _                       = Const 0                                   -- R.2b
-prod' (Const 1) e                       = e
+prod_ (Const 0) _       = Const 0
+prod_ _ (Const 0)       = Const 0
+prod_ (Const 1) e       = e
+prod_ e (Const 1)       = e
+
+prod_ epa@(Exp ea pa) epb@(Exp eb pb)                   -- R.1b
+            | ea == eb      = exp' ea (pa + pb)
+            | otherwise     = prod' epa epb
+
+prod_ epa@(Exp ea pa) eb                                -- R.1c
+            | ea == eb      = exp' ea (pa + 1)
+            | otherwise     = prod' epa eb
+
+prod_ ea epb@(Exp _ _)    = prod_ epb ea                -- R.1d
+
+prod_ ea eb                                             -- R.1e
+        | ea == eb      = exp_ ea 2
+        | otherwise     = prod' ea eb
+
+
+prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1f
 
 -- Rules for multiplying Const with other expressions                               -- R.3a
 prod' (Const a) (Const b)               = Const (a*b)                               -- R.3b
@@ -237,7 +257,6 @@ prod' cc@(Const c) (Prod ps)            = Prod $ mul_const c ps                 
 
 -- Rules for multiplying Symbols with other expressions
 prod' sa@(Symbol a) sb@(Symbol b)                                                   -- R.5
-                                | a == b     = Exp sa 2
                                 | a < b      = Prod [sa, sb]
                                 | otherwise  = Prod [sb, sa]
 
@@ -270,17 +289,17 @@ prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                     
 
 
 -- Rules for multiplying Exp with other expressions
-prod' ea@(Exp sa@(Symbol a) pa) eb@(Exp (Symbol b) pb)                              -- R.9
-                                | a == b    = exp' sa (pa + pb)
+prod' ea@(Exp (Symbol a) _) eb@(Exp (Symbol b) _)                                  -- R.9
                                 | a < b     = Prod [ea, eb]
                                 | otherwise = Prod [eb, ea]
 
 prod' ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- R.10a
 prod' ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
-prod' ea@(Exp _ _) eb@(Exp _ _)            = Prod [ea, eb]
+
 prod' ea@(Exp _ _) r@(Rec _)               = Prod [r, ea]
 prod' ea@(Exp (Symbol _) _) sm@(Sum _)     = Prod [ea, sm]                          -- R.10b
-prod' ea@(Exp _ _) sm@(Sum _)              = Prod [sm, ea]
+
+prod' ea@(Exp (Sum _) _) sm@(Sum _)     = Prod [sm, ea]                             -- R.10c
 
 prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                                                     -- R.20
                                             where
@@ -299,6 +318,7 @@ prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                 
 
                                                 mul_exp _ _ es              = ea:es
 
+prod' ea@(Exp _ _) (Prod ps)    = Prod $ ps ++ [ea]                     -- ToDo: Deal with case of repeated expression in multiplication (ea exits inside ps as well) (x + y)^2 * (3 * (x + y)^4)
 
 
 -- Rules for multiplyng Rec with other expressions

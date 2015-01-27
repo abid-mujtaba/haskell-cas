@@ -337,9 +337,26 @@ At the bottom of the file are general comments about the development process and
 
 ## R. Multiplying expressions
 
-**R.1** 
+**R.1a**
 
-* ``prod'`` is a utility function for multiplying two expressions. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
+* ``prod_`` is a utility function for multiplying two expressions. It is analogous to ``exp_``. It in turn calls ``prod``` which implements the meat of the multiplication functionality.
+* The purpose of ``prod_`` is to implement the more abstract rules of multiplication before ``prod'`` gets in to the specifics. Since it has to call ``proc'`` eventually we can implement commutation here and so any rules defined here must have their symmetric counter parts defined explicitly here as well.
+
+**R.1b**
+
+* When two exponents are multiplied, if they have the same base we get an exponent with their powers added. If the bases are unequal we simply hand off computation to ``prod'``.
+* Note that because equality of the bases of the exponents has been checked here ``prod'`` doesn't need to worry about it.
+* This means that for all the expressions that can be inside an ``Exp`` (all the value constructors) we don't need patterns to match for equality of the base with the expression. By being abstract here, at the cost of explicit commutation patterns, we save on a larger number of pattern-matches later.
+
+**R.1c** - Checks if an exponent is being multiplied by an expression which is equal to its base.
+
+**R.1d** - Implements the commutation of (R.1c) by switching the arguments and calling ``prod_`` recursively. Saves us from having to implement the same logic all over again.
+
+**R.1e** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
+
+**R.1f**
+
+* ``prod'`` is a utility function for multiplying two expressions. It is called by ``prod_``. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 * We use pattern matching to define the common multiplication scenarios. This will save us time when we won't have to simplify terms afterwards (and repeatedly).
 
 **R.2a** 
@@ -387,6 +404,7 @@ At the bottom of the file are general comments about the development process and
 * We use guards to look at the various scenarios.
 * We explicitly implement the ordering of symbols inside the product.
 * Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
+* We did not explicitly mention the scenario ``a == b`` since that is taken care of in ``prod_``
 
 **R.6** - This is based on the assumption that no exponent will ever have a ``Const`` in its base because such exponents will already have been converted in to the resulting ``Const`` values.
 
@@ -412,6 +430,8 @@ At the bottom of the file are general comments about the development process and
 * Catch-all pattern for two exponents being multiplied with each other. No ordering has been implemented so far.
 
 **R.10b** - We specify a sorting order here where a simple exponent of a single symbol raised to a power precedes a ``Sum`` while a non-symbol (general) expression raised to a power comes after a ``Sum``. The ordering is rather arbitrary.
+
+**R.10c** - The possibility of the sum in the exponent being the same as the sum being multiplied with is handled earlier in ``prod_`` so is ignored here.
 
 **R.11**
 
