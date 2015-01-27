@@ -2,6 +2,8 @@
 
 In this file we have placed the comments that have been made regarding the Haskell code in the CAS.hs file. The comments are very detailed and were taking too much space in the code file so they have been moved here. They have been given unique labels so they can be searched very quickly.
 
+At the bottom of the file are general comments about the development process and debugging.
+
 
 ## A. Module declaration
 
@@ -512,6 +514,6 @@ The signature of ``trace`` is ``String -> a -> a``. You pass it a ``String`` whi
 
 Basically it allows us to print a message (as a side-effect) without altering the actual purpose of our code. Invaluable.
 
-To use ``trace`` one must import the ``Debug.Trace`` module. A qualified import using ``import qualified Debug.Trace as T`` works best since it doesn't pollute the name space.
+To use ``trace`` one must import it as follows: ``import Debug.Trace(trace)`` which only imports this one function from the ``Debug.Trace`` module.
 
 A point to note is that any function that uses ``trace`` will probably need access to the ``Show`` type-class so ``Show a`` may have to be added as a type constraint to the calling function.

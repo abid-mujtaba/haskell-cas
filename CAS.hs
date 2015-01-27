@@ -23,6 +23,8 @@ module CAS                                                           -- A.1
 import Prelude hiding ((^))                 -- P.1
 import qualified Prelude                    -- P.2
 
+import Debug.Trace(trace)
+
 
 data Expr a =                               -- B.1, B.2
               Const a                       -- B.3
