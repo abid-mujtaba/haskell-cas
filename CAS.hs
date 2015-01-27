@@ -220,38 +220,33 @@ prod' (Neg a) b                         = Neg (prod' a b)
 prod' (Const 0) _                       = Const 0                                   -- R.2b
 prod' (Const 1) e                       = e
 
-prod' (Const a) (Const b)               = Const (a*b)                               -- R.3
+-- Rules for multiplying Const with other expressions                               -- R.3a
+prod' (Const a) (Const b)               = Const (a*b)                               -- R.3b
 prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- R.4
+prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- R.6
+prod' a@(Const _) b@(Rec _)             = Prod [b, a]                               -- R.6b
+prod' a@(Const _) b@(Sum _)             = Prod [a, b]
+prod' cc@(Const c) (Prod ps)            = Prod $ mul_const c ps                                                         -- R.11
+                                            where
+                                                mul_const ca ((Const cb):es) = (Const (ca*cb)):es                       -- R.12
+                                                mul_const ca ((Rec e):es)    = (Rec e):(mul_const ca es)                -- R.13
+                                                mul_const _  es              = cc:es                                    -- R.14
+
+
+-- Rules for multiplying Symbols with other expressions
 prod' sa@(Symbol a) sb@(Symbol b)                                                   -- R.5
                                 | a == b     = Exp sa 2
                                 | a < b      = Prod [sa, sb]
                                 | otherwise  = Prod [sb, sa]
 
-prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- R.6
 prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                           -- R.7
                                         | a == b     = exp' sa (p + 1)
                                         | a < b      = Prod [sa, eb]
                                         | otherwise  = Prod [eb, sa]
 
-prod' sa@(Symbol _) e@(Exp _ _ )        = Prod [sa, e]                              -- R.8
-
-prod' ea@(Exp sa@(Symbol a) pa) eb@(Exp (Symbol b) pb)                              -- R.9
-                                | a == b    = exp' sa (pa + pb)
-                                | a < b     = Prod [ea, eb]
-                                | otherwise = Prod [eb, ea]
-
-prod' ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- R.10
-prod' ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
-prod' ea@(Exp _ _) eb@(Exp _ _)            = Prod [ea, eb]
-
--- ToDo: Consider the possibility of defining Prod such that the Const and Rec parts are explicitly separate from the remaning list of expressions that form part of the product. This might simplify pattern matching and implementation of various functions.
-
-prod' cc@(Const c) (Prod ps)       = Prod $ mul_const c ps                                                          -- R.11
-                                        where
-                                            mul_const ca ((Const cb):es) = (Const (ca*cb)):es                       -- R.12
-                                            mul_const ca ((Rec e):es)    = (Rec e):(mul_const ca es)                -- R.13
-                                            mul_const _  es              = cc:es                                    -- R.14
-
+prod' sa@(Symbol _) e@(Exp _ _ )    = Prod [sa, e]                              -- R.8
+prod' sa@(Symbol _) r@(Rec _)       = Prod [r, sa]                              -- ToDo: Deal with cancellation
+prod' sa@(Symbol _) ss@(Sum _)      = Prod [sa, ss]
 
 prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                                                         -- R.15
                                         where
@@ -271,6 +266,19 @@ prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                     
 
                                             mul_symbol _ es              = sa:es                                    -- R.19
 
+
+-- Rules for multiplying Exp with other expressions
+prod' ea@(Exp sa@(Symbol a) pa) eb@(Exp (Symbol b) pb)                              -- R.9
+                                | a == b    = exp' sa (pa + pb)
+                                | a < b     = Prod [ea, eb]
+                                | otherwise = Prod [eb, ea]
+
+prod' ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- R.10a
+prod' ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
+prod' ea@(Exp _ _) eb@(Exp _ _)            = Prod [ea, eb]
+prod' ea@(Exp _ _) r@(Rec _)               = Prod [r, ea]
+prod' ea@(Exp (Symbol _) _) sm@(Sum _)     = Prod [ea, sm]                          -- R.10b
+prod' ea@(Exp _ _) sm@(Sum _)              = Prod [sm, ea]
 
 prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                                                     -- R.20
                                             where

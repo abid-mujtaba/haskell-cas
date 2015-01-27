@@ -359,7 +359,19 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.3** -  This pattern matches two positive constants being multiplied and the result is a ``Const`` and not a ``Prod``. This ensures that ``Const`` multiplication is automatically simplified.
 
-**R.3** - Since multiplication is commutative we implement it in the pattern matching by using as-patterns and reversing there order.
+**R.3a**
+
+* ``prod'`` uses pattern matching to implement the rules for multiplying any expression with any other expression.
+* Multiplication is commutative ``A * B = B * A``. This is implemented by the catch-all pattern at the very bottom ``prod' a b = prod' b a``.
+* This means all possible combinations of expressions (value constructors) must be explicitly stated.
+* For very combination the symmetric reversed combination is covered by commutation and need not be specified.
+* We start with ``Const`` and specify rules for multiplying it with each kind of value constructor (including ``Const`` itself).
+* This means that when we move on to the rules for ``Symbol`` we won't need to deal with the case of ``Symbol * Const`` because that will be covered here.
+* As we work our way through all the constructors we will be left with less and less rules to write for each.
+* Every value constructor must have a rule for multiplying with its own data type.
+* Note how we use exhaustive rules for ``Neg`` to take care of all of them in a simple fashion.
+
+**R.3b** - Since multiplication is commutative we implement it in the pattern matching by using as-patterns and reversing there order.
 
 **R.4**
 
@@ -376,6 +388,8 @@ In this file we have placed the comments that have been made regarding the Haske
 
 **R.6** - This is based on the assumption that no exponent will ever have a ``Const`` in its base because such exponents will already have been converted in to the resulting ``Const`` values.
 
+**R.6b** - ``Rec`` is always the first element in a ``Prod`` (when it is present)
+
 **R.7**
 
 * Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
@@ -389,11 +403,13 @@ In this file we have placed the comments that have been made regarding the Haske
 * This deals with the multiplication of two exponents both of which have pure ``Symbol``s as their base.
 * When the symbols are different we use their lexical order to order the exponents in the Product
 
-**R.10**
+**R.10a**
 
 * We implement ordering for when an exp with a symbol base is multiplied with a general exp.
 * We have to provide the reversed pattern explicitly because underneath it is a catch-all pattern which will not allow the reverse to go the commutation pattern at the very end.
 * Catch-all pattern for two exponents being multiplied with each other. No ordering has been implemented so far.
+
+**R.10b** - We specify a sorting order here where a simple exponent of a single symbol raised to a power precedes a ``Sum`` while a non-symbol (general) expression raised to a power comes after a ``Sum``. The ordering is rather arbitrary.
 
 **R.11**
 
