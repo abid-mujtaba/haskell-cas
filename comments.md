@@ -561,16 +561,17 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 
 **T.3**
 
-* This entire cluster of patterns is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element). ``Const`` is also optional.
+* This pattern is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element). ``Const`` is also optional.
 * Note that the case of the product and/or the constant being negative is handled by the rules defined for abstract ``Neg`` objects being multiplied which use recursion.
+* Instead of the where-pattern we could have gone with multiple patterns but they would have looked cumbersome. This way not only is the logic cleaner but the whole category of ``Const * Prod`` can be rejected in one pattern test rather than having multiple pattern tests. 
 
 **T.3a** - This pattern corresponds to the first element (of the list of elements inside the ``Prod``) being a ``Const``. We multiply the constant values together and append it to the rest of the list of expressions ``es`` which we got by pattern-matching.
 
 **T.3b**
 
-* If the first element is a ``Rec`` we reorder the multiplication by multiplying ``c`` with the rest of the elements ``es`` first and then multiplying the ``Rec`` to the result. This uses all of the carefully constructed rules for multiplication and ensures that the ``Rec`` appears first in the list.
-* Note how we used as-patterns to keep a handle on the ``Const`` and ``Rec`` objects which are used on the RHS.
-* Note how we used ``_`` inside the ``Const`` and ``Rec`` patterns because the rule we are defining doesn't require knowledge of these values.
+* If the first element is a ``Rec`` we place it at the head of the list. The rest of the list is created by recursively calling ``mul`` on the value of the ``Const`` i.e. ``a`` and ``es`` the rest of the list inside the ``Prod`` (after the ``Rec`` has been removed).
+* Note how we used an as-pattern to keep a handle on the ``Rec`` objects which are used on the RHS.
+* Note how we used ``_`` inside the ``Rec`` pattern because the rule we are defining doesn't require knowledge of its internals (for now).
 
 **T.3c** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list.
  

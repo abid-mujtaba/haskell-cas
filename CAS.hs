@@ -269,9 +269,11 @@ prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                           
 prod' a@(Const _) b@(Rec _)             = Prod [b, a]                               -- T.2c
 prod' a@(Const _) b@(Sum _)             = Prod [a, b]
 
-prod' (Const a) (Prod ((Const b):es))       = Prod $ (Const (a * b)):es             -- T.3 --T.3a
-prod' c@(Const _) (Prod (r@(Rec _):es))     = r * (c * Prod es)                     -- T.3b
-prod' c@(Const _) (Prod ps)                 = Prod (c:ps)                           -- T.3c
+prod' c@(Const v) (Prod ps) = Prod $ mul v ps                                                   -- T.3
+                                where
+                                    mul a ((Const b):es)        = Const (a * b):es              -- T.3a
+                                    mul a (r@(Rec _):es)        = r:(mul a es)                  -- T.3b     -- ToDo: Implement cancellation
+                                    mul _ es                    = c:es                          -- T.3c
 
 
 -- Rules for multiplying Symbols with other expressions
