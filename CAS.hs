@@ -260,19 +260,18 @@ prod_ ea eb                                             -- R.7
 
 
 
-prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1f
+prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- T.1
 
--- Rules for multiplying Const with other expressions                               -- R.3a
-prod' (Const a) (Const b)               = Const (a*b)                               -- R.3b
-prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- R.4
-prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- R.6
-prod' a@(Const _) b@(Rec _)             = Prod [b, a]                               -- R.6b
+-- Rules for multiplying Const with other expressions
+prod' (Const a) (Const b)               = Const (a*b)
+prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- T.2a
+prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- T.2b
+prod' a@(Const _) b@(Rec _)             = Prod [b, a]                               -- T.2c
 prod' a@(Const _) b@(Sum _)             = Prod [a, b]
-prod' cc@(Const c) (Prod ps)            = Prod $ mul_const c ps                                                         -- R.11
-                                            where
-                                                mul_const ca ((Const cb):es) = (Const (ca*cb)):es                       -- R.12
-                                                mul_const ca ((Rec e):es)    = (Rec e):(mul_const ca es)                -- R.13
-                                                mul_const _  es              = cc:es                                    -- R.14
+
+prod' (Const a) (Prod ((Const b):es))       = Prod $ (Const (a * b)):es             -- T.3 --T.3a
+prod' c@(Const _) (Prod (r@(Rec _):es))     = r * (c * Prod es)                     -- T.3b
+prod' c@(Const _) (Prod ps)                 = Prod (c:ps)                           -- T.3c
 
 
 -- Rules for multiplying Symbols with other expressions
