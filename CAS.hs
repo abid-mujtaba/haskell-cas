@@ -277,35 +277,34 @@ prod' c@(Const v) (Prod ps) = Prod $ mul v ps                                   
 
 
 -- Rules for multiplying Symbols with other expressions
-prod' sa@(Symbol a) sb@(Symbol b)                                                   -- R.5
+prod' sa@(Symbol a) sb@(Symbol b)                                                   -- T.4
                                 | a < b      = Prod [sa, sb]
                                 | otherwise  = Prod [sb, sa]
 
-prod' sa@(Symbol a) eb@(Exp (Symbol b) p)                                           -- R.7
-                                        | a == b     = exp' sa (p + 1)
+prod' sa@(Symbol a) eb@(Exp (Symbol b) _)                                           -- T.5
                                         | a < b      = Prod [sa, eb]
                                         | otherwise  = Prod [eb, sa]
 
-prod' sa@(Symbol _) e@(Exp _ _ )    = Prod [sa, e]                              -- R.8
+prod' sa@(Symbol _) e@(Exp _ _ )    = Prod [sa, e]                              -- T.6
 prod' sa@(Symbol _) r@(Rec _)       = Prod [r, sa]                              -- ToDo: Deal with cancellation
 prod' sa@(Symbol _) ss@(Sum _)      = Prod [sa, ss]
 
-prod' sa@(Symbol a) (Prod ps)      = Prod $ mul_symbol a ps                                                         -- R.15
+prod' sa@(Symbol a) (Prod ps)      = Prod $ mul a ps                                                         -- R.15
                                         where
-                                            mul_symbol b (c@(Const _):es)      = c:(mul_symbol b es)                -- R.16
+                                            mul b (c@(Const _):es)      = c:(mul b es)                       -- R.16
                                             -- ToDo: Add functionality for cancellation of symbol with Rec
-                                            mul_symbol _ (r@(Rec _):es)        = r:(mul_symbol a es)
+                                            mul _ (r@(Rec _):es)        = r:(mul a es)
 
-                                            mul_symbol b (sc@(Symbol c):es)                                         -- R.17
+                                            mul b (sc@(Symbol c):es)                                         -- R.17
                                                             | b < c      = sa:sc:es
-                                                            | otherwise  = sc:(mul_symbol b es)
+                                                            | otherwise  = sc:(mul b es)
 
-                                            mul_symbol b (e@(Exp (Symbol c) p):es)                                  -- R.18
+                                            mul b (e@(Exp (Symbol c) p):es)                                  -- R.18
                                                             | b < c      = sa:e:es
-                                                            | b > c      = e:(mul_symbol b es)
+                                                            | b > c      = e:(mul b es)
                                                             | otherwise  = (exp' sa (p + 1)):es
 
-                                            mul_symbol _ es              = sa:es                                    -- R.19
+                                            mul _ es                     = sa:es                             -- R.19
 
 
 -- Rules for multiplying Exp with other expressions

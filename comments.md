@@ -422,24 +422,10 @@ At the bottom of the file are general comments about the development process and
 
 
 
-**R.5**
-
-* Note the use of both as-patterns and pattern-matching within the ``Symbol`` construct to gain access to both the ``Symbol``s as a whole and their contents. 
-* We use ``a`` and ``b``, the ``String``s inside the ``Symbol``s to determine whether they match or not and if not the order between them.
-* We use guards to look at the various scenarios.
-* We explicitly implement the ordering of symbols inside the product.
-* Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
-* We did not explicitly mention the scenario ``a == b`` since that is taken care of in ``prod_``
 
 
 
-**R.7**
 
-* Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
-* We have left the ``a == b`` case where the base is equal to the ``Symbol`` being multiplied undefined since we want to use the future implementation of ``exp'`` here.
-* For the other cases we implement the expected order of variables (alphabetic).
-
-**R.8** - This is a place-holder of sorts which deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented no ordering other than the ``Symbol`` always appearing before the ``Exp``.
 
 **R.9**
 
@@ -574,9 +560,25 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 * Note how we used ``_`` inside the ``Rec`` pattern because the rule we are defining doesn't require knowledge of its internals (for now).
 
 **T.3c** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list.
- 
- 
- 
+
+
+*Multiplying ``Symbol`` with other expressions``
+
+**T.4**
+
+* Note the use of both as-patterns and pattern-matching within the ``Symbol`` construct to gain access to both the ``Symbol``s as a whole and their contents. 
+* We use ``a`` and ``b``, the ``String``s inside the ``Symbol``s to determine whether they match or not and if not the order between them.
+* We use guards to look at the various scenarios.
+* We explicitly implement the ordering of symbols inside the product.
+* Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
+* We did not explicitly mention the scenario ``a == b`` since that is taken care of in ``prod_`` 
+
+**T.5**
+
+* Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
+* We order the ``Symbol`` and the ``Exp (Symbol _)`` based on the lexical order of the two symbols. 
+
+**T.6** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.* 
 
 ## Debugging
 
