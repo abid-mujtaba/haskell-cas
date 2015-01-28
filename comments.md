@@ -335,31 +335,41 @@ At the bottom of the file are general comments about the development process and
 
 
 
-## R. Multiplying expressions
+## R. Multiplying expressions (using ``prod_``)
 
-**R.1a**
+**R.1**
 
 * ``prod_`` is a utility function for multiplying two expressions. It is analogous to ``exp_``. It in turn calls ``prod``` which implements the meat of the multiplication functionality.
 * The purpose of ``prod_`` is to implement the more abstract rules of multiplication before ``prod'`` gets in to the specifics. Since it has to call ``proc'`` eventually we can implement commutation here and so any rules defined here must have their symmetric counter parts defined explicitly here as well.
 
-**R.1b**
+**R.2**
 
 * When two exponents are multiplied, if they have the same base we get an exponent with their powers added. If the bases are unequal we simply hand off computation to ``prod'``.
 * Note that because equality of the bases of the exponents has been checked here ``prod'`` doesn't need to worry about it.
 * This means that for all the expressions that can be inside an ``Exp`` (all the value constructors) we don't need patterns to match for equality of the base with the expression. By being abstract here, at the cost of explicit commutation patterns, we save on a larger number of pattern-matches later.
 
-**R.1c** - Checks if an exponent is being multiplied by an expression which is equal to its base.
+**R.3** - Checks if an exponent is being multiplied by an expression which is equal to its base.
 
-**R.1d** - Implements the commutation of (R.1c) by switching the arguments and calling ``prod_`` recursively. Saves us from having to implement the same logic all over again.
+**R.4** - Implements the commutation of (R.3) by switching the arguments and calling ``prod_`` recursively. Saves us from having to implement the same logic all over again.
 
-**R.1g**
+**R.5**
+
+* This rule really shows the power of Haskell, in particular recursion.
+* When multiplying two ``Prod``s together simply treat the first one as a list of expressions and multiply them successively to the second ``Prod`` building up the solution recursively.
+* This lets all of the above-defined rules do all the heavy-lifting and ensures that all of the necessary rules are met.
+* The first pattern matches the base case of the list of expressions containing a single element.
+* By construction a ``Prod`` can never be empty. Even a singleton ``Prod`` is nonsensical but we take it to be the same as the element itself.
+* The second pattern extracts the first element from the first ``Prod``, multiplies it with the second product ``p2`` using ``prod_``.
+* We then multiply this new ``Prod`` with a ``Prod`` consisting of the remaining list of elements ``es`` by calling ``prod_`` recursively.
+
+**R.6**
 
 * This pattern matches for an arbitrary expression multiplied by a product.
 * It implements the two general rules obeyed by multiplication.
 * One, if the expression exists inside the product the result is the product with that expression squared.
 * Two, if there exists an exponent inside the product which has the expression as a base then the result is the product with the exponent with an incremented power.
 
-**R.1h**
+**R.6a**
 
 * The result of ``match a ps`` is of type ``Maybe [Expr a]``.
 * When an element inside ``ps`` matches the expression ``a`` or an exponent of ``a`` ``match`` returns the new product list wrapped inside a Maybe.
@@ -368,9 +378,9 @@ At the bottom of the file are general comments about the development process and
 * If the result is ``Nothing`` we simply pass the element and ``Prod`` to ``prod'`` to carry out the multiplication.
 * If the result is an ``[Expr a]`` wrapped inside a ``Just`` we use pattern-matching to extract the list and put it inside ``Prod``.
 
-**R.1i** - This is the base case of the recursion. It indicates that no matching element (expression itself or its exponent) was found so the calculation is a failure and we return ``Nothing`` to indicate this.
+**R.6b** - This is the base case of the recursion. It indicates that no matching element (expression itself or its exponent) was found so the calculation is a failure and we return ``Nothing`` to indicate this.
 
-**R.1j**
+**R.6c**
 
 * We use pattern-matching to extract the ``Exp`` element from the head of the list.
 * If the base of the exponent matches the expression ``c`` we replace the exponent with one with incremented power at the head of the list.
@@ -384,9 +394,9 @@ At the bottom of the file are general comments about the development process and
 * Additionally, since ``Maybe`` is a functor, ``fmap`` is aware of its context and so by construction ``fmap`` of any function over a ``Nothing`` gives a ``Nothing``.
 * Both are requirements are met.
 
-**R.1k** - The match for the expression is more general than the exponent so it has be placed lower in the list. This proceeds in complete analogy to (R.1k) 
+**R.6d** - The match for the expression is more general than the exponent so it has be placed lower in the list. This proceeds in complete analogy to (R.1k) 
 
-**R.1e** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
+**R.7** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
 
 **R.1f**
 
@@ -505,14 +515,7 @@ At the bottom of the file are general comments about the development process and
 * This is completely analogous to the rules for multiplying a symbol with a general product.
 * Note how we pass in the String inside the ``Symbol`` and the associated power from the exponent to the ``mult_exp`` function defined using ``where`` syntax.
 
-**R.21**
-
-* This rule really shows the power of Haskell, in particular recursion.
-* When multiplying two ``Prod``s together simply treat the first one as a list of expressions and multiply them successively to the second ``Prod`` building up the solution recursively.
-* This lets all of the above-defined rules do all the heavy-lifting and ensures that all of the necessary rules are met.
-* The actual function that does the work is ``mul_prod`` which uses classic recursion.
-* The first pattern matches the edge-case of the list of expressions being empty. In this case we simply return the second ``Prod`` as is.
-* The second pattern extracts the first element from the list ``ps``, multiplies it with the second product ``p`` to get a new ``Prod`` and then recursively calls itself on the remaining part of the first list ``es`` and the new ``Prod`` just created. The recursion will ensure that the result is built up by multiplying one element at a time till they are all exhausted.
+w ``Prod`` just created. The recursion will ensure that the result is built up by multiplying one element at a time till they are all exhausted.
 
 **R.22**
 
@@ -554,6 +557,12 @@ At the bottom of the file are general comments about the development process and
 * We overrode ``^`` to only work with the first argument being ``Expr a`` while here we want to raise in Int to an Int power for which we must use the function defined inside ``Prelude``.
 
 **S.5** - When our patterns are exhausted we simply exponent the expression (this can be ``Symbol``, ``Sum`` or ``Prod``).
+
+
+
+## T. Multiplication using ``prod'``
+
+
 
 
 ## Debugging

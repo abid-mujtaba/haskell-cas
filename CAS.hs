@@ -214,7 +214,7 @@ sum' m n                                                        -- F.3
 
 -- Multiplying expressions
 
-prod_ :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1a
+prod_ :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1
 
 prod_ (Neg a) (Neg b)   = prod_ a b
 prod_ (Neg a) b         = Neg (prod_ a b)
@@ -225,40 +225,39 @@ prod_ _ (Const 0)       = Const 0
 prod_ (Const 1) e       = e
 prod_ e (Const 1)       = e
 
-prod_ epa@(Exp ea pa) epb@(Exp eb pb)                   -- R.1b
+prod_ epa@(Exp ea pa) epb@(Exp eb pb)                           -- R.2
             | ea == eb      = exp' ea (pa + pb)
             | otherwise     = prod' epa epb
 
-prod_ epa@(Exp ea pa) eb                                -- R.1c
+prod_ epa@(Exp ea pa) eb                                        -- R.3
             | ea == eb      = exp' ea (pa + 1)
             | otherwise     = prod' epa eb
 
-prod_ ea epb@(Exp _ _)    = prod_ epb ea                -- R.1d
+prod_ ea epb@(Exp _ _)    = prod_ epb ea                        -- R.4
 
 -- Rules for multiplying Prod with other expressions
-prod_ (Prod ps) p2@(Prod _)      = mul_prod ps p2                        -- R.21
-                                        where
-                                            mul_prod [] p = p
-                                            mul_prod (e:es) p = mul_prod es (prod_ e p)
+prod_ (Prod [e]) p2@(Prod _)       = prod_ e p2                             -- R.5
+prod_ (Prod (e:es)) p2@(Prod _)    = prod_ (Prod es) (prod_ e p2)
 
-prod_ a b@(Prod ps) = branch $ match a ps                                           -- R.1g
+prod_ a b@(Prod ps) = branch $ match a ps                                           -- R.6
                         where
-                            branch Nothing      = prod' a b                         -- R.1h
+                            branch Nothing      = prod' a b                         -- R.6a
                             branch (Just es)    = Prod es
 
-                            match _ []            = Nothing                         -- R.1i
+                            match _ []            = Nothing                         -- R.6b
 
-                            match c (ea@(Exp d p):es)                               -- R.1j
+                            match c (ea@(Exp d p):es)                               -- R.6c
                                     | c == d      = Just $ (exp' d (p+1)):es
                                     | otherwise   = fmap (ea:) (match c es)
 
-                            match c (e:es)                                          -- R.1k
+                            match c (e:es)                                          -- R.6d
                                     | c == e      = Just $ (exp' c 2):es
                                     | otherwise   = fmap (e:) (match c es)
 
-prod_ ea eb                                             -- R.1e
+prod_ ea eb                                             -- R.7
         | ea == eb      = exp_ ea 2
         | otherwise     = prod' ea eb
+
 
 
 prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1f
