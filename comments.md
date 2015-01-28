@@ -352,39 +352,43 @@ At the bottom of the file are general comments about the development process and
 
 **R.1d** - Implements the commutation of (R.1c) by switching the arguments and calling ``prod_`` recursively. Saves us from having to implement the same logic all over again.
 
-**R.1e**
+**R.1g**
 
 * This pattern matches for an arbitrary expression multiplied by a product.
 * It implements the two general rules obeyed by multiplication.
 * One, if the expression exists inside the product the result is the product with that expression squared.
 * Two, if there exists an exponent inside the product which has the expression as a base then the result is the product with the exponent with an incremented power.
 
-**R.1f** - The first guard checks if the element is in the list inside the ``Prod`` (by using ``elem``). If it matches we use ``mul_elem`` to square the expression.
+**R.1h**
 
-**R.1g** - The second guard checks if the element corresponds to an exponent inside the ``Prod``. It uses ``elem_exp`` to do so (which is defined below using ``where``). If ``elem_exp`` returns we use ``mul_elem_exp`` to construct the correct result.
+* The result of ``match a ps`` is of type ``Maybe [Expr a]``.
+* When an element inside ``ps`` matches the expression ``a`` or an exponent of ``a`` ``match`` returns the new product list wrapped inside a Maybe.
+* If no match occurs it returns ``Nothing`` to indicate that the calculation failed.
+* Inside ``branch`` we use pattern-matching to deal with these two possibilities.
+* If the result is ``Nothing`` we simply pass the element and ``Prod`` to ``prod'`` to carry out the multiplication.
+* If the result is an ``[Expr a]`` wrapped inside a ``Just`` we use pattern-matching to extract the list and put it inside ``Prod``.
 
-**R.1h** - If the element is not in the list we simply use ``prod'`` to multiply the expression with the ``Prod``.
-
-**R.1i** - Uses successive element analysis and recursion to find the matching element and replace it with its exponent power 2.
+**R.1i** - This is the base case of the recursion. It indicates that no matching element (expression itself or its exponent) was found so the calculation is a failure and we return ``Nothing`` to indicate this.
 
 **R.1j**
 
-* The purpose of this function is to determine whether the list contains an exponent with the specified expression (first argument) as its base.
-* The base case (for recursion) is based on the fact that the answer is obviously False for an empty list.
-* In the next pattern we extract the base of an exponent expression and then use guards to determine if the base matches the specified expression ``c``.
-* If the match fails we use a recursive call on the tail of the list.
-* If the element is not an exponent we just skip to the tail of the list (recursively).
+* We use pattern-matching to extract the ``Exp`` element from the head of the list.
+* If the base of the exponent matches the expression ``c`` we replace the exponent with one with incremented power at the head of the list.
+* We wrap this updated product list inside a ``Just`` and return it.
+* If there is not match we use recursion. We want the current element ``ea`` at the head followed by the recursive result of ``match`` applied to the rest of the list ``es``. This is not straight-forward because the result of ``match`` is either a ``Just`` or a ``Nothing``.
+* We are in classic **functor** territory.
+* If the result of the recursive ``match`` is ``Nothing`` it means the recursion has failed and so the result from this append should also be ``Nothing``
+* If the result of the recursive ``match`` is successful it will contain a list of expressions *inside* a ``Just``. So we have to concatenate ``ea`` with a list that is inside a context (``Just``).
+* This begs for the use of ``fmap``. We construct a concatenation function by currying ``:`` by making it ``(ea:)``. Normally applying ``(ea:)`` to a list of expressions will add ``ea`` at the head of the list. Using ``fmap`` we apply this function to the content of the ``Maybe``.
+* So ``fmap (ea:) Just [...]`` will add ``ea`` to the head of the list inside the ``Just``
+* Additionally, since ``Maybe`` is a functor, ``fmap`` is aware of its context and so by construction ``fmap`` of any function over a ``Nothing`` gives a ``Nothing``.
+* Both are requirements are met.
 
-**R.1k**
+**R.1k** - The match for the expression is more general than the exponent so it has be placed lower in the list. This proceeds in complete analogy to (R.1k) 
 
-* The purpose of this function is to find the element where an exponent has a base equal to the specified expression, then replace it with an exponent with an incremented power. 
-* The structure is analogous to (R.1j) with one addition.
-* We use a pattern to match for an exponent and then use guards to compare the base with the expression just like (R.1j).
-* We use a second pattern to match for not-an-exponent in which case we simply move the recursion forward.
+**R.1e** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
 
-**R.1g** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
-
-**R.1h**
+**R.1f**
 
 * ``prod'`` is a utility function for multiplying two expressions. It is called by ``prod_``. It is completely analogous to ``sum'`` with the same kind of pattern-matching implemented.
 * We use pattern matching to define the common multiplication scenarios. This will save us time when we won't have to simplify terms afterwards (and repeatedly).
