@@ -427,20 +427,7 @@ At the bottom of the file are general comments about the development process and
 
 
 
-**R.9**
 
-* This deals with the multiplication of two exponents both of which have pure ``Symbol``s as their base.
-* When the symbols are different we use their lexical order to order the exponents in the Product
-
-**R.10a**
-
-* We implement ordering for when an exp with a symbol base is multiplied with a general exp.
-* We have to provide the reversed pattern explicitly because underneath it is a catch-all pattern which will not allow the reverse to go the commutation pattern at the very end.
-* Catch-all pattern for two exponents being multiplied with each other. No ordering has been implemented so far.
-
-**R.10b** - We specify a sorting order here where a simple exponent of a single symbol raised to a power precedes a ``Sum`` while a non-symbol (general) expression raised to a power comes after a ``Sum``. The ordering is rather arbitrary.
-
-**R.10c** - The possibility of the sum in the exponent being the same as the sum being multiplied with is handled earlier in ``prod_`` so is ignored here.
 
 
 
@@ -594,12 +581,34 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 * Otherwise technically corresponds only to ``b > c`` it means the incoming ``Symbol`` is lexically higher than the current symbol and so we place ``sc`` first and then use recursion to insert ``sa`` in the remaining list.
 * The ``b == c`` case is handled generally in ``prod_``.
 
-**V.7** - Analogous to (V.6) but with a focus on multiplying symbols with possibly their own exponents.
+**V.8** - Analogous to (V.6) but with a focus on multiplying symbols with possibly their own exponents.
 
-**V.8**
+**V.9**
 
 * Catch-all pattern. If none of the patterns above match this catch-all assumes that the list of expressions is bizarre enough to warrant simply plopping the symbol ahead of it.
 * Note that this pattern will also match the scenario where ``es`` is ``[]`` (empty, possible in a recursion scenario) which corresponds to the symbol ending up at the end of the list.
+
+
+
+## W. Multiplying by ``Exp``
+
+
+**W.1** - In analogy to (V.1) we provide the explicit rules for ``Exp`` multiplied by ``Const`` and ``Symbol`` by punting the calculation to the rules defined there. We have to explicit here because we moved all ``Exp`` matches to a separate function and so the pattern is matched even when we are multiplying by ``Const`` and ``Symbol``.
+
+**W.2**
+
+* This deals with the multiplication of two exponents both of which have pure ``Symbol``s as their base.
+* ``prod_`` deals with the possibility of both symbols being the same.
+* Since the symbols are guaranteed to be different here, we use their lexical order to order the exponents in the Product
+
+**W.3**
+
+* We implement ordering for when an exp with a symbol base is multiplied with a general exp.
+* We have to provide the reversed pattern explicitly because both constructors are ``Exp``. There is no reason for this to go all the way down to the reversal pattern. It is caught by the patttern in ``prod_`` and assigned to ``prod_e`` where we have to deal with it.
+
+**W.4** - We specify a sorting order here where a simple exponent of a single symbol raised to a power precedes a ``Sum`` while a non-symbol (general) expression raised to a power comes after a ``Sum``. The ordering is rather arbitrary.
+
+**W.5** - The possibility of there being a sum in the exponent which is the same as the sum being multiplied with is handled earlier in ``prod_`` so is ignored here. For a general expression inside the ``Exp`` we place the ``Sum`` first. Once again the ordering is rather arbitrary.
 
 
 ## Debugging

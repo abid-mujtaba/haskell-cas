@@ -264,40 +264,10 @@ prod' :: Integral a => Expr a -> Expr a -> Expr a       -- T.1
 
 prod' c@(Const _) e     = prod_c c e                    -- T.2
 prod' sym@(Symbol _) e  = prod_s sym e
+prod' e@(Exp _ _) d     = prod_e e d
 
 
 
--- Rules for multiplying Exp with other expressions
-prod' ea@(Exp (Symbol a) _) eb@(Exp (Symbol b) _)                                  -- R.9
-                                | a < b     = Prod [ea, eb]
-                                | otherwise = Prod [eb, ea]
-
-prod' ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- R.10a
-prod' ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
-
-prod' ea@(Exp _ _) r@(Rec _)               = Prod [r, ea]
-prod' ea@(Exp (Symbol _) _) sm@(Sum _)     = Prod [ea, sm]                          -- R.10b
-
-prod' ea@(Exp (Sum _) _) sm@(Sum _)     = Prod [sm, ea]                             -- R.10c
-
-prod' ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                                                     -- R.20
-                                            where
-                                                mul_exp b p (c@(Const _):es)    = c:(mul_exp b p es)
-                                                mul_exp b p (r@(Rec _): es)     = r:(mul_exp b p es)
-
-                                                mul_exp b p (sc@(Symbol c):es)
-                                                                | b < c     = ea:sc:es
-                                                                | b > c     = sc:(mul_exp b p es)
-                                                                | otherwise = (exp' (Symbol b) (p+1)):es
-
-                                                mul_exp b p (ec@(Exp (Symbol c) pc):es)
-                                                                | b < c     = ea:ec:es
-                                                                | b > c     = ec:(mul_exp b p es)
-                                                                | otherwise = (exp' (Symbol b) (p + pc)):es
-
-                                                mul_exp _ _ es              = ea:es
-
-prod' ea@(Exp _ _) (Prod ps)    = Prod $ ps ++ [ea]                     -- ToDo: Deal with case of repeated expression in multiplication (ea exits inside ps as well) (x + y)^2 * (3 * (x + y)^4)
 
 
 -- Rules for multiplyng Rec with other expressions
@@ -384,6 +354,45 @@ prod_s sa@(Symbol a) (Prod ps)       = Prod $ mul a ps                          
 
 prod_s _ _ = error "prod_s is only intended for multiplying Symbol expression"
 
+
+-- Rules for multiplying Exp with other expressions
+prod_e :: Integral a => Expr a -> Expr a -> Expr a
+
+prod_e ea@(Exp _ _) c@(Const _)     = prod_c c ea                                    -- W.1
+prod_e ea@(Exp _ _) sb@(Symbol _)   = prod_s sb ea
+
+prod_e ea@(Exp (Symbol a) _) eb@(Exp (Symbol b) _)                                   -- W.1
+                                | a < b     = Prod [ea, eb]
+                                | otherwise = Prod [eb, ea]
+
+prod_e ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- W.2
+prod_e ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
+
+prod_e ea@(Exp _ _) r@(Rec _)               = Prod [r, ea]
+prod_e ea@(Exp (Symbol _) _) sm@(Sum _)     = Prod [ea, sm]                          -- W.3
+
+prod_e ea@(Exp _ _) sm@(Sum _)     = Prod [sm, ea]                                   -- W.4
+
+prod_e ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul_exp a n ps                                                     -- R.20
+                                            where
+                                                mul_exp b p (c@(Const _):es)    = c:(mul_exp b p es)
+                                                mul_exp b p (r@(Rec _): es)     = r:(mul_exp b p es)
+
+                                                mul_exp b p (sc@(Symbol c):es)
+                                                                | b < c     = ea:sc:es
+                                                                | b > c     = sc:(mul_exp b p es)
+                                                                | otherwise = (exp' (Symbol b) (p+1)):es
+
+                                                mul_exp b p (ec@(Exp (Symbol c) pc):es)
+                                                                | b < c     = ea:ec:es
+                                                                | b > c     = ec:(mul_exp b p es)
+                                                                | otherwise = (exp' (Symbol b) (p + pc)):es
+
+                                                mul_exp _ _ es              = ea:es
+
+prod_e ea@(Exp _ _) (Prod ps)    = Prod $ ps ++ [ea]                     -- ToDo: Deal with case of repeated expression in multiplication (ea exits inside ps as well) (x + y)^2 * (3 * (x + y)^4)
+
+prod_e _ _  = error "prod_e is only intended to multiply by Exp"
 
 
 -- Exponentiation of expressions
