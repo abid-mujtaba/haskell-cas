@@ -260,21 +260,9 @@ prod_ ea eb                                             -- R.7
 
 
 
-prod' :: Integral a => Expr a -> Expr a -> Expr a                                   -- T.1
+prod' :: Integral a => Expr a -> Expr a -> Expr a       -- T.1
 
--- Rules for multiplying Const with other expressions
-prod' (Const a) (Const b)               = Const (a*b)
-prod' a@(Const _) sym@(Symbol _)        = Prod [a, sym]                             -- T.2a
-prod' a@(Const _) b@(Exp _ _)           = Prod [a, b]                               -- T.2b
-prod' a@(Const _) b@(Rec _)             = Prod [b, a]                               -- T.2c
-prod' a@(Const _) b@(Sum _)             = Prod [a, b]
-
-prod' c@(Const v) (Prod ps) = Prod $ mul v ps                                                   -- T.3
-                                where
-                                    mul a ((Const b):es)        = Const (a * b):es              -- T.3a
-                                    mul a (r@(Rec _):es)        = r:(mul a es)                  -- T.3b     -- ToDo: Implement cancellation
-                                    mul _ es                    = c:es                          -- T.3c
-
+prod' c@(Const _) e     = prod_c c e                    -- T.2
 
 -- Rules for multiplying Symbols with other expressions
 prod' sa@(Symbol a) sb@(Symbol b)                                                   -- T.4
@@ -366,9 +354,27 @@ prod' sa@(Sum _) (Prod ps) = Prod $ mul_sum sa ps                               
                                     mul_sum sb (e:es)   = e:(mul_sum sb es)
 
 
-
 -- Catch-all rule that implements commutation
 prod' m n                 = prod' n m                                               -- R.22
+
+
+
+-- Rules for multiplying Const with other expressions
+prod_c :: Integral a => Expr a -> Expr a -> Expr a                              -- U.1
+
+prod_c (Const a) (Const b)               = Const (a*b)
+prod_c a@(Const _) sym@(Symbol _)        = Prod [a, sym]                        -- U.2
+prod_c a@(Const _) b@(Exp _ _)           = Prod [a, b]                          -- U.3
+prod_c a@(Const _) b@(Rec _)             = Prod [b, a]                          -- U.4
+prod_c a@(Const _) b@(Sum _)             = Prod [a, b]
+
+prod_c c@(Const v) (Prod ps) = Prod $ mul v ps                                           -- U.5
+                                where
+                                    mul a ((Const b):es)        = Const (a * b):es       -- U.5a
+                                    mul a (r@(Rec _):es)        = r:(mul a es)           -- U.5b     -- ToDo: Implement cancellation
+                                    mul _ es                    = c:es                   -- U.5c
+
+prod_c _ _ = error "prod_c is only intended for multiplying Const with other expressions"           -- U.6
 
 
 -- Exponentiation of expressions

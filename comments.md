@@ -530,37 +530,12 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 * Every value constructor must have a rule for multiplying with its own data type.
 * Note how we use exhaustive rules for ``Neg`` in ``prod_`` to take care of all of them in a simple fashion.
 
+**T.2**
 
-*Multiplying a ``Const`` with another expressions*
-
-**T.2a**
-
-* Note that the ``Prod`` is constructed with the ``Const`` first and the ``Symbol`` afterwards. This saves on simplification.
-* The case of ``prod' (Symbol _) (Const _)`` is taken care of by the commutation implemented in the last pattern which sends that case to this pattern by switching the arguments around and once again ensuring that the ``Const`` comes first in the function arguments.
-
-**T.2b** - This is based on the assumption that no exponent will ever have a ``Const`` in its base because such exponents will already have been converted in to the resulting ``Const`` values.
-
-**T.2c** - ``Rec`` is **always** the first element in a ``Prod`` (when it is present)
-
-
-*Multiplying a ``Const`` with a ``Prod``
-
-**T.3**
-
-* This pattern is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element). ``Const`` is also optional.
-* Note that the case of the product and/or the constant being negative is handled by the rules defined for abstract ``Neg`` objects being multiplied which use recursion.
-* Instead of the where-pattern we could have gone with multiple patterns but they would have looked cumbersome. This way not only is the logic cleaner but the whole category of ``Const * Prod`` can be rejected in one pattern test rather than having multiple pattern tests. 
-
-**T.3a** - This pattern corresponds to the first element (of the list of elements inside the ``Prod``) being a ``Const``. We multiply the constant values together and append it to the rest of the list of expressions ``es`` which we got by pattern-matching.
-
-**T.3b**
-
-* If the first element is a ``Rec`` we place it at the head of the list. The rest of the list is created by recursively calling ``mul`` on the value of the ``Const`` i.e. ``a`` and ``es`` the rest of the list inside the ``Prod`` (after the ``Rec`` has been removed).
-* Note how we used an as-pattern to keep a handle on the ``Rec`` objects which are used on the RHS.
-* Note how we used ``_`` inside the ``Rec`` pattern because the rule we are defining doesn't require knowledge of its internals (for now).
-
-**T.3c** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list.
-
+* We do a pattern match for a ``Const`` being multiplied by any other expression.
+* If the pattern matches we pass the arguments to the ``prod_c`` utility function which is dedicated only to the multiplication of ``Const`` with other expressions.
+* This has two advantages. One, it makes the code in ``prod'`` more concise because we don't place all the ``Const`` patterns here.
+* Two, the code becomes more efficient because if the first expression in ``prod'`` is NOT a ``Const`` then it fails this one pattern here and moves on, without having to fail against every pattern that is described in ``prod_c``. Thus branching is implemented within the patterns.
 
 *Multiplying ``Symbol`` with other expressions``
 
@@ -578,7 +553,44 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 * Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
 * We order the ``Symbol`` and the ``Exp (Symbol _)`` based on the lexical order of the two symbols. 
 
-**T.6** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.* 
+**T.6** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.
+ 
+ 
+ 
+## U. Multiplying by ``Const``
+ 
+**U.1** - This is a utility function for multiplying a ``Const`` expression with other expressions.
+ 
+**U.2**
+
+* Note that the ``Prod`` is constructed with the ``Const`` first and the ``Symbol`` afterwards. This saves on simplification.
+* The case of ``prod' (Symbol _) (Const _)`` is taken care of by the commutation implemented in the last pattern which sends that case to this pattern by switching the arguments around and once again ensuring that the ``Const`` comes first in the function arguments.
+
+**U.3** - This is based on the assumption that no exponent will ever have a ``Const`` in its base because such exponents will already have been converted in to the resulting ``Const`` values.
+
+**U.4** - ``Rec`` is **always** the first element in a ``Prod`` (when it is present)
+
+
+*Multiplying a ``Const`` with a ``Prod``
+
+**U.5**
+
+* This pattern is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element). ``Const`` is also optional.
+* Note that the case of the product and/or the constant being negative is handled by the rules defined for abstract ``Neg`` objects being multiplied which use recursion.
+* Instead of the where-pattern we could have gone with multiple patterns but they would have looked cumbersome. This way not only is the logic cleaner but the whole category of ``Const * Prod`` can be rejected in one pattern test rather than having multiple pattern tests. 
+
+**U.5a** - This pattern corresponds to the first element (of the list of elements inside the ``Prod``) being a ``Const``. We multiply the constant values together and append it to the rest of the list of expressions ``es`` which we got by pattern-matching.
+
+**U.5b**
+
+* If the first element is a ``Rec`` we place it at the head of the list. The rest of the list is created by recursively calling ``mul`` on the value of the ``Const`` i.e. ``a`` and ``es`` the rest of the list inside the ``Prod`` (after the ``Rec`` has been removed).
+* Note how we used an as-pattern to keep a handle on the ``Rec`` objects which are used on the RHS.
+* Note how we used ``_`` inside the ``Rec`` pattern because the rule we are defining doesn't require knowledge of its internals (for now).
+
+**U.5c** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list.
+
+**U.6** - ``prod_c`` is **only** intended for ``Const`` patterns. So the catch-all pattern at the bottom raises an error which will inform us if ``prod_c`` is every used incorrectly.
+ 
 
 ## Debugging
 
