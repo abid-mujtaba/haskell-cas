@@ -443,25 +443,7 @@ At the bottom of the file are general comments about the development process and
 **R.10c** - The possibility of the sum in the exponent being the same as the sum being multiplied with is handled earlier in ``prod_`` so is ignored here.
 
 
-**R.15** - Analogous to (R.11) we use ``where`` to specify a function with pattern-matching to handle the insertion of a ``Symbol`` in to an existing ``Product``.
 
-**R.16** - Any symbol must be inserted after the ``Const`` part. We place the ``Const`` in the front and then use recursion to insert the ``Symbol`` in the remaining list of expressions.
-
-**R.17** 
-
-* An excellent example of mixing guards and pattern-matching.
-* We use pattern-matching to identify the scenario where the first element in the list is ``Symbol``. Then we use guards to compare the two Symbols, the one passed in and the one at the head of the list.
-* The first guard deals with the possibility of the incoming ``Symbol`` String being lexically smaller than the head ``Symbol`` String. In this case we simply place the incoming (smaller) ``Symbol`` first, followed by the head ``Symbol``, followed by the rest of the list and the recursion terminates.
-* Note that we tested ``b < c`` first and left ``b == c`` for later. This is based on the assumption that with a number of ``Symbol``s in an expression, equality is the least likely outcome so we use more likely matches first to make the algorithm faster.
-* When ``b > c`` it means the incoming ``Symbol`` is lexically higher than the current symbol and so we place ``sc`` first and then use recursion to insert ``sa`` in the remaining list.
-* When ``b == c`` we replace ``sc`` with an exponent power 2 to represent the multiplication of the two symbols.
-
-**R.18** - Analogous to (R.17) but with a focus on multiplying symbols with possibly their own exponents.
-
-**R.19**
-
-* Catch-all pattern. If none of the patterns above match this catch-all assumes that the list of expressions is bizarre enough to warrant simply plopping the symbol ahead of it.
-* Note that this pattern will also match the scenario where ``es`` is ``[]`` (empty, possible in a recursion scenario) which correponds to the symbol ending up at the end of the list.
 
 **R.20**
 
@@ -537,23 +519,7 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 * This has two advantages. One, it makes the code in ``prod'`` more concise because we don't place all the ``Const`` patterns here.
 * Two, the code becomes more efficient because if the first expression in ``prod'`` is NOT a ``Const`` then it fails this one pattern here and moves on, without having to fail against every pattern that is described in ``prod_c``. Thus branching is implemented within the patterns.
 
-*Multiplying ``Symbol`` with other expressions``
 
-**T.4**
-
-* Note the use of both as-patterns and pattern-matching within the ``Symbol`` construct to gain access to both the ``Symbol``s as a whole and their contents. 
-* We use ``a`` and ``b``, the ``String``s inside the ``Symbol``s to determine whether they match or not and if not the order between them.
-* We use guards to look at the various scenarios.
-* We explicitly implement the ordering of symbols inside the product.
-* Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
-* We did not explicitly mention the scenario ``a == b`` since that is taken care of in ``prod_`` 
-
-**T.5**
-
-* Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
-* We order the ``Symbol`` and the ``Exp (Symbol _)`` based on the lexical order of the two symbols. 
-
-**T.6** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.
  
  
  
@@ -591,6 +557,45 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 
 **U.6** - ``prod_c`` is **only** intended for ``Const`` patterns. So the catch-all pattern at the bottom raises an error which will inform us if ``prod_c`` is every used incorrectly.
  
+ 
+ 
+## V. Multiplying by ``Symbol``
+
+**V.1**
+
+* Note the use of both as-patterns and pattern-matching within the ``Symbol`` construct to gain access to both the ``Symbol``s as a whole and their contents. 
+* We use ``a`` and ``b``, the ``String``s inside the ``Symbol``s to determine whether they match or not and if not the order between them.
+* We use guards to look at the various scenarios.
+* We explicitly implement the ordering of symbols inside the product.
+* Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
+* We did not explicitly mention the scenario ``a == b`` since that is taken care of in ``prod_`` 
+
+**V.2**
+
+* Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
+* We order the ``Symbol`` and the ``Exp (Symbol _)`` based on the lexical order of the two symbols. 
+
+**V.3** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.
+
+**V.4** - Analogous to (U.5) we use ``where`` to specify a function with pattern-matching to handle the insertion of a ``Symbol`` in to an existing ``Product``.
+
+**V.5** - Any symbol must be inserted after the ``Const`` part. We place the ``Const`` in the front and then use recursion to insert the ``Symbol`` in the remaining list of expressions.
+
+**V.6** 
+
+* An excellent example of mixing guards and pattern-matching.
+* We use pattern-matching to identify the scenario where the first element in the list is ``Symbol``. Then we use guards to compare the two Symbols, the one passed in and the one at the head of the list.
+* The first guard deals with the possibility of the incoming ``Symbol`` String being lexically smaller than the head ``Symbol`` String. In this case we simply place the incoming (smaller) ``Symbol`` first, followed by the head ``Symbol``, followed by the rest of the list and the recursion terminates.
+* Otherwise technically corresponds only to ``b > c`` it means the incoming ``Symbol`` is lexically higher than the current symbol and so we place ``sc`` first and then use recursion to insert ``sa`` in the remaining list.
+* The ``b == c`` case is handled generally in ``prod_``.
+
+**V.7** - Analogous to (V.6) but with a focus on multiplying symbols with possibly their own exponents.
+
+**V.8**
+
+* Catch-all pattern. If none of the patterns above match this catch-all assumes that the list of expressions is bizarre enough to warrant simply plopping the symbol ahead of it.
+* Note that this pattern will also match the scenario where ``es`` is ``[]`` (empty, possible in a recursion scenario) which corresponds to the symbol ending up at the end of the list.
+
 
 ## Debugging
 
