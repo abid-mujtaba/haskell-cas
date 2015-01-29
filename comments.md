@@ -428,9 +428,7 @@ At the bottom of the file are general comments about the development process and
 
 
 
-**R.25** - The possibility of the two sums being equal is handled earlier by ``prod_``.
 
-**R.26** - We use pattern-matching to handle the possibility that the sum exists in the product already and therefore needs to be handled using exponentiation.
 
 
 
@@ -612,6 +610,14 @@ At the bottom of the file are general comments about the development process and
 **X.2** - We multiply the two ``Rec`` together and then multiply it with the rest of the elements using ``mul`` which builds the product back up piece by piece using recursion.
 
 **X.3** - By construction the **single** ``Rec`` expression is always the first element of the ``Prod`` (if it exists).
+
+
+
+## Y. Multiplying by ``Sum``
+
+**Y.1** - The possibility of the two sums being equal is handled earlier by ``prod_``.
+
+**Y.2** - ``prod_`` takes care of the possibility of the ``Sum`` (or an exponent of it) being inside the product so we are assured that the ``Sum`` just need sto be placed inside the ``Prod``. We take the arbitrary decision to place any such ``Sum`` at the end of the product (without any ordering).
 
 
 

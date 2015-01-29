@@ -266,31 +266,9 @@ prod' c@(Const _) e     = prod_c c e                    -- T.2
 prod' sym@(Symbol _) e  = prod_s sym e
 prod' e@(Exp _ _) d     = prod_e e d
 prod' r@(Rec _) e       = prod_r r e
+prod' sm@(Sum _) e      = prod_sm sm e
 
-
-
-
-
-
-
--- Rules for multiplying Sum with other expressions
-prod' sa@(Sum _) sb@(Sum _) = Prod [sa, sb]                                            -- R.25
-
-prod' sa@(Sum _) (Prod ps) = Prod $ mul_sum sa ps                                      -- R.26
-                                where
-                                    mul_sum sb (sc@(Sum _):es)
-                                                | sb == sc      = (exp' sb 2):es       -- ToDo: Handle this generically in prod_
-                                                | otherwise     = sc:(mul_sum sb es)
-
-                                    mul_sum sb (ec@(Exp sc@(Sum _) p):es)
-                                                | sb == sc      = (exp' sb (p + 1)):es  -- ToDo: Handle this generically in prod_
-                                                | otherwise     = ec:(mul_sum sb es)
-
-                                    mul_sum sb (e:es)   = e:(mul_sum sb es)
-
-
--- Catch-all rule that implements commutation
-prod' m n                 = prod' n m                                               -- R.22
+prod' _ _ = error "Patterns for multiplication exhausted. The patterns aren't comprehensive."
 
 
 
@@ -418,6 +396,19 @@ prod_r rc@(Rec _) (Prod es)               = Prod $ rc:es                        
 
 prod_r _ _  = error "prod_r can only be used to multiply Rec"
 
+
+
+-- Rules for multiplying Sum with other expressions
+prod_sm :: Integral a => Expr a -> Expr a -> Expr a
+
+prod_sm sm@(Sum _) c@(Const _)      = prod_c c sm
+prod_sm sm@(Sum _) sym@(Symbol _)   = prod_s sym sm
+prod_sm sm@(Sum _) e@(Exp _ _)      = prod_e e sm
+prod_sm sm@(Sum _) r@(Rec _)        = prod_r r sm
+
+prod_sm sa@(Sum _) sb@(Sum _) = Prod [sa, sb]                                            -- Y.1
+
+prod_sm sa@(Sum _) (Prod ps) = Prod $ ps ++ [sa]                                         -- Y.2     -- ToDo: Implement ordering of Sum expressions
 
 
 -- Exponentiation of expressions
