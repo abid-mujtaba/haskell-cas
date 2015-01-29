@@ -563,6 +563,11 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 
 **V.1**
 
+* By performing ``Symbol`` pattern matching in another function altogether all calls where ``Symbol`` comes first, even if it is before ``Const``, is captured by the ``prod_s`` function and execution never falls to the catch-all pattern at the end of ``prod'`` which implements commutation.
+* Therefore we must explicitly provide the rule for ``Symbol x Const``. We simply pass this on to the ``prod_c`` where the rule has already been defined. We are using commutation to simplify our task.
+
+**V.2**
+
 * Note the use of both as-patterns and pattern-matching within the ``Symbol`` construct to gain access to both the ``Symbol``s as a whole and their contents. 
 * We use ``a`` and ``b``, the ``String``s inside the ``Symbol``s to determine whether they match or not and if not the order between them.
 * We use guards to look at the various scenarios.
@@ -570,18 +575,18 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 * Note that by accessing the ``String`` inside each ``Symbol`` we carry out our comparison not on the ``Symbol`` as a whole but on its contents. Thus NO reference is made to the ``compare`` function defined when ``Expr`` was made an instance of the ``Ord`` class.
 * We did not explicitly mention the scenario ``a == b`` since that is taken care of in ``prod_`` 
 
-**V.2**
+**V.3**
 
 * Deals with the explicit case of a ``Symbol`` being multiplied by an ``Exp`` whose base is a ``Symbol`` and NOT a general ``Expr``.
 * We order the ``Symbol`` and the ``Exp (Symbol _)`` based on the lexical order of the two symbols. 
 
-**V.3** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.
+**V.4** - This pattern deals with the possibility that a general expression can form the base of an exponent, e.g. ``x * (y + 2)^3``. In this case we have implemented the ordering that the ``Symbol`` always appearing before the ``Exp``.
 
-**V.4** - Analogous to (U.5) we use ``where`` to specify a function with pattern-matching to handle the insertion of a ``Symbol`` in to an existing ``Product``.
+**V.5** - Analogous to (U.5) we use ``where`` to specify a function with pattern-matching to handle the insertion of a ``Symbol`` in to an existing ``Product``.
 
-**V.5** - Any symbol must be inserted after the ``Const`` part. We place the ``Const`` in the front and then use recursion to insert the ``Symbol`` in the remaining list of expressions.
+**V.6** - Any symbol must be inserted after the ``Const`` part. We place the ``Const`` in the front and then use recursion to insert the ``Symbol`` in the remaining list of expressions.
 
-**V.6** 
+**V.7** 
 
 * An excellent example of mixing guards and pattern-matching.
 * We use pattern-matching to identify the scenario where the first element in the list is ``Symbol``. Then we use guards to compare the two Symbols, the one passed in and the one at the head of the list.
