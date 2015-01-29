@@ -265,19 +265,12 @@ prod' :: Integral a => Expr a -> Expr a -> Expr a       -- T.1
 prod' c@(Const _) e     = prod_c c e                    -- T.2
 prod' sym@(Symbol _) e  = prod_s sym e
 prod' e@(Exp _ _) d     = prod_e e d
+prod' r@(Rec _) e       = prod_r r e
 
 
 
 
 
--- Rules for multiplyng Rec with other expressions
-prod' (Rec ra) (Rec rb)                  = Rec (prod' ra rb)            -- ToDo: Implement cancellation.
-prod' r@(Rec _) sm@(Sum _)               = Prod [r, sm]
-prod' rc@(Rec _) (Prod (rp@(Rec _):es))  = multiply $ (prod' rc rp):es                  -- R.23
-                                                where
-                                                    multiply [e]    = e
-                                                    multiply (a:as) = prod' a (multiply as)
-prod' rc@(Rec _) (Prod es)               = Prod $ rc:es                                -- R.24
 
 
 -- Rules for multiplying Sum with other expressions
@@ -405,6 +398,26 @@ prod_e ea@(Exp a n) (Prod ps)   = Prod $ mul a n ps                             
                                                         | otherwise     = e:(mul b p es)
 
 prod_e _ _  = error "prod_e is only intended to multiply by Exp"
+
+
+-- Rules for multiplyng Rec with other expressions
+prod_r :: Integral a => Expr a -> Expr a -> Expr a
+
+prod_r r@(Rec _) c@(Const _)              = prod_c c r                              -- X.1
+prod_r r@(Rec _) sym@(Symbol _)           = prod_s sym r
+prod_r r@(Rec _) e@(Exp _ _)              = prod_e e r
+
+prod_r (Rec ra) (Rec rb)                  = Rec (prod_ ra rb)            -- ToDo: Implement cancellation.
+prod_r r@(Rec _) sm@(Sum _)               = Prod [r, sm]
+prod_r rc@(Rec _) (Prod (rp@(Rec _):es))  = mul $ (prod_ rc rp):es                  -- X.2
+                                                where
+                                                    mul [e]    = e
+                                                    mul (a:as) = prod_ a (mul as)
+
+prod_r rc@(Rec _) (Prod es)               = Prod $ rc:es                            -- X.3
+
+prod_r _ _  = error "prod_r can only be used to multiply Rec"
+
 
 
 -- Exponentiation of expressions

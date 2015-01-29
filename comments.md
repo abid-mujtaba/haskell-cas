@@ -426,9 +426,7 @@ At the bottom of the file are general comments about the development process and
 * Since multiplication is commutative we define the last catch-all pattern to declare that the ``prod'`` function is commutative which corresponds to calling ``prod'`` recursively with the arguments switched.
 * So if we call ``prod' (Symbol _) (Const _)`` it matches none of the patterns since only ``prod' (Const _) (Symbol _)`` is defined. So it falls through to the last pattern and is set equal to the latter and is sent on its way to match the pattern with the arguments reversed. Thus we don't have to write the inverted pattern expression for all asymmetric patterns.
 
-**R.23** - We multiply the two ``Rec`` together and then multiply it with the rest of the elements using ``multiply`` which builds the product back up piece by piece using recursion.
 
-**R.24** - By construction the **single** ``Rec`` expression is always the first element of the ``Prod`` (if it exists).
 
 **R.25** - The possibility of the two sums being equal is handled earlier by ``prod_``.
 
@@ -604,6 +602,18 @@ At the bottom of the file are general comments about the development process and
 * We match for the head being exponent first so that it isn't hidden by the pattern that follows (which is more general - as a rule patterns move from specific to general).
 * Note the *otherwise* case where the exponent is always sent to ``mul`` recursively when ``b != c``. This opens up the possibility of the list ``es`` becoming empty which is why we need the base case at the top.
 * These patterns allow for general expressions inside the exponent to be multiplied with the same expression or an exponent of it in the Product. This is a desired simplification we want during expression construction (when we are multiplying expressions).
+
+
+
+## X. Multiplying by ``Rec``
+
+**X.1** - Explicit rules/patterns for implementing commutation with expressions whose rules have been defined already (above ``prod_r`` inside ``prod'``)
+
+**X.2** - We multiply the two ``Rec`` together and then multiply it with the rest of the elements using ``mul`` which builds the product back up piece by piece using recursion.
+
+**X.3** - By construction the **single** ``Rec`` expression is always the first element of the ``Prod`` (if it exists).
+
+
 
 ## Debugging
 
