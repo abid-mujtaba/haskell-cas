@@ -214,13 +214,13 @@ sum' m n                                                        -- F.3
 
 -- Multiplying expressions
 
-prod_ :: Integral a => Expr a -> Expr a -> Expr a                                   -- R.1
+prod_ :: Integral a => Expr a -> Expr a -> Expr a               -- R.1a
 
-prod_ (Neg a) (Neg b)   = prod_ a b
+prod_ (Neg a) (Neg b)   = prod_ a b                             -- R.1b
 prod_ (Neg a) b         = Neg (prod_ a b)
 prod_ a (Neg b)         = Neg (prod_ a b)
 
-prod_ (Const 0) _       = Const 0
+prod_ (Const 0) _       = Const 0                               -- R.1c
 prod_ _ (Const 0)       = Const 0
 prod_ (Const 1) e       = e
 prod_ e (Const 1)       = e
@@ -273,9 +273,9 @@ prod' _ _ = error "Patterns for multiplication exhausted. The patterns aren't co
 
 
 -- Rules for multiplying Const with other expressions
-prod_c :: Integral a => Expr a -> Expr a -> Expr a                              -- U.1
+prod_c :: Integral a => Expr a -> Expr a -> Expr a                              -- U.1a
 
-prod_c (Const a) (Const b)               = Const (a*b)
+prod_c (Const a) (Const b)               = Const (a*b)                          -- U.1b
 prod_c a@(Const _) sym@(Symbol _)        = Prod [a, sym]                        -- U.2
 prod_c a@(Const _) b@(Exp _ _)           = Prod [a, b]                          -- U.3
 prod_c a@(Const _) b@(Rec _)             = Prod [b, a]                          -- U.4
