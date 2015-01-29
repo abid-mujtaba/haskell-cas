@@ -420,26 +420,6 @@ At the bottom of the file are general comments about the development process and
 
 **R.3** -  This pattern matches two positive constants being multiplied and the result is a ``Const`` and not a ``Prod``. This ensures that ``Const`` multiplication is automatically simplified.
 
-
-
-
-
-
-
-
-
-
-
-
-
-**R.20**
-
-* Rules for multiplying an exponent of a symbol with a general product.
-* This is completely analogous to the rules for multiplying a symbol with a general product.
-* Note how we pass in the String inside the ``Symbol`` and the associated power from the exponent to the ``mult_exp`` function defined using ``where`` syntax.
-
-w ``Prod`` just created. The recursion will ensure that the result is built up by multiplying one element at a time till they are all exhausted.
-
 **R.22**
 
 * This is the piece de resistance. We first have to guarantee that we explicitly exhaust all possible combinations of constructors without ever writing a pattern which has the arguments (constructors) switched.
@@ -610,6 +590,20 @@ w ``Prod`` just created. The recursion will ensure that the result is built up b
 
 **W.5** - The possibility of there being a sum in the exponent which is the same as the sum being multiplied with is handled earlier in ``prod_`` so is ignored here. For a general expression inside the ``Exp`` we place the ``Sum`` first. Once again the ordering is rather arbitrary.
 
+**W.6**
+
+* Rules for multiplying an exponent of a symbol with a general product.
+* This is completely analogous to the rules for multiplying a symbol with a general product.
+* Note how we pass in the String inside the ``Symbol`` and the associated power from the exponent to the ``mul`` function defined using ``where`` syntax.
+* Note the catch-all pattern at the bottom. It declares that an exponent of a symbol has higher precedence than all other expressions except for the ones for which rules/patterns are defined above.
+
+**W.7**
+
+* Rules for multiplying an exponent with a general (non-symbol) base with a general product.
+* Note that there is no catch-all at the bottom so we have a base case at the top dealing with the possibility of any empty Product list (due to recursion) in which case we simply return the exponent as a singleton list.
+* We match for the head being exponent first so that it isn't hidden by the pattern that follows (which is more general - as a rule patterns move from specific to general).
+* Note the *otherwise* case where the exponent is always sent to ``mul`` recursively when ``b != c``. This opens up the possibility of the list ``es`` becoming empty which is why we need the base case at the top.
+* These patterns allow for general expressions inside the exponent to be multiplied with the same expression or an exponent of it in the Product. This is a desired simplification we want during expression construction (when we are multiplying expressions).
 
 ## Debugging
 
