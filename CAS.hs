@@ -77,7 +77,7 @@ const' c | c < 0     = Neg (Const $ abs . fromIntegral $ c)         -- N.2
 instance Show a => Show (Expr a) where
   show (Const a)    = show a                                            -- C.2
   show (Sum xs)     = showExprList " + " xs                             -- C.3
-  show (Prod xs)    = showExprList' " " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
+  show (Prod xs)    = showExprList " * " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
   show (Neg a)      = '-' : show a                                      -- C.4
   show (Rec a)      = "1/" ++ show a
   show (Exp a p)    = show a ++ "^" ++ show p
@@ -129,8 +129,8 @@ instance Integral a => Num (Expr a) where                       -- D.2
 -- We make Expr an instance of Fractional so we can use the '/' operator.
 
 instance Integral a => Fractional (Expr a) where               -- E.1
-  a / b = a * (Rec b)
-  fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.2
+  a / b = a * rec' b                                           -- E.2
+  fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.3
 
 
 -- We provide our own definition of the ^ function for exponentiation
@@ -201,6 +201,15 @@ degree (Exp e pwr) = pwr * degree e
 
 
 -- We define functions that intelligently carry out the various arithematic operations.
+
+-- Creating the reciprocal of an expression
+
+rec' :: Integral a => Expr a -> Expr a
+rec' (Rec e)    = e
+rec' e          = Rec e
+
+
+-- Adding expressions
 
 sum' :: Integral a => Expr a -> Expr a -> Expr a
 sum' (Sum xs) (Sum ys)   = s . Sum $ xs ++ ys                   -- F.1
@@ -387,7 +396,7 @@ prod_r r@(Rec _) c@(Const _)              = prod_c c r                          
 prod_r r@(Rec _) sym@(Symbol _)           = prod_s sym r
 prod_r r@(Rec _) e@(Exp _ _)              = prod_e e r
 
-prod_r (Rec ra) (Rec rb)                  = Rec (prod_ ra rb)            -- ToDo: Implement cancellation.
+prod_r (Rec ra) (Rec rb)                  = rec' (prod_ ra rb)            -- ToDo: Implement cancellation.
 prod_r r@(Rec _) sm@(Sum _)               = Prod [r, sm]
 prod_r rc@(Rec _) (Prod (rp@(Rec _):es))  = mul $ (prod_ rc rp):es                  -- X.2
                                                 where
@@ -418,7 +427,7 @@ prod_sm sa@(Sum _) (Prod ps) = Prod $ ps ++ [sa]                                
 exp_ :: Integral a => Expr a -> Int -> Expr a
 exp_ e p                                                        -- S.1
     | p > 0     = exp' e p
-    | p < 0     = Rec (exp' e $ abs p)                   -- ToDo: Implement a rec' function for smart reciprocal of expressions including Rec (Rec _)
+    | p < 0     = rec' (exp' e $ abs p)
     | otherwise = Const 1
 
 
@@ -428,7 +437,7 @@ exp' (Neg e) p                                                  -- S.2
         | odd p     = Neg (exp' e p)
         | otherwise = exp' e p
 
-exp' (Rec e) p      = Rec (exp' e p)                            -- S.3
+exp' (Rec e) p      = rec' (exp' e p)                            -- S.3
 
 exp' _ 0 = Const 1
 exp' e 1 = e
@@ -495,9 +504,9 @@ simplify_prod xs = single_prod $ collect_prod_const xs
 collect_prod_const :: Integral a => [Expr a] -> [Expr a]
 collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in             -- K.1
                             case (n, d) of (1, 1) -> es                                         -- K.2
-                                           (1, _) -> (Rec (Const d)):es
+                                           (1, _) -> (rec' (Const d)):es
                                            (_, 1) -> (Const n):es
-                                           _      -> (Const n):(Rec (Const d)):es
+                                           _      -> (Const n):(rec' (Const d)):es
 
 
 -- A binary function which is used inside the foldr for collecting constants
