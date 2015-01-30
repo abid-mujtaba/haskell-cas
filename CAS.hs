@@ -77,7 +77,7 @@ const' c | c < 0     = Neg (Const $ abs . fromIntegral $ c)         -- N.2
 instance Show a => Show (Expr a) where
   show (Const a)    = show a                                            -- C.2
   show (Sum xs)     = showExprList " + " xs                             -- C.3
-  show (Prod xs)    = showExprList " * " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
+  show (Prod xs)    = showExprList' " " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
   show (Neg a)      = '-' : show a                                      -- C.4
   show (Rec a)      = "1/" ++ show a
   show (Exp a p)    = show a ++ "^" ++ show p
@@ -253,6 +253,8 @@ prod_ a b@(Prod ps) = branch $ match a ps                                       
                             match c (e:es)                                          -- R.6d
                                     | c == e      = Just $ (exp' c 2):es
                                     | otherwise   = fmap (e:) (match c es)
+
+prod_ p@(Prod _) e      = prod_ e p                     -- R.7
 
 prod_ ea eb                                             -- R.7
         | ea == eb      = exp_ ea 2

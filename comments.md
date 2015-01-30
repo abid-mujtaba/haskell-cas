@@ -412,7 +412,9 @@ At the bottom of the file are general comments about the development process and
 
 **R.6d** - The match for the expression is more general than the exponent so it has be placed lower in the list. This proceeds in complete analogy to (R.1k) 
 
-**R.7** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
+**R.7** - Implements commutation for a ``Prod`` being multiplied with an arbitrary expression. We simply switch the arguments around because the patterns look for an arbitrary expression multiplied with a ``Prod``.
+
+**R.8** - Implements the abstract rule that when the same expression is multiplied by itself it is equivalent to raising the expression by the power 2. We use the ``exp_`` method to achieve this which in turn implements its own set of rules for constructing exponents, thereby guaranteeing proper construction.
 
 
 
