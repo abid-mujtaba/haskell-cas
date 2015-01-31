@@ -68,7 +68,7 @@ zm8 = const' (-8)
 zm9 = const' (-9)
 
 const' :: Integral a => Int -> Expr a                               -- N.1
-const' c | c < 0     = Neg (Const $ abs . fromIntegral $ c)         -- N.2
+const' c | c < 0     = Neg (Const $ negate . fromIntegral $ c)         -- N.2
          | otherwise = Const $ fromIntegral c
 
 
@@ -114,10 +114,10 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 -- D.1
 
 instance Integral a => Num (Expr a) where                       -- D.2
-  a + b     = sum' a b                                          -- D.3
-  a - b     = sum' a $ Neg b                                    -- D.4
+  a + b     = sum_ a b                                          -- D.3
+  a - b     = sum_ a $ neg' b                                    -- D.4
   (*)       = prod_
-  negate    = Neg
+  negate    = neg'
   signum    = undefined                                         -- D.5
   abs       = undefined
   fromInteger a
@@ -209,6 +209,13 @@ rec' (Rec e)    = e
 rec' e          = Rec e
 
 
+-- Negation of an expression
+
+neg' :: Integral a => Expr a -> Expr a
+neg' (Neg e)    = e
+neg' e          = Neg e
+
+
 -- Adding expressions
 
 sum' :: Integral a => Expr a -> Expr a -> Expr a
@@ -226,8 +233,8 @@ sum' m n                                                        -- F.3
 prod_ :: Integral a => Expr a -> Expr a -> Expr a               -- R.1a
 
 prod_ (Neg a) (Neg b)   = prod_ a b                             -- R.1b
-prod_ (Neg a) b         = Neg (prod_ a b)
-prod_ a (Neg b)         = Neg (prod_ a b)
+prod_ (Neg a) b         = neg' (prod_ a b)
+prod_ a (Neg b)         = neg' (prod_ a b)
 
 prod_ (Const 0) _       = Const 0                               -- R.1c
 prod_ _ (Const 0)       = Const 0
@@ -260,13 +267,13 @@ prod_ a b@(Prod ps) = branch $ match a ps                                       
                                     | otherwise   = fmap (ea:) (match c es)
 
                             match c (e:es)                                          -- R.6d
-                                    | c == e      = Just $ (exp' c 2):es
+                                    | c == e      = Just $ (c^2):es
                                     | otherwise   = fmap (e:) (match c es)
 
 prod_ p@(Prod _) e      = prod_ e p                     -- R.7
 
 prod_ ea eb                                             -- R.7
-        | ea == eb      = exp_ ea 2
+        | ea == eb      = ea^2
         | otherwise     = prod' ea eb
 
 
@@ -434,7 +441,7 @@ exp_ e p                                                        -- S.1
 exp':: Integral a => Expr a -> Int -> Expr a
 
 exp' (Neg e) p                                                  -- S.2
-        | odd p     = Neg (exp' e p)
+        | odd p     = neg' (exp' e p)
         | otherwise = exp' e p
 
 exp' (Rec e) p      = rec' (exp' e p)                            -- S.3
