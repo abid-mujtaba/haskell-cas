@@ -252,7 +252,7 @@ At the bottom of the file are general comments about the development process and
 * We compare the degree of both expressions to calculate an order.
 * Note that when the degrees are equal we pass on the arguments to the ``compare'`` function.
 
-**L.10** - We leave this function undefined for now because we are unsure how to proceed at this depth. A possible refactor using recursion may be in order.S
+**L.10** - We leave this function defined as EQ for now because we are unsure how to proceed at this depth. A possible refactor using recursion may be in order.
  
 
 
@@ -672,11 +672,40 @@ At the bottom of the file are general comments about the development process and
 
 
 
-## AB. Adding ``Prod`` using ``sum_p``
+## AB. Adding ``Symbol`` using ``sum_s``
 
-**AB.1** - We are adding two ``Prod`` expressions together. We are looking for the possibility of the first one being a constant times the second one in which case adding them together will result in an expression with an incremented constant associated with it.
+**AB.1**
 
-**AB.2** - This is analogous to (Z.3) but instead of a ``Prod`` we have a general expression multiplied by a constant. If that matches the expression being added with we increment the constant.
+* Because the call to ``sum_s`` **only** originates from ``sum'`` where it is **only** called after pattern-matching with ``Symbol`` or ``Neg (Symbol`` as the first argument we don't need to perform pattern-matching again.
+* Technically ``sum_s`` will also be called by other ``sum_<x>`` methods but even there it will always be called after pattern-matching with ``Symbol`` so the argument holds.
+* If the second argument is a ``Const`` we simply pass the arguments to ``sum_c``.
+
+**AB.2**
+
+* This is becoming a common pattern when dealing with adding expressions to ``Sum`` or multiplying expressions to ``Prod``.
+* The first pattern is the base case for recursion.
+* In the second pattern we extract the head of the list for further processing.
+* We use the ``compare`` function to perform lexical ordering.
+* We use a ``case`` expression to read the result of the ``compare`` and branch execution.
+* Note that ``compare`` via the result ``EQ`` provides a mechanism for collecting equal symbols together.
+* Note the recursive call to ``add`` when the incoming symbol is lexically higher than the head. We pass over the head and continue the process.
+
+**AB.3**
+
+* The case of the two symbols being equal is dealt with by ``sum_`` when it deals with the equality of general expressions.
+* For unequal symbols we simply place them in lexical order inside the ``Sum``.
+* The ``compare`` function was written for the express purpose of placing general expressions in lexical order.
+* ``compare`` returns as ``Ordering`` so we use ``case`` on the result to branch execution.
+* Note that equality is considered an error because it should have been dealt earlier on by ``sum_`` when dealing with general equality of expressions.
+
+
+
+
+## AC. Adding ``Prod`` using ``sum_p``
+
+**AC.1** - We are adding two ``Prod`` expressions together. We are looking for the possibility of the first one being a constant times the second one in which case adding them together will result in an expression with an incremented constant associated with it.
+
+**AC.2** - This is analogous to (Z.3) but instead of a ``Prod`` we have a general expression multiplied by a constant. If that matches the expression being added with we increment the constant.
 
 
 

@@ -184,7 +184,7 @@ compareDegree a b                                                             --
 
 -- A function for comparing expressions with equal degree
 compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
-compare' a b = undefined                                                     -- L.10
+compare' a b = EQ                                                     -- L.10
 
 
 
@@ -277,6 +277,9 @@ sum' a@(Neg (Const _)) b    = sum_c a b
 sum' a@(Prod _) b           = sum_p a b
 sum' a@(Neg (Prod _)) b     = sum_p a b
 
+sum' a@(Symbol _) b         = sum_s a b
+sum' a@(Neg (Symbol _)) b   = sum_s a b
+
 sum' _ _  = error "Error: Patterns for addition by sum' have been exhausted"
 
 
@@ -306,17 +309,37 @@ sum_c a (Sum bs) = sum_list $ add a bs                                          
 sum_c a b       = Sum [b, a]                                                                             -- AA.5
 
 
+-- Rules for adding a Symbol with other expressions
+
+sum_s :: Integral a => Expr a -> Expr a -> Expr a
+
+sum_s a b@(Const _) = sum_c b a                                                 -- AB.1
+
+sum_s a (Sum bs) = sum_list $ add a bs                                          -- AB.2
+                        where
+                            add c []     = [c]
+                            add c (d:es) = case (compare c d) of
+                                                LT -> c:d:es
+                                                GT -> d:(add c es)
+                                                EQ -> (2 * c):es
+
+sum_s a b = case (compare a b) of                                               -- AB.3
+                    LT -> Sum [a, b]
+                    GT -> Sum [b, a]
+                    EQ -> error "Equal expression should never arrive at sum_s"
+
+
 -- Rules for adding a Prod with other expressions
 
 sum_p :: Integral a => Expr a -> Expr a -> Expr a
 
-sum_p a@(Prod ((Const c):as)) b@(Prod bs)                                -- AB.1
+sum_p a@(Prod ((Const c):as)) b@(Prod bs)                                -- AC.1
         | as == bs          = Prod $ (Const (c + 1)):bs
         | otherwise         = sum' a b
 
 --sum_ a@(Prod _) b@(Prod ((Const _):_))    = sum_ b a
 
-sum_p a@(Prod ((Const c):[ea])) b                                        -- AB.2
+sum_p a@(Prod ((Const c):[ea])) b                                        -- AC.2
         | ea == b           = Prod $ (Const (c + 1)):[ea]
         | otherwise         = sum' a b
 
