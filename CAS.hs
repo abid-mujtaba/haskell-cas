@@ -264,23 +264,13 @@ sum_ ea eb                                                                      
 
 sum' :: Integral a => Expr a -> Expr a -> Expr a
 
---sum' (Sum xs) (Sum ys)   = s . Sum $ xs ++ ys                   -- F.1
---sum' n (Sum ns)          = s . Sum $ n:ns                       -- F.2
---sum' (Sum ns) n          = s . Sum $ ns ++ [n]
---sum' m n                                                        -- F.3
---        | m == n         = s $ (2 * m)
---        | otherwise      = s $ Sum [m, n]
-
 sum' a@(Const _) b          = sum_c a b                 -- Z.9
 sum' a@(Neg (Const _)) b    = sum_c a b
 
 sum' a@(Prod _) b           = sum_p a b
 sum' a@(Neg (Prod _)) b     = sum_p a b
 
-sum' a@(Symbol _) b         = sum_s a b
-sum' a@(Neg (Symbol _)) b   = sum_s a b
-
-sum' _ _  = error "Error: Patterns for addition by sum' have been exhausted"
+sum' a b    = sum_x a b                                 -- Z.10
 
 
 -- Rules for adding Const to other expressions
@@ -307,13 +297,13 @@ sum_c a (Sum bs) = sum_list $ add a bs                                          
 sum_c a b       = Sum [b, a]                                                                             -- AA.5
 
 
--- Rules for adding a Symbol with other expressions
+-- Rules for adding non-Const/Sum/Prod expressions with other expressions
 
-sum_s :: Integral a => Expr a -> Expr a -> Expr a
+sum_x :: Integral a => Expr a -> Expr a -> Expr a
 
-sum_s a b@(Const _) = sum_c b a                                                 -- AB.1
+sum_x a b@(Const _) = sum_c b a                                                 -- AB.1
 
-sum_s a (Sum bs) = sum_list $ add a bs                                          -- AB.2
+sum_x a (Sum bs) = sum_list $ add a bs                                          -- AB.2
                         where
                             add c []     = [c]
                             add c (d:es) = case (compare c d) of
@@ -321,10 +311,10 @@ sum_s a (Sum bs) = sum_list $ add a bs                                          
                                                 GT -> d:(add c es)
                                                 EQ -> (2 * c):es
 
-sum_s a b = case (compare a b) of                                               -- AB.3
+sum_x a b = case (compare a b) of                                               -- AB.3
                     LT -> Sum [a, b]
                     GT -> Sum [b, a]
-                    EQ -> error "Equal expression should never arrive at sum_s"
+                    EQ -> error "Equal expression should never arrive at sum_x"
 
 
 -- Rules for adding a Prod with other expressions
@@ -333,13 +323,13 @@ sum_p :: Integral a => Expr a -> Expr a -> Expr a
 
 sum_p a@(Prod ((Const c):as)) b@(Prod bs)                                -- AC.1
         | as == bs          = Prod $ (Const (c + 1)):bs
-        | otherwise         = sum' a b
+        | otherwise         = sum_x a b
 
 --sum_ a@(Prod _) b@(Prod ((Const _):_))    = sum_ b a
 
 sum_p a@(Prod ((Const c):[ea])) b                                        -- AC.2
         | ea == b           = Prod $ (Const (c + 1)):[ea]
-        | otherwise         = sum' a b
+        | otherwise         = sum_x a b
 
 
 

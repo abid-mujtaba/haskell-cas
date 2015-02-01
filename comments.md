@@ -105,22 +105,6 @@ At the bottom of the file are general comments about the development process and
 
 
 
-## F. Functions for arithmetic operations
-
-**F.1**
- 
-* We are carrying out pattern-matching where the first pattern that matches is the one that is used. So our first pattern matches the addition of two Sum expressions with xs and ys matching the lists encapsulated by both. The result is simply another Sum with the two lists concatenated.
-* NOTE the use of the simplification method ``s``. This means that every arithmetic operation ``+``, ``*``, etc., concludes with a simplification to ensure that the expressions remain as compact as possible. 
-
-**F.2** - The next two patterns match the possibility of a single Sum expression being added to a non-sum expression (since the case of two Sum-s being added corresponds to the pattern at the top). In such a case we simply add the expression to the list within the Sum.
-
-**F.3**
-
-* The final pattern which is the catch-all corresponds by elimination (via the upper patterns) to the case of two non-Sum expression being added.
-* We use guards to differentiate between two possible scenarios. If the two expressions being added are equal we convert the Sum in to a Prod by multiplying the expression by ``2``; otherwise we simply place both inside a Sum expression.
-
-
-
 ## G. Simplification functions for expressions
 
 **G.1**
@@ -646,6 +630,8 @@ At the bottom of the file are general comments about the development process and
 
 **Z.9** - When adding a ``Const`` or ``Neg (Const _)`` with another expression we simply pass the arguments to the utility function ``sum_c`` which is dedicated to the addition of (negative) ``Const`` with any general expression.
 
+**Z.10** - With the special case of Const (because of compacting), Prod because of factoring and Sum (because the operation is addition itself) taken care of we can lump all the rest in to one function ``sum_x`` which uses the ``compare`` function to order the elements in the desired lexical order.
+
 
 
 ## AA. Adding ``Const`` using ``sum_c``
@@ -673,13 +659,9 @@ At the bottom of the file are general comments about the development process and
 
 
 
-## AB. Adding ``Symbol`` using ``sum_s``
+## AB. Adding non-``Const/Sum/Prod`` expressions using ``sum_x``
 
-**AB.1**
-
-* Because the call to ``sum_s`` **only** originates from ``sum'`` where it is **only** called after pattern-matching with ``Symbol`` or ``Neg (Symbol`` as the first argument we don't need to perform pattern-matching again.
-* Technically ``sum_s`` will also be called by other ``sum_<x>`` methods but even there it will always be called after pattern-matching with ``Symbol`` so the argument holds.
-* If the second argument is a ``Const`` we simply pass the arguments to ``sum_c``.
+**AB.1** - If the second argument is a ``Const`` we simply pass the arguments to ``sum_c``.
 
 **AB.2**
 
@@ -689,12 +671,12 @@ At the bottom of the file are general comments about the development process and
 * We use the ``compare`` function to perform lexical ordering.
 * We use a ``case`` expression to read the result of the ``compare`` and branch execution.
 * Note that ``compare`` via the result ``EQ`` provides a mechanism for collecting equal symbols together.
-* Note the recursive call to ``add`` when the incoming symbol is lexically higher than the head. We pass over the head and continue the process.
+* Note the recursive call to ``add`` when the incoming expression is lexically higher than the head. We pass over the head and continue the process.
 
 **AB.3**
 
-* The case of the two symbols being equal is dealt with by ``sum_`` when it deals with the equality of general expressions.
-* For unequal symbols we simply place them in lexical order inside the ``Sum``.
+* The case of the two expressions being equal is dealt with by ``sum_`` when it deals with the equality of general expressions.
+* For unequal expressions we simply place them in lexical order inside the ``Sum``.
 * The ``compare`` function was written for the express purpose of placing general expressions in lexical order.
 * ``compare`` returns as ``Ordering`` so we use ``case`` on the result to branch execution.
 * Note that equality is considered an error because it should have been dealt earlier on by ``sum_`` when dealing with general equality of expressions.
