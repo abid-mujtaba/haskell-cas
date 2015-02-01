@@ -608,6 +608,77 @@ At the bottom of the file are general comments about the development process and
 **Y.2** - ``prod_`` takes care of the possibility of the ``Sum`` (or an exponent of it) being inside the product so we are assured that the ``Sum`` just need sto be placed inside the ``Prod``. We take the arbitrary decision to place any such ``Sum`` at the end of the product (without any ordering).
 
 
+## Z. Adding expressions
+
+**Z.1**
+
+* A smart constructor from creating a ``Sum`` from a list of expressions. A never of utility function used for defining addition relations create a list of elements. These can end up being empty or singleton so we need a smart constructor to handle these possibilities.
+* An empty list inside a ``Sum`` can be created when negative expressions cancel positive ones. In this case it is obvious that the result should be zero.
+* Similarly cancellation can create lists with only a single expression in which case the sum should be equal to just that simple expression.
+
+**Z.2** - Implement the basic rules of addition. Adding 0 to any expression leaves it unchanged. We also implement the commutation.
+
+**Z.3**
+
+* Since `Neg` is intrinsically bound up with the concept of addition we deal with some of the ``Neg`` relations up front.
+* When one adds to expressions both inside ``Neg`` we add the inner expressions and place the result in a ``Neg`` context.
+* For adding an expression with a ``Neg`` expression (the former is guaranteed to not be a ``Neg`` because of the pattern above) we implement commutation on the pattern.
+* This means that all subsequent patterns **only** need to match with ``Neg`` in the **first** argument (the first one is handled using commutation here).
+
+**Z.4** - When adding something with a ``Neg`` ``Sum`` we map ``Neg`` over all of the elements converting it in to a ``Sum`` over ``Neg`` elements before we carry out the addition.
+
+**Z.5**
+
+* The first pattern is the base case of recursion when we end up with a sum containing a singleton list. By the logic from ``sum_list`` this is equal to the element/expression itself. So we extract the expression from inside the singleton and pass it recursively to ``sum_``.
+* When adding two ``Sum`` we first check for the possibility of the two sums being equal in which case we replace them by twice the expression.
+* Otherwise we add one element at a time from the first list in to the second list.
+* Note how we use recursion to add the remaining first list with the now extended second list until the first list becomes empty and the second list contains the result of the completed addition.
+
+**Z.6**
+
+* This is analogous to how we multiply an arbitrary expression with a ``Prod``.
+* We are looking for the possibility that the expression or its negative exists in the ``Sum`` already in which case we have to cancel or combine the two together.
+* We iterate over the list looking for a possible match and use a ``Maybe`` to deal with the possibilit of failure (i.e. no match is found).
+
+**Z.7** - Commutation pattern corresponding to (Z.6).
+
+**Z.8** - When handling two expressions which are not sums we test for equality. If they are equal we replace them with twice their value otherwise we pass the arguments to the ``sum'`` utility function for further processing.
+
+**Z.9** - When adding a ``Const`` or ``Neg (Const _)`` with another expression we simply pass the arguments to the utility function ``sum_c`` which is dedicated to the addition of (negative) ``Const`` with any general expression.
+
+
+
+## AA. Adding ``Const`` using ``sum_c``
+
+**AA.1**
+
+* When adding a constant with a ``Sum`` our aim is to find the possible (negative) constant inside the sum and combine the two inside the sum.
+* Note that we used a general pattern for the first argument and did not specify ``(Const _)``. This is because had we done so we would have had to define an exactly analogous pattern for ``Neg (Const`` which would be wasteful.
+* The down-side to our desire to not have repetition in the patterns and functions is that we must ensure that this utility function ``sum_c`` is **only** called with a (negative) constant and nothing else i.e. it is only called when pattern-matching against these constructors. Since ``sum_c`` is only called from within ``sum'`` for just such a case this is guaranteed.
+
+**AA.2** - Base case of the recursion. Note that if this singleton is the final result of ``add` then the function ``sum_list`` will unpack it in to the single expression inside.
+
+**AA.3**
+
+* This looks ugly because of the choice we made to make ``Neg`` a separate constructor inside ``Expr``. That decision which simplifies matches in most other cases becomes verbose here where we need to match all combinations of two constants which can both be negative.
+* For all four combinations we have the same rule: add the two (possibly negative) constants together and add them to the remaining list.
+* We have used the ``+`` operator here because we already have rules for adding two ``Const`` together. We make use of those rules rather then implement them again. This will cause a minor over-head.
+* The recursive call to ``add`` even though we are certain that when a ``Const`` is found in the the ``Sum`` we are at the end of out list is to take care of the possibility that the constant addition results in a 0 in which case we want that zero gone from the list. By calling ``add`` recursively here we bring the first pattern in to play.
+* There is also the possibility however that for specific additions this results in an empty list overall. That possibility is handled by ``sum_list``.
+
+**AA.4** - When the head of the list ``es`` is not a (negative) constant we simply skip that element and analyze the remaining tail of the list with our constant in hand.
+
+**AA.5** - If the second element is neither a constant nor a sum we simply create a ``Sum`` where the constant appears at the end of the list, by construction. All of our construction will be defined such that inside a ``Sum`` a constant value is always at the end.
+
+
+
+## AB. Adding ``Prod`` using ``sum_p``
+
+**AB.1** - We are adding two ``Prod`` expressions together. We are looking for the possibility of the first one being a constant times the second one in which case adding them together will result in an expression with an incremented constant associated with it.
+
+**AB.2** - This is analogous to (Z.3) but instead of a ``Prod`` we have a general expression multiplied by a constant. If that matches the expression being added with we increment the constant.
+
+
 
 ## Debugging
 

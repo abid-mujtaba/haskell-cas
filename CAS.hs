@@ -120,7 +120,7 @@ instance Integral a => Num (Expr a) where                       -- D.2
   negate    = neg'
   signum    = undefined                                         -- D.5
   abs       = undefined
-  fromInteger a
+  fromInteger a                 -- ToDo: Replace with const'
                 | a < 0      = Neg (Const (negate $ fromInteger a))
                 | otherwise  = Const (fromInteger a)                     -- D.6
 
@@ -218,13 +218,107 @@ neg' e          = Neg e
 
 -- Adding expressions
 
+sum_list :: Integral a => [Expr a] -> Expr a                            -- Z.1
+sum_list []     = Const 0
+sum_list [e]    = e
+sum_list es     = Sum es
+
+
+sum_ :: Integral a => Expr a -> Expr a -> Expr a
+
+sum_ (Const 0) e    = e                                                 -- Z.2
+sum_ e (Const 0)    = e
+
+sum_ (Neg a) (Neg b) = Neg (sum_ a b)                                   -- Z.3
+sum_ a b@(Neg _)     = sum_ b a
+
+sum_ (Neg (Sum as)) b       = sum_ (Sum $ map neg' as) b                -- Z.4
+
+sum_ (Sum [e]) s2@(Sum _)   = sum_ e s2                                 -- Z.5
+sum_ s1@(Sum (e:es)) s2@(Sum _)
+        | s1 == s2          = 2 * s1
+        | otherwise         = sum_ (Sum es) (sum_ e s2)
+
+sum_ a b@(Sum ss) = branch $ match a ss                                 -- Z.6
+                        where
+                            branch Nothing   = sum' a b
+                            branch (Just es) = Sum es
+
+                            match _ []          = Nothing
+
+                            match c (d@(Neg e):es)
+                                    | c == e    = Just es
+                                    | otherwise = fmap (d:) (match c es)
+
+                            match c (e:es)
+                                    | c == e    = Just $ (2 * c):es
+                                    | otherwise = fmap (e:) (match c es)
+
+
+sum_ sa@(Sum _) e       = sum_ e sa                                             -- Z.7
+
+sum_ ea eb                                                                      -- Z.8
+        | ea == eb      = 2 * ea
+        | otherwise     = sum' ea eb
+
+
 sum' :: Integral a => Expr a -> Expr a -> Expr a
-sum' (Sum xs) (Sum ys)   = s . Sum $ xs ++ ys                   -- F.1
-sum' n (Sum ns)          = s . Sum $ n:ns                       -- F.2
-sum' (Sum ns) n          = s . Sum $ ns ++ [n]
-sum' m n                                                        -- F.3
-        | m == n         = s $ (2 * m)
-        | otherwise      = s $ Sum [m, n]
+
+--sum' (Sum xs) (Sum ys)   = s . Sum $ xs ++ ys                   -- F.1
+--sum' n (Sum ns)          = s . Sum $ n:ns                       -- F.2
+--sum' (Sum ns) n          = s . Sum $ ns ++ [n]
+--sum' m n                                                        -- F.3
+--        | m == n         = s $ (2 * m)
+--        | otherwise      = s $ Sum [m, n]
+
+sum' a@(Const _) b          = sum_c a b                 -- Z.9
+sum' a@(Neg (Const _)) b    = sum_c a b
+
+sum' a@(Prod _) b           = sum_p a b
+sum' a@(Neg (Prod _)) b     = sum_p a b
+
+sum' _ _  = error "Error: Patterns for addition by sum' have been exhausted"
+
+
+-- Rules for adding Const to other expressions
+
+sum_c :: Integral a => Expr a -> Expr a -> Expr a
+
+sum_c (Const a) (Const b)               = Const (a + b)
+
+sum_c (Neg (Const a)) (Const b)
+        | c < 0     = Neg (Const $ negate c)
+        | otherwise = Const c
+            where
+                c = b - a
+
+sum_c a (Sum bs) = sum_list $ add a bs                                                                   -- AA.1
+                        where
+                            add (Const 0) es                                = es
+                            add e []                                        = [e]                        -- AA.2
+                            add c@(Const _) (d@(Const _):es)                = add (c + d) es             -- AA.3
+                            add c@(Const _) (d@(Neg (Const _)):es)          = add (c + d) es
+                            add c@(Neg (Const _)) (d@(Const _):es)          = add (c + d) es
+                            add c@(Neg (Const _)) (d@(Neg (Const _)):es)    = add (c + d) es
+
+                            add n (e:es)         = e:(add n es)                                          -- AA.4
+
+sum_c a b       = Sum [b, a]                                                                             -- AA.5
+
+
+-- Rules for adding a Prod with other expressions
+
+sum_p :: Integral a => Expr a -> Expr a -> Expr a
+
+sum_p a@(Prod ((Const c):as)) b@(Prod bs)                                -- AB.1
+        | as == bs          = Prod $ (Const (c + 1)):bs
+        | otherwise         = sum' a b
+
+--sum_ a@(Prod _) b@(Prod ((Const _):_))    = sum_ b a
+
+sum_p a@(Prod ((Const c):[ea])) b                                        -- AB.2
+        | ea == b           = Prod $ (Const (c + 1)):[ea]
+        | otherwise         = sum' a b
 
 
 
