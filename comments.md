@@ -89,6 +89,7 @@ At the bottom of the file are general comments about the development process and
 
 * We define the fromInteger method which gives us the ability to detect integers in expressions from context and convert them in to expressions of type Const. An example will clarify.
 * With fromInteger so defined we can write '2 * x' and it will be interpreted and converted in to 'Const 2 * Symbol "x"'. This will save us from having to write 'Const 2' all the time.
+* Note the use of the ``const'`` smart constructor which is able to detect a negative integer and convert it in to a ``Neg (Const _)``.
 
 
 

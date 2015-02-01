@@ -115,14 +115,12 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 
 instance Integral a => Num (Expr a) where                       -- D.2
   a + b     = sum_ a b                                          -- D.3
-  a - b     = sum_ a $ neg' b                                    -- D.4
+  a - b     = sum_ a $ neg' b                                   -- D.4
   (*)       = prod_
   negate    = neg'
   signum    = undefined                                         -- D.5
   abs       = undefined
-  fromInteger a                 -- ToDo: Replace with const'
-                | a < 0      = Neg (Const (negate $ fromInteger a))
-                | otherwise  = Const (fromInteger a)                     -- D.6
+  fromInteger a = const' $ fromInteger a                        -- D.6
 
 
 
