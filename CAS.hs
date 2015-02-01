@@ -299,10 +299,8 @@ sum_c a (Sum bs) = sum_list $ add a bs                                          
                         where
                             add (Const 0) es                                = es
                             add e []                                        = [e]                        -- AA.2
-                            add c@(Const _) (d@(Const _):es)                = add (c + d) es             -- AA.3
-                            add c@(Const _) (d@(Neg (Const _)):es)          = add (c + d) es
-                            add c@(Neg (Const _)) (d@(Const _):es)          = add (c + d) es
-                            add c@(Neg (Const _)) (d@(Neg (Const _)):es)    = add (c + d) es
+                            add c (d@(Const _):es)                = add (c + d) es                       -- AA.3
+                            add c (d@(Neg (Const _)):es)          = add (c + d) es
 
                             add n (e:es)         = e:(add n es)                                          -- AA.4
 

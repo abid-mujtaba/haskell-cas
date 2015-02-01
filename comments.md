@@ -660,8 +660,9 @@ At the bottom of the file are general comments about the development process and
 
 **AA.3**
 
-* This looks ugly because of the choice we made to make ``Neg`` a separate constructor inside ``Expr``. That decision which simplifies matches in most other cases becomes verbose here where we need to match all combinations of two constants which can both be negative.
-* For all four combinations we have the same rule: add the two (possibly negative) constants together and add them to the remaining list.
+* This looks ugly because of the choice we made to make ``Neg`` a separate constructor inside ``Expr``. That decision which simplifies matches in most other cases becomes verbose here where we need to match all combinations of the second argument as a constant, which can be negative.
+* For both combinations we have the same rule: add the two (possibly negative) constants together and add them to the remaining list.
+* Note that we have not pattern matched against the first argument since it is assumed by default that if we are inside ``sum_c`` the first argument is guaranteed to be a constant.
 * We have used the ``+`` operator here because we already have rules for adding two ``Const`` together. We make use of those rules rather then implement them again. This will cause a minor over-head.
 * The recursive call to ``add`` even though we are certain that when a ``Const`` is found in the the ``Sum`` we are at the end of out list is to take care of the possibility that the constant addition results in a 0 in which case we want that zero gone from the list. By calling ``add`` recursively here we bring the first pattern in to play.
 * There is also the possibility however that for specific additions this results in an empty list overall. That possibility is handled by ``sum_list``.
