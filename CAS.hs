@@ -111,9 +111,7 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 
 
 
--- D.1
-
-instance Integral a => Num (Expr a) where                       -- D.2
+instance Integral a => Num (Expr a) where                       -- D.1 --D.2
   a + b     = sum_ a b                                          -- D.3
   a - b     = sum_ a $ neg' b                                   -- D.4
   (*)       = prod_
@@ -140,38 +138,26 @@ a ^ p = s $ exp_ a p                                                            
 -- We make Expr an instance of Ord so that we can compare and sort expressions
 
 instance (Ord a, Num a) => Ord (Expr a) where                                 -- L.1
-  compare (Const a) (Const b)         = compare a b                           -- L.2
-  compare (Const _) (Neg (Const _))   = GT                                    -- L.3
-  compare (Neg (Const _)) (Const _)   = LT
 
-  compare (Symbol a) (Symbol b)       = compare a b
-
-  compare (Const _) (Symbol _)        = LT                                    -- L.4
-  compare (Symbol _) (Const _)        = GT
-
-  compare (Neg a) (Neg b)             = compare a b                           -- L.5
+  compare (Neg a) (Neg b)             = compare a b                           -- L.2
   compare a (Neg b)                   = compare a b
   compare (Neg a) b                   = compare a b
 
-  compare (Rec a) (Rec b)             = compare b a
-  compare _ (Rec _)                   = GT                                    -- L.6
-  compare (Rec _) _                   = LT
-
-  compare a b = compareDegree a b                                             -- L.7
+  compare a b = compareDegree a b                                             -- L.3
 
 
 -- A function for doing a degree based comparison of two expressions:
 compareDegree :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
-compareDegree (Exp a pa) (Exp b pb)                                           -- L.8
+compareDegree (Exp a pa) (Exp b pb)                                           -- L.4
                                 | pa == pb  = compare a b
                                 | da < db   = LT
                                 | da > db   = GT
-                                | otherwise = undefined
+                                | otherwise = compare' a b
                                     where
                                         da = pa * degree a
                                         db = pb * degree b
 -- ToDo compare exponent with non-exponent expressions
-compareDegree a b                                                             -- L.9
+compareDegree a b                                                             -- L.5
             | da < db       = LT
             | da > db       = GT
             | otherwise     = compare' a b
@@ -182,7 +168,10 @@ compareDegree a b                                                             --
 
 -- A function for comparing expressions with equal degree
 compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
-compare' a b = EQ                                                     -- L.10
+
+compare' (Rec a) (Rec b) = compare' a b                                       -- L.6
+compare' (Symbol a) (Symbol b) = compare a b                                  -- L.7
+compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At the point one should be able to get rid of the Exp pattern in compareDegree
 
 
 
@@ -287,12 +276,13 @@ sum_c a (Sum bs) = sum_list $ add a bs                                          
                         where
                             add (Const 0) es                                = es
                             add e []                                        = [e]                        -- AA.2
-                            add c (d@(Const _):es)                = add (c + d) es                       -- AA.3
-                            add c (d@(Neg (Const _)):es)          = add (c + d) es
 
-                            add n (e:es)         = e:(add n es)                                          -- AA.4
+                            add c (e:es) = case (compare c e) of                                         -- AA.3
+                                                    LT -> c:e:es
+                                                    GT -> e:(add c es)
+                                                    EQ -> add (c + e) es
 
-sum_c a b       = Sum [b, a]                                                                             -- AA.5
+sum_c a b  = sum_c a (Sum [b])                                                                           -- AA.4
 
 
 -- Rules for adding non-Const/Sum/Prod expressions with other expressions
@@ -322,8 +312,6 @@ sum_p :: Integral a => Expr a -> Expr a -> Expr a
 sum_p a@(Prod ((Const c):as)) b@(Prod bs)                                -- AC.1
         | as == bs          = Prod $ (Const (c + 1)):bs
         | otherwise         = sum_x a b
-
---sum_ a@(Prod _) b@(Prod ((Const _):_))    = sum_ b a
 
 sum_p a@(Prod ((Const c):[ea])) b                                        -- AC.2
         | ea == b           = Prod $ (Const (c + 1)):[ea]

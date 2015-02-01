@@ -211,34 +211,38 @@ At the bottom of the file are general comments about the development process and
 
 ## L. Expr instance of Ord
 
-**L.1** - We only need to define the ``compare`` function while making Expr an instance of the Ord class. Since it takes two objects, compares them and generates the resulting ``Ordering`` object (with values of ``LT``, ``EQ`` or ``GT``) we get the remaining comparison operators (``<``, ``<=``, ``==``, ``>``, ``>=``) for free. In addition the Data.List.sort function will also work automatically once ``Expr`` is made an instance of the ``Ord`` type-class.
+**L.1**
 
-**L.2** - We pattern-matched to look at the scenario where we are comparing two ``Const`` objects. We extracted the integers within and then set the result to be equal to the comparison of the encapsulated integers. This is a classic technique in Haskell when dealing with encapsulated objects (also knows an objects with context).
+* We only need to define the ``compare`` function while making Expr an instance of the Ord class. Since it takes two objects, compares them and generates the resulting ``Ordering`` object (with values of ``LT``, ``EQ`` or ``GT``) we get the remaining comparison operators (``<``, ``<=``, ``==``, ``>``, ``>=``) for free. 
+* In addition the Data.List.sort function will also work automatically once ``Expr`` is made an instance of the ``Ord`` type-class.
+* In this instantiation we are basically implementing the lexical order of expressions especially as used to place them inside a ``Sum``.
+* The lexical order is defined as follows:
+    - If the expressions have different (polynomial) degrees than the one with lower degree (which can be negative comes first). Note that constants have zero degree.
+    - If the degrees match and the expressions are symbolic than they obey symbolic lexical order.
+    - Amongst two symbols the lexical order is the alphabetic order.
+    - Amongst reciprocal expressions with equal degree the lexical order is the same as it is for the expressions inside the reciprocals.
+    - Amongst product of symbols the product with the lower power for the first symbol (determined by the lexical order of the symbols themselves) has lower lexical order.
 
-**L.3** - In this pattern we are assuming that all ``Const`` objects ONLY encapsulate **positive** integers. This is guaranteed to work because of the way we handle expression construction in which we are careful to keep ``Const`` objects positive.
 
-**L.4** - We specify that a constant has lower sorting order than a symbol.
+**L.2** - We define the ``Neg`` of an expression to have the same order as the expression itself.
 
-**L.5** - We define the ``Neg`` of an expression to have the same order as the expression itself.
+**L.3** - Any pair of expressions that don't fit any of the patterns above are caught by this pattern and passed on to the ``compareDegree`` function.
 
-**L.6** - A reciprocal of an expression has a degree which is the negative of the expression itself. Thus in general Reciprocal expressions have lower order.
-
-**L.7** - Any pair of expressions that don't fit any of the patterns above are caught by this pattern and passed on to the ``compareDegree`` function.
-
-**L.8** 
+**L.4** 
 
 * When comparing two exponents we use pattern matching to access both the inner expression and the power (index) by which they are raised.
 * We use guards to deal with the various cases: The powers match, the various comparisons of the total degree of each expression, etc.
 * Note the use of the ``where`` keyboard to calculate and define the constants ``da`` and ``db`` which are used in the guards.
 
-**L.9**
+**L.5**
 
 * Catch-all pattern for comparing expressions which are NOT both exponents.
 * We compare the degree of both expressions to calculate an order.
 * Note that when the degrees are equal we pass on the arguments to the ``compare'`` function.
 
-**L.10** - We leave this function defined as EQ for now because we are unsure how to proceed at this depth. A possible refactor using recursion may be in order.
+**L.6** - When two reciprocal expressions have the same degree we want their lexical order to the same as their inner expressions. This means that ``1/x LT 1/z`` since ``x LT z``. This is how we want it to be.
  
+**L.7** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. The lexical ordering of two symbols is their alphabetic order which ironically is also determined by using ``compare`` on the ``String``s inside the symbols.
 
 
 
@@ -647,16 +651,13 @@ At the bottom of the file are general comments about the development process and
 
 **AA.3**
 
-* This looks ugly because of the choice we made to make ``Neg`` a separate constructor inside ``Expr``. That decision which simplifies matches in most other cases becomes verbose here where we need to match all combinations of the second argument as a constant, which can be negative.
-* For both combinations we have the same rule: add the two (possibly negative) constants together and add them to the remaining list.
-* Note that we have not pattern matched against the first argument since it is assumed by default that if we are inside ``sum_c`` the first argument is guaranteed to be a constant.
-* We have used the ``+`` operator here because we already have rules for adding two ``Const`` together. We make use of those rules rather then implement them again. This will cause a minor over-head.
-* The recursive call to ``add`` even though we are certain that when a ``Const`` is found in the the ``Sum`` we are at the end of out list is to take care of the possibility that the constant addition results in a 0 in which case we want that zero gone from the list. By calling ``add`` recursively here we bring the first pattern in to play.
-* There is also the possibility however that for specific additions this results in an empty list overall. That possibility is handled by ``sum_list``.
+* When the head of the list ``es`` is not a (negative) constant we lexically compare the head with the constant.
+* If the constant is lexically lower than the head we simply place the constant in that location.
+* If the constant is lexically higher than the head we place the head in the position and recursively call ``add`` again with the tail of the list since the constant may need to be located further down the list.
+* When we have lexical equality it is guaranteed, from the implementation of the ``compare`` function, that the head element is also a (negative) constant. In this case we simply add the two elements to get a unified ``Const``.
+* We make a recursive call to ``add`` with the newly created ``Const`` to deal with the possibility of the addition resulting in a ``Const 0``. The recursive call to ``add`` will remove the zero if that is the case.
 
-**AA.4** - When the head of the list ``es`` is not a (negative) constant we simply skip that element and analyze the remaining tail of the list with our constant in hand.
-
-**AA.5** - If the second element is neither a constant nor a sum we simply create a ``Sum`` where the constant appears at the end of the list, by construction. All of our construction will be defined such that inside a ``Sum`` a constant value is always at the end.
+**AA.4** - If the second element is neither a constant nor a sum we simply create a ``Sum`` from just the second argument (singleton) and then recursively call ``sum_c`` on it. This works because ``sum_c`` with ``Sum`` as the second argument implements all of the rules for constructing a ``Sum`` with the correct lexical order.
 
 
 
