@@ -259,9 +259,13 @@ sum_ a b@(Sum ss) = branch $ match a ss                                 -- Z.6
 
 sum_ sa@(Sum _) e       = sum_ e sa                                             -- Z.7
 
-sum_ ea eb                                                                      -- Z.8
-        | ea == eb      = 2 * ea
-        | otherwise     = sum' ea eb
+sum_ ea@(Neg a) b                                                               -- Z.8
+        | a == b        = Const 0
+        | otherwise     = sum' ea b
+
+sum_ a b                                                                        -- Z.8
+        | a == b        = 2 * a
+        | otherwise     = sum' a b
 
 
 sum' :: Integral a => Expr a -> Expr a -> Expr a

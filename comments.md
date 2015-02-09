@@ -646,11 +646,13 @@ At the bottom of the file are general comments about the development process and
 
 **Z.7** - Commutation pattern corresponding to (Z.6).
 
-**Z.8** - When handling two expressions which are not sums we test for equality. If they are equal we replace them with twice their value otherwise we pass the arguments to the ``sum'`` utility function for further processing.
+**Z.8** - We test fot the possibility of a general expression being added to its own negative which should result in a zero.  
 
-**Z.9** - When adding a ``Const`` or ``Neg (Const _)`` with another expression we simply pass the arguments to the utility function ``sum_c`` which is dedicated to the addition of (negative) ``Const`` with any general expression.
+**Z.9** - When handling two expressions which are not sums we test for equality. If they are equal we replace them with twice their value otherwise we pass the arguments to the ``sum'`` utility function for further processing.
 
-**Z.10** - With the special case of Const (because of compacting), Prod because of factoring and Sum (because the operation is addition itself) taken care of we can lump all the rest in to one function ``sum_x`` which uses the ``compare`` function to order the elements in the desired lexical order.
+**Z.10** - When adding a ``Const`` or ``Neg (Const _)`` with another expression we simply pass the arguments to the utility function ``sum_c`` which is dedicated to the addition of (negative) ``Const`` with any general expression.
+
+**Z.11** - With the special case of Const (because of compacting), Prod because of factoring and Sum (because the operation is addition itself) taken care of we can lump all the rest in to one function ``sum_x`` which uses the ``compare`` function to order the elements in the desired lexical order.
 
 
 
