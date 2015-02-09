@@ -72,6 +72,7 @@ z7 = const' 7
 z8 = const' 8
 z9 = const' 9
 
+zm1, zm2, zm3, zm4, zm5, zm6, zm7, zm8, zm9 :: (Integral a) => Expr a
 zm1 = const' (-1)
 zm2 = const' (-2)
 zm3 = const' (-3)
