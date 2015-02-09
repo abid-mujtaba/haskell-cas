@@ -66,11 +66,11 @@ zm8 = const' (-8)
 zm9 = const' (-9)
 
 
--- The tests are specified as a list.
--- Each element of the list is a separate unit test.
--- Each unit test has the format:   <name> ~: <failure msg> ~: <expr> <assertion operator> <expr>
--- For instance the ~=? assertion operator asserts equality between the two expressions on either side.
+-- The assertions are grouped together as a single TestCase
+-- Since the assertions are IO () we use the 'do' keyword to group together a sequence of them
+-- The first assertion that fails causes the entire TestCase to fail and the subsequent assertions are not tested
 
-tests = test [ "test_add_constants" ~: "Adding Constants" ~: z2 + z3 ~=? z5,        -- Tests the addition of constants
-               "test_add_neg_constants" ~: "Adding Neg Const" ~: z7 + zm3 ~=? z4,
-               "test_add_zero" ~: "Adding zero" ~: zm4 + z0 ~=? zm4]
+tests = TestCase $ do
+            assertEqual "Adding Constants" (z2 + z3) z5        -- Tests the addition of constants
+            assertEqual "Adding Neg Const" (z7 + zm3) z4
+            assertEqual "Adding zero" (zm4 + z0) zm4
