@@ -19,11 +19,17 @@
 --
 -- > :l TestCAS
 -- > runTestTT tests
+--
+-- Test tests can also be run by compiling the module and executing it. This task is automated in the Makefile so all
+-- you need to do is run:
+--
+-- make test
 
 
 
 module TestCAS
     (
+        main,               -- We must export the main function if we want the module to be compilable
         tests,
     )
     where
@@ -31,6 +37,10 @@ module TestCAS
 
 import Test.HUnit
 import CAS
+
+main :: IO()
+main = putStrLn "Hello, World!"
+
 
 -- Define the first 10 positive and 9 negative integers for testing.
 z0, z1, z2, z3, z4, z5, z6, z7, z8, z9 :: (Integral a) => Expr a
@@ -59,7 +69,7 @@ zm9 = const' (-9)
 
 -- The tests are specified as a list.
 -- Each element of the list is a separate unit test.
--- Each unit test has the format:   <name> ~: <msg> ~: <expr> <assertion operator> <expr>
+-- Each unit test has the format:   <name> ~: <failure msg> ~: <expr> <assertion operator> <expr>
 -- For instance the ~=? assertion operator asserts equality between the two expressions on either side.
 
 tests = test [ "test_add_constants" ~: "Adding Constants" ~: z2 + z3 ~=? z5,        -- Tests the addition of constants
