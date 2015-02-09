@@ -38,8 +38,7 @@ module TestCAS
 import Test.HUnit
 import CAS
 
-main :: IO()
-main = putStrLn "Hello, World!"
+main = runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
 
 
 -- Define the first 10 positive and 9 negative integers for testing.
