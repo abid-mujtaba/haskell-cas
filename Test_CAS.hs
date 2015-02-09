@@ -66,11 +66,13 @@ zm8 = const' (-8)
 zm9 = const' (-9)
 
 
+-- We add a label to the TestCase by using the TestLabel constructor.
 -- The assertions are grouped together as a single TestCase
 -- Since the assertions are IO () we use the 'do' keyword to group together a sequence of them
 -- The first assertion that fails causes the entire TestCase to fail and the subsequent assertions are not tested
 
-tests = TestCase $ do
-            assertEqual "Adding Constants" (z2 + z3) z5        -- Tests the addition of constants
-            assertEqual "Adding Neg Const" (z7 + zm3) z4
-            assertEqual "Adding zero" (zm4 + z0) zm4
+tests = TestLabel "Adding Constants" $
+            TestCase $ do
+                assertEqual "Positive constants" (z2 + z3) z5        -- Tests the addition of constants
+                assertEqual "Neg constants" (z7 + zm3) z4
+                assertEqual "Adding zero" (zm4 + z0) zm4
