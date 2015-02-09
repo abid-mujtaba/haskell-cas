@@ -3,3 +3,12 @@
 
 # Ignore the test file
 test.hs
+
+# Ignore compilation byproducts
+*.hi
+*.o
+
+# Ignore executables
+
+test
+TestCAS
