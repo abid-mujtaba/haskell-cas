@@ -155,6 +155,11 @@ a ^ p = s $ exp_ a p                                                            
 
 instance (Ord a, Num a) => Ord (Expr a) where                                 -- L.1
 
+  compare (Const a) (Const b)               = compare a b
+  compare (Neg (Const _)) (Const _)         = LT
+  compare (Const _) (Neg (Const _))         = GT
+  compare (Neg (Const a)) (Neg (Const b))   = compare b a
+
   compare (Neg a) (Neg b)             = compare a b                           -- L.2
   compare a (Neg b)                   = compare a b
   compare (Neg a) b                   = compare a b
