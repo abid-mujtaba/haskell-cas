@@ -35,8 +35,10 @@ module Test_CAS
     where
 
 
+import Control.Monad
 import Test.HUnit
 import Test.QuickCheck
+
 import CAS
 
 main = do
@@ -126,8 +128,24 @@ aB = assertBool
 
 -- We define a composite IO action consisting of all quickCheck property tests defined in the module
 quickTests = do
-                quickCheck prop_Rev2
+                quickCheck prop_Add_0
+                quickCheck prop_Mul_1
 
--- This is a test/sample property function that defines the property that reversing a list of Int twice gives back the lists. This is a property of the 'reverse' function. QuickCheck will randomly generate 100 lists of Int to verify this property.
-prop_Rev2 xs = reverse (reverse xs) == xs
-    where types = xs::[Int]
+
+-- Since Expr is a custom class we must make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
+
+instance Integral a => Arbitrary (Expr a) where
+    arbitrary = oneof [return z1, return z2]
+
+-- For now, while we become familiar with QuickCheck I have set up 'arbitrary' to simply return one of two constants: z1 or z2.
+-- This means that for all tests which use and 'Expr a' Haskell will get either z1 or z2 as the random value picked.
+-- Eventually we want this to run the full gambit of possible expressions (correctly constructed of course).
+
+
+prop_Add_0 :: Expr Int -> Bool      -- A property of expressions is that adding zero to an expression should result in the same expression
+prop_Add_0 e = e + z0 == e
+    where types = e::(Expr Int)
+
+prop_Mul_1 :: Expr Int -> Bool
+prop_Mul_1 e = e * z1 == e
+    where types = e::(Expr Int)
