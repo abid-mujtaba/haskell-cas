@@ -70,9 +70,31 @@ zm9 = const' (-9)
 -- The assertions are grouped together as a single TestCase
 -- Since the assertions are IO () we use the 'do' keyword to group together a sequence of them
 -- The first assertion that fails causes the entire TestCase to fail and the subsequent assertions are not tested
+-- Each assertEqual call takes the format: aE <failure message> <expected value> <actual/tested value>
 
-tests = TestLabel "Adding Constants" $
-            TestCase $ do
-                assertEqual "Positive constants" (z2 + z3) z5        -- Tests the addition of constants
-                assertEqual "Neg constants" (z7 + zm3) z4
-                assertEqual "Adding zero" (zm4 + z0) zm4
+tests = TestList [                                              -- We create a list of TestCases
+
+            TestLabel "Testing Constants" $                     -- We use TestLabel to add a label to the TestCase which will be shown in case of failure
+                TestCase $ do                                   -- Each TestCase contains a sequence of assertions inside a do construct
+
+                    aE "test1" z2 z2                            -- IF this assertion fails both "Testing Constants" and "test1" will appear in the report
+                    aE "test2" zm3 zm3
+            ,                                                   -- This comma delimits the TestLabels inside the TestList list
+
+            TestLabel "Adding Constants" $
+                TestCase $ do
+
+                    aE "test1" z5 (z2 + z3)
+                    aE "test2" z4 (z7 + zm3)
+                    aE "test3" zm4 (zm4 + z0)
+        ]
+
+
+
+-- Define shorthand utility functions for assertions
+
+aE :: (Eq a, Show a) => String -> a -> a -> Assertion
+aE = assertEqual
+
+aB :: String -> Bool -> Assertion
+aB = assertBool
