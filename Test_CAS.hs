@@ -94,6 +94,20 @@ tests = TestList [                                              -- We create a l
                     aE "test1" z5 (z2 + z3)
                     aE "test2" z4 (z7 + zm3)
                     aE "test3" zm4 (zm4 + z0)
+            ,
+
+            TestLabel "Multiplying Constants" $
+                TestCase $ do
+
+                    aE "test1" z6 (z2 * z3)
+                    aE "test2" z0 (z0 * z9)
+                    aE "test3" z8 (zm2 * zm4)
+                    aE "test4" z0 (zm9 * z0)
+                    aE "test5" zm6 (z2 * zm3)
+                    aE "test6" z7 (z1 * z7)
+                    aE "test7" zm9 (zm9 * z1)
+                    aE "test8" zm7 (z7 * zm1)
+
         ]
 
 

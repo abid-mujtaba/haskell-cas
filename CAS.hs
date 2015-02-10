@@ -220,6 +220,7 @@ rec' e          = Rec e
 -- Negation of an expression
 
 neg' :: Integral a => Expr a -> Expr a
+neg' (Const 0)  = Const 0
 neg' (Neg e)    = e
 neg' e          = Neg e
 
