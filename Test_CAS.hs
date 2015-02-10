@@ -79,6 +79,10 @@ tests = TestList [                                              -- We create a l
 
                     aE "test1" z2 z2                            -- IF this assertion fails both "Testing Constants" and "test1" will appear in the report
                     aE "test2" zm3 zm3
+                    aB "test3" $ z4 > z3
+                    aB "test4" $ z5 < z6
+                    aB "test5" $ zm3 < zm2
+                    aB "test6" $ zm7 > zm8
             ,                                                   -- This comma delimits the TestLabels inside the TestList list
 
             TestLabel "Adding Constants" $
