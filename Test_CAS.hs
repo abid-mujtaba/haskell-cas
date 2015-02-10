@@ -36,9 +36,12 @@ module Test_CAS
 
 
 import Test.HUnit
+import Test.QuickCheck
 import CAS
 
-main = runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
+main = do
+          runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
+          quickTests
 
 
 -- Define the first 10 positive and 9 negative integers for testing.
@@ -74,7 +77,7 @@ zm9 = const' (-9)
 
 tests = TestList [                                              -- We create a list of TestCases
 
-            TestLabel "Testing Constants" $                     -- We use TestLabel to add a label to the TestCase which will be shown in case of failure
+            TestLabel "Comparing Constants" $                     -- We use TestLabel to add a label to the TestCase which will be shown in case of failure
                 TestCase $ do                                   -- Each TestCase contains a sequence of assertions inside a do construct
 
                     aE "test1" z2 z2                            -- If this assertion fails both "Testing Constants" and "test1" will appear in the report
@@ -119,3 +122,12 @@ aE = assertEqual
 
 aB :: String -> Bool -> Assertion
 aB = assertBool
+
+
+-- We define a composite IO action consisting of all quickCheck property tests defined in the module
+quickTests = do
+                quickCheck prop_Rev2
+
+-- This is a test/sample property function that defines the property that reversing a list of Int twice gives back the lists. This is a property of the 'reverse' function. QuickCheck will randomly generate 100 lists of Int to verify this property.
+prop_Rev2 xs = reverse (reverse xs) == xs
+    where types = xs::[Int]
