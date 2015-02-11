@@ -35,7 +35,6 @@ module Test_CAS
     where
 
 
-import Control.Monad
 import Test.HUnit
 import Test.QuickCheck
 
@@ -128,7 +127,7 @@ aB = assertBool
 
 -- We define a composite IO action consisting of all quickCheck property tests defined in the module
 quickTests = do
-                quickCheck prop_Add_0
+                verboseCheck prop_Add_0             -- With verboseCheck the randomly generated expressions used for testing are printed. Useful for debugging
                 quickCheck prop_Mul_1
 
 
@@ -136,7 +135,7 @@ quickTests = do
 
 instance Integral a => Arbitrary (Expr a) where
   arbitrary = do
-                n <- arbitrary :: Gen Int
+                n <- elements [-9,-8..9]            -- Instead of all possible integers we restrict to integers between -9 and 9 inclusive. 'elements' returns a randomly selected element from the list specified
                 return $ const' n
 
 -- 'arbitrary' is a function which in this context is supposed to return a 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
