@@ -129,7 +129,7 @@ aB = assertBool
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
 
 quickTests = do
-                quickCheck prop_Add_0
+                verboseCheck prop_Add_0
                 quickCheck prop_Mul_1
 
 
@@ -138,13 +138,19 @@ quickTests = do
 -- We define it to be 'oneof' (a random selection) from the list of 'arbitrary' functions which are defined using 'where'.
 
 instance Integral a => Arbitrary (Expr a) where
-  arbitrary = oneof [arbitrary_const, arbitrary_symbol]
+  arbitrary = oneof [arbitrary_core, arbitrary_negative]
 
 
--- arbitrary_const returns a random Const object by taking a random integer from -9 to 9 and wrapping it inside Const.
+-- We collect the Const and Symbol expression in to a single arbitrary definition which produces them with equal likelihood
+-- This definition will be used to create negative core expressions as well.
+arbitrary_core :: Integral a => Gen (Expr a)
+arbitrary_core = oneof [arbitrary_const, arbitrary_symbol]
+
+-- arbitrary_const returns a random Const object by taking a random integer from 0 to 9 and wrapping it inside Const.
+-- Negative constants are handled by 'arbitrary_negative' which takes positive constants and negates them.
 arbitrary_const :: Integral a => Gen (Expr a)
 arbitrary_const = do
-                    n <- elements ([-9, -8 .. 9] :: [Int])
+                    n <- elements ([0, 1 .. 9] :: [Int])
                     return $ const' n
 
 -- The constraint 'Integral a' in the signature is crucial since it allows us to use the const' smart constructor to create Const objects from randomly selected Int.
@@ -159,6 +165,13 @@ arbitrary_symbol :: Gen (Expr a)
 arbitrary_symbol = do
                     c <- elements ["x", "y", "z"]
                     return $ Symbol c
+
+
+-- This definition creates randomly generated negative expressions
+arbitrary_negative :: Integral a => Gen (Expr a)
+arbitrary_negative = do
+                        e <- arbitrary_core     -- Randomly generate a core expression and extract it from its Gen context
+                        return $ negate e       -- Negate the expression and return it inside a Gen context
 
 
 
