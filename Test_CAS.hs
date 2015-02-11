@@ -134,11 +134,23 @@ quickTests = do
 
 
 -- Since Expr is a custom class we must make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
--- 'arbitrary' is a function which in this context is supposed to return a 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
--- We define it to be 'oneof' (a random selection) from the list of 'arbitrary' functions which are defined using 'where'.
+-- 'arbitrary' is a definition (it is a function that takes no arguments so it is in effect a constant) which in this context must be of type 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
+-- We define it using the 'sized' function which takes as its single argument a function taking an integer and returning a Gen (Expr a)
+-- When we use 'sized' we get access to the size integer that QuickCheck uses to create arbitrary instances. We can use this size value to more intelligently construct the expressions (which is the purpose of arbitrary')
 
 instance Integral a => Arbitrary (Expr a) where
-  arbitrary = oneof [arbitrary_atom, arbitrary_negative]
+  arbitrary = sized arbitrary'
+
+
+arbitrary' :: Integral a => Int -> Gen (Expr a)
+arbitrary' 0 = oneof [return $ const' 0, return $ const' 1]     -- Base case which we make equal to the additive and multiplicative identities
+arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
+arbitrary' n = fmap (x*) $ arbitrary' (n - 1)
+
+-- For the non-base case we do a little test to see if we can get multiplication going in the arbitrary expression construction.
+-- To that end we fmap (x*) over a recursive call to arbitarary' (n-1) so we keep multiplying the expression by the symbol x until we get to the base cases.
+-- Studying the output of verboseCheck will reveal the utility of this.
+
 
 
 -- Constants and Symbols are the atomic expressions. Everything else is constructed from these (or by encapsulatng them in some fashion).
