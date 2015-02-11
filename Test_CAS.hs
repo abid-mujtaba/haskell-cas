@@ -178,10 +178,11 @@ arbitrary' n = (*) <$> (pure x) <*> arbitrary' (n - 1)
 arbitrary_atom :: Integral a => Gen (Expr a)
 arbitrary_atom = oneof [arbitrary_const, arbitrary_symbol]
 
--- arbitrary_const returns a random Const object by taking a random integer from 0 to 9 and wrapping it inside Const.
+-- arbitrary_const returns a random Const object by taking a random integer from 2 to 9 and wrapping it inside Const.
+-- We don't include 0 because it leaves sums unchanged and more importantly it reduces products to zero which is counter-productive for testing.
 -- Negative constants are handled by 'arbitrary_negative' which takes positive constants and negates them.
 arbitrary_const :: Integral a => Gen (Expr a)
-arbitrary_const = fmap const' $ elements ([0, 1 .. 9] :: [Int])
+arbitrary_const = fmap const' $ elements ([1, 2 .. 9] :: [Int])
 
 -- The constraint 'Integral a' in the signature is crucial since it allows us to use the const' smart constructor to create Const objects from randomly selected Int.
 
