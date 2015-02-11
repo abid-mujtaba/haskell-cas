@@ -138,13 +138,14 @@ quickTests = do
 -- We define it to be 'oneof' (a random selection) from the list of 'arbitrary' functions which are defined using 'where'.
 
 instance Integral a => Arbitrary (Expr a) where
-  arbitrary = oneof [arbitrary_core, arbitrary_negative]
+  arbitrary = oneof [arbitrary_atom, arbitrary_negative]
 
 
+-- Constants and Symbols are the atomic expressions. Everything else is constructed from these (or by encapsulatng them in some fashion).
 -- We collect the Const and Symbol expression in to a single arbitrary definition which produces them with equal likelihood
--- This definition will be used to create negative core expressions as well.
-arbitrary_core :: Integral a => Gen (Expr a)
-arbitrary_core = oneof [arbitrary_const, arbitrary_symbol]
+-- This definition will be used to create negative atomic expressions as well.
+arbitrary_atom :: Integral a => Gen (Expr a)
+arbitrary_atom = oneof [arbitrary_const, arbitrary_symbol]
 
 -- arbitrary_const returns a random Const object by taking a random integer from 0 to 9 and wrapping it inside Const.
 -- Negative constants are handled by 'arbitrary_negative' which takes positive constants and negates them.
@@ -172,7 +173,7 @@ arbitrary_symbol = fmap Symbol $ elements ["x", "y", "z"]
 
 -- This definition creates randomly generated negative expressions
 arbitrary_negative :: Integral a => Gen (Expr a)
-arbitrary_negative = fmap negate arbitrary_core     -- We map the negate function on the expression inside the Gen returned by arbitrary_core
+arbitrary_negative = fmap negate arbitrary_atom     -- We map the negate function on the expression inside the Gen returned by arbitrary_atom
 
 
 
