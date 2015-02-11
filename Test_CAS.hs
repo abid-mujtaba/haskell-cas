@@ -24,6 +24,9 @@
 -- you need to do is run:
 --
 -- make test
+--
+--
+-- Source for QuickCheck usage: http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html
 
 
 
@@ -146,29 +149,12 @@ instance Integral a => Arbitrary (Expr a) where
 arbitrary' :: Integral a => Int -> Gen (Expr a)
 arbitrary' 0 = oneof [return $ const' 0, return $ const' 1]     -- Base case which we make equal to the additive and multiplicative identities
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
-arbitrary' n = (*) <$> (pure x) <*> arbitrary' (n - 1)
+arbitrary' n = (*) <$> arbitrary' 1 <*> arbitrary' (n - 1)
 
--- For the non-base case we do a little test to see if we can get multiplication going in the arbitrary expression construction.
--- The original definition for this was:
---                                                  = fmap (x*) $ arbitary' (n - 1)
---
--- where the idea was that we treat (x*) as a function of a single argument (since it is curried with x supplied) and use fmap to apply the function inside the Gen (Expr a) context returned by "arbitrary' (n - 1)".
---
--- We then replaced this definition with:
---                                                  = (x*) <$> arbitrary' (n - 1)
---
--- where Control.Applicative module provides the <$> infix operator (function) that simplifies and codifies this common pattern. We place the function to be applied on its left and the contextuallized argument on the right and <$> maps the function inside the context.
---
--- We are now at our next step of the evolution where we want to sandwich the multiplication operator between two objects which are both inside the Gen context. To that end we use both the <$> and the <*> infix operators.
--- <$> takes the (*) two-arg function and maps it over (pure x) giving us (x*) inside the Gen context.
--- We then use <*> to apply the contextualized function (x*) to the contextualized result of arbitrary' (n - 1)
---
--- Note: This definition is equivalent to:
---                                              pure (*) <*> (pure x) <*> arbitrary' (n - 1)
---
--- where we take (*) and use 'pure' to put it in the minimal context and now we can use <*> rather than <$> to apply the function to the two contextualized arguments.
---
--- Note that (pure x) simply places x in the minimal Gen context (that is the purpose of the pure function as it is defined for applicative functors).
+-- The non-base case uses recursion and applicative functor technique.
+-- We multiply an atomic expression with the result from a recursive call to arbitrary' with reduces size.
+-- In effect we are basically multiplying n atomic expressions together.
+-- It should now be obvious why we didn't want 0 to be a possible atomic expressions. It would collapse most of the products to zero and render the testing useless.
 
 
 
