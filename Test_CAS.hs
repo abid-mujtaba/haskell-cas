@@ -35,6 +35,7 @@ module Test_CAS
     where
 
 
+import Control.Applicative
 import Test.HUnit
 import Test.QuickCheck
 
@@ -145,9 +146,16 @@ instance Integral a => Arbitrary (Expr a) where
 arbitrary' :: Integral a => Int -> Gen (Expr a)
 arbitrary' 0 = oneof [return $ const' 0, return $ const' 1]     -- Base case which we make equal to the additive and multiplicative identities
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
-arbitrary' n = fmap (x*) $ arbitrary' (n - 1)
+arbitrary' n = (x*) <$> arbitrary' (n - 1)
 
 -- For the non-base case we do a little test to see if we can get multiplication going in the arbitrary expression construction.
+-- The original definition for this was:
+--                                                  = fmap (x*) $ arbitary' (n - 1)
+--
+-- where the idea was that we treat (x*) as a function of a single argument (since it is curried with x supplied) and use fmap to apply the function inside the Gen (Expr a) context returned by "arbitrary' (n - 1)".
+--
+-- The Control.Applicative module provides an infix operator (function) that simplifies and codifies this common pattern, namesly <$>. We place the function to be applied on its left and the contextuallized argument on the right and <$> maps the function inside the context.
+--
 -- To that end we fmap (x*) over a recursive call to arbitarary' (n-1) so we keep multiplying the expression by the symbol x until we get to the base cases.
 -- Studying the output of verboseCheck will reveal the utility of this.
 
