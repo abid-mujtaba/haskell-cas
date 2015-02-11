@@ -134,29 +134,31 @@ quickTests = do
 
 
 -- Since Expr is a custom class we must make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
+-- 'arbitrary' is a function which in this context is supposed to return a 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
+-- We define it to be 'oneof' (a random selection) from the list of 'arbitrary' functions which are defined using 'where'.
 
 instance Integral a => Arbitrary (Expr a) where
   arbitrary = oneof [arbitrary_const, arbitrary_symbol]
-                where
-                    arbitrary_const = do
-                                        n <- elements ([-9, -8 .. 9] :: [Int])
-                                        return $ const' n
 
-                    arbitrary_symbol = do
-                                        c <- elements ["x", "y", "z"]
-                                        return $ Symbol c
-
-
--- 'arbitrary' is a function which in this context is supposed to return a 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
-
--- We define it to be 'oneof' (a random selection) from the list of 'arbitrary' functions which are defined using 'where'.
 
 -- arbitrary_const returns a random Const object by taking a random integer from -9 to 9 and wrapping it inside Const.
+arbitrary_const :: Integral a => Gen (Expr a)
+arbitrary_const = do
+                    n <- elements ([-9, -8 .. 9] :: [Int])
+                    return $ const' n
+
+-- The constraint 'Integral a' in the signature is crucial since it allows us to use the const' smart constructor to create Const objects from randomly selected Int.
 -- Note the use of 'do' to package a sequence of IO actions namely choosing a random integer and then returning the Const.
 -- The '<-' is used to extract the chosen integer from its 'Gen' context.
 -- The 'return' is a keyword from monad syntax which places the constructed Const inside the relevant context, in this case 'Integral a => Gen (Expr a)'. It guesses the context from, well, context.
 
--- Similarly 'arbitrary_symbol' returns a Symbol object corresponding (randomly) to x, y or z.
+
+-- Analogous to 'arbitrary_const' this definition, 'arbitrary_symbol', returns a Symbol object corresponding (randomly) to x, y or z.
+-- Note that the signature reveals this to be a definition (and not a function). It corresponds to a randomly selected Expr.
+arbitrary_symbol :: Gen (Expr a)
+arbitrary_symbol = do
+                    c <- elements ["x", "y", "z"]
+                    return $ Symbol c
 
 
 
