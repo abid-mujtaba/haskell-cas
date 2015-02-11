@@ -129,7 +129,7 @@ aB = assertBool
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
 
 quickTests = do
-                verboseCheck prop_Add_0
+                quickCheck prop_Add_0
                 quickCheck prop_Mul_1
 
 
@@ -149,29 +149,30 @@ arbitrary_core = oneof [arbitrary_const, arbitrary_symbol]
 -- arbitrary_const returns a random Const object by taking a random integer from 0 to 9 and wrapping it inside Const.
 -- Negative constants are handled by 'arbitrary_negative' which takes positive constants and negates them.
 arbitrary_const :: Integral a => Gen (Expr a)
-arbitrary_const = do
-                    n <- elements ([0, 1 .. 9] :: [Int])
-                    return $ const' n
+arbitrary_const = fmap const' $ elements ([0, 1 .. 9] :: [Int])
 
 -- The constraint 'Integral a' in the signature is crucial since it allows us to use the const' smart constructor to create Const objects from randomly selected Int.
--- Note the use of 'do' to package a sequence of IO actions namely choosing a random integer and then returning the Const.
--- The '<-' is used to extract the chosen integer from its 'Gen' context.
--- The 'return' is a keyword from monad syntax which places the constructed Const inside the relevant context, in this case 'Integral a => Gen (Expr a)'. It guesses the context from, well, context.
+
+-- An alternate definition could be:
+--
+--        = do
+--            n <- elements ([0,1..9] :: [Int])
+--            return $ const' n
+--
+-- This alternate definition shows how one can extract a random integer from its 'Gen' context then construct a Const with it using const' and place it back in a Gen context with return. This is however equivalent to wanting to apply the function (constructor) const' to the random integer inside the Gen context and have the result remain inside the context. This is the exact purpose of 'fmap'.
+
+-- We simply use fmap to apply const' inside the Gen (random) context to get a random Const which is what we want.
 
 
 -- Analogous to 'arbitrary_const' this definition, 'arbitrary_symbol', returns a Symbol object corresponding (randomly) to x, y or z.
 -- Note that the signature reveals this to be a definition (and not a function). It corresponds to a randomly selected Expr.
 arbitrary_symbol :: Gen (Expr a)
-arbitrary_symbol = do
-                    c <- elements ["x", "y", "z"]
-                    return $ Symbol c
+arbitrary_symbol = fmap Symbol $ elements ["x", "y", "z"]
 
 
 -- This definition creates randomly generated negative expressions
 arbitrary_negative :: Integral a => Gen (Expr a)
-arbitrary_negative = do
-                        e <- arbitrary_core     -- Randomly generate a core expression and extract it from its Gen context
-                        return $ negate e       -- Negate the expression and return it inside a Gen context
+arbitrary_negative = fmap negate arbitrary_core     -- We map the negate function on the expression inside the Gen returned by arbitrary_core
 
 
 
