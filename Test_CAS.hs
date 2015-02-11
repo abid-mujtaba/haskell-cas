@@ -171,9 +171,9 @@ arbitrary_symbol :: Gen (Expr a)
 arbitrary_symbol = fmap Symbol $ elements ["x", "y", "z"]
 
 
--- This definition creates randomly generated negative expressions
-arbitrary_negative :: Integral a => Gen (Expr a)
-arbitrary_negative = fmap negate arbitrary_atom     -- We map the negate function on the expression inside the Gen returned by arbitrary_atom
+-- This definition creates randomly generated negative atomic expressions
+arbitrary_neg_atom :: Integral a => Gen (Expr a)
+arbitrary_neg_atom = fmap negate arbitrary_atom     -- We map the negate function on the expression inside the Gen returned by arbitrary_atom
 
 
 
