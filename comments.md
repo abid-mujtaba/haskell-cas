@@ -696,8 +696,8 @@ At the bottom of the file are general comments about the development process and
 * The case of the two expressions being equal is dealt with by ``sum_`` when it deals with the equality of general expressions.
 * For unequal expressions we simply place them in lexical order inside the ``Sum``.
 * The ``compareDegree`` function was written for the express purpose of placing general expressions in lexical order (firstly by using their degree).
-* ``compareDegree`` returns as ``Ordering`` so we use ``case`` on the result to branch execution.
-* Note that equality is considered an error because it should have been dealt earlier on by ``sum_`` when dealing with general equality of expressions.
+* ``compareDegree`` returns an ``Ordering`` so we use ``case`` on the result to branch execution.
+* Note that ``EQ`` here corresponds to the result of ``compareDegree``. Two expressions which are unequal but have the same polynomial degree will be considered ``EQ``. We put them inside the ``Sum`` with their incoming order for now.
 
 
 

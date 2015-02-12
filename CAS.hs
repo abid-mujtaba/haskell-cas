@@ -329,12 +329,12 @@ sum_x a (Sum bs) = sum_list $ add a bs                                          
 sum_x a b = case (compareDegree a b) of                                         -- AB.3
                     LT -> Sum [a, b]
                     GT -> Sum [b, a]
-                    EQ -> error $ "Equal expression should never arrive at sum_x: " ++ show a ++ " + " ++ show b
+                    EQ -> Sum [a, b]        -- ToDo: Implement lexical ordering of expressions with equal degree
 
 
 -- Rules for adding a Prod with other expressions
 
-sum_p :: (Show a, Integral a) => Expr a -> Expr a -> Expr a                               -- AC.1
+sum_p :: (Show a, Integral a) => Expr a -> Expr a -> Expr a                     -- AC.1
 
 sum_p a b@(Prod _)       = sum_pc a b                                           -- AC.2
 sum_p a b@(Neg (Prod _)) = sum_pc a b
