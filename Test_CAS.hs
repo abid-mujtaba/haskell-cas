@@ -47,7 +47,7 @@ import CAS
 
 main = do
           runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
---          quickTests
+          quickTests
 
 
 -- Define the first 10 positive and 9 negative integers for testing.
@@ -144,7 +144,7 @@ aB = assertBool
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
 
 quickTests = do
-                verboseCheck prop_Add_0
+                quickCheck prop_Add_0
 --                quickCheck prop_Mul_1
 
 
@@ -153,11 +153,11 @@ quickTests = do
 -- We define it using the 'sized' function which takes as its single argument a function taking an integer and returning a Gen (Expr a)
 -- When we use 'sized' we get access to the size integer that QuickCheck uses to create arbitrary instances. We can use this size value to more intelligently construct the expressions (which is the purpose of arbitrary')
 
-instance Integral a => Arbitrary (Expr a) where
+instance (Show a, Integral a) => Arbitrary (Expr a) where
   arbitrary = sized arbitrary'
 
 
-arbitrary' :: Integral a => Int -> Gen (Expr a)
+arbitrary' :: (Show a, Integral a) => Int -> Gen (Expr a)
 arbitrary' 0 = arbitrary_const                                  -- Base case which we define to be an arbitrary constant
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
 arbitrary' n = do
@@ -212,7 +212,7 @@ arbitrary_symbol = fmap Symbol $ elements ["x", "y", "z"]
 
 
 -- This definition creates randomly generated negative atomic expressions
-arbitrary_neg_atom :: Integral a => Gen (Expr a)
+arbitrary_neg_atom :: (Show a, Integral a) => Gen (Expr a)
 arbitrary_neg_atom = fmap negate arbitrary_atom     -- We map the negate function on the expression inside the Gen returned by arbitrary_atom
 
 

@@ -127,7 +127,7 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 
 
 
-instance Integral a => Num (Expr a) where                       -- D.1 --D.2
+instance (Show a, Integral a) => Num (Expr a) where                       -- D.1 --D.2
   a + b     = sum_ a b                                          -- D.3
   a - b     = sum_ a $ neg' b                                   -- D.4
   (*)       = prod_
@@ -140,7 +140,7 @@ instance Integral a => Num (Expr a) where                       -- D.1 --D.2
 
 -- We make Expr an instance of Fractional so we can use the '/' operator.
 
-instance Integral a => Fractional (Expr a) where               -- E.1
+instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
   a / b = a * rec' b                                           -- E.2
   fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.3
 
@@ -234,7 +234,7 @@ sum_list [e]    = e
 sum_list es     = Sum es
 
 
-sum_ :: Integral a => Expr a -> Expr a -> Expr a
+sum_ :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 sum_ (Const 0) e    = e                                                 -- Z.2
 sum_ e (Const 0)    = e
@@ -276,7 +276,7 @@ sum_ a b                                                                        
         | otherwise     = sum' a b
 
 
-sum' :: Integral a => Expr a -> Expr a -> Expr a
+sum' :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 sum' a@(Const _) b          = sum_c a b                 -- Z.9
 sum' a@(Neg (Const _)) b    = sum_c a b
@@ -289,7 +289,7 @@ sum' a b    = sum_x a b                                 -- Z.10
 
 -- Rules for adding Const to other expressions
 
-sum_c :: Integral a => Expr a -> Expr a -> Expr a
+sum_c :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 sum_c (Const a) (Const b)               = Const (a + b)
 
@@ -314,7 +314,7 @@ sum_c a b  = sum_c a (Sum [b])                                                  
 
 -- Rules for adding non-Const/Sum/Prod expressions with other expressions
 
-sum_x :: Integral a => Expr a -> Expr a -> Expr a
+sum_x :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 sum_x a b@(Const _) = sum_c b a                                                 -- AB.1
 
@@ -329,12 +329,12 @@ sum_x a (Sum bs) = sum_list $ add a bs                                          
 sum_x a b = case (compareDegree a b) of                                         -- AB.3
                     LT -> Sum [a, b]
                     GT -> Sum [b, a]
-                    EQ -> error "Equal expression should never arrive at sum_x"
+                    EQ -> error $ "Equal expression should never arrive at sum_x: " ++ show a ++ " + " ++ show b
 
 
 -- Rules for adding a Prod with other expressions
 
-sum_p :: Integral a => Expr a -> Expr a -> Expr a                               -- AC.1
+sum_p :: (Show a, Integral a) => Expr a -> Expr a -> Expr a                               -- AC.1
 
 sum_p a b@(Prod _)       = sum_pc a b                                           -- AC.2
 sum_p a b@(Neg (Prod _)) = sum_pc a b
@@ -342,7 +342,7 @@ sum_p a b@(Neg (Prod _)) = sum_pc a b
 sum_p a b                = sum_x a b                                            -- AC.3
 
 
-sum_pc :: Integral a => Expr a -> Expr a -> Expr a
+sum_pc :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 sum_pc pa pb = add (split pa) (split pb)
         where
             split (Prod ((Const c):es))         = (c, es)                       -- AC.4
@@ -359,7 +359,7 @@ sum_pc pa pb = add (split pa) (split pb)
 
 -- Multiplying expressions
 
-prod_ :: Integral a => Expr a -> Expr a -> Expr a               -- R.1a
+prod_ :: (Show a, Integral a) => Expr a -> Expr a -> Expr a               -- R.1a
 
 prod_ (Neg a) (Neg b)   = prod_ a b                             -- R.1b
 prod_ (Neg a) b         = neg' (prod_ a b)
@@ -407,7 +407,7 @@ prod_ ea eb                                             -- R.7
 
 
 
-prod' :: Integral a => Expr a -> Expr a -> Expr a       -- T.1
+prod' :: (Show a, Integral a) => Expr a -> Expr a -> Expr a       -- T.1
 
 prod' c@(Const _) e     = prod_c c e                    -- T.2
 prod' sym@(Symbol _) e  = prod_s sym e
@@ -415,12 +415,12 @@ prod' e@(Exp _ _) d     = prod_e e d
 prod' r@(Rec _) e       = prod_r r e
 prod' sm@(Sum _) e      = prod_sm sm e
 
-prod' _ _ = error "Patterns for multiplication exhausted. The patterns aren't comprehensive."
+prod' a b = error $ "Patterns for multiplication exhausted. The patterns aren't comprehensive.: " ++ show a ++ " * " ++ show b
 
 
 
 -- Rules for multiplying Const with other expressions
-prod_c :: Integral a => Expr a -> Expr a -> Expr a                              -- U.1a
+prod_c :: (Show a, Integral a) => Expr a -> Expr a -> Expr a                              -- U.1a
 
 prod_c (Const a) (Const b)               = Const (a*b)                          -- U.1b
 prod_c a@(Const _) sym@(Symbol _)        = Prod [a, sym]                        -- U.2
@@ -434,11 +434,11 @@ prod_c c@(Const v) (Prod ps) = Prod $ mul v ps                                  
                                     mul a (r@(Rec _):es)        = r:(mul a es)           -- U.5b     -- ToDo: Implement cancellation
                                     mul _ es                    = c:es                   -- U.5c
 
-prod_c _ _ = error "prod_c is only intended for multiplying Const with other expressions"           -- U.6
+prod_c a b = error $ "prod_c is only intended for multiplying Const with other expressions: " ++ show a ++ " * " ++ show b           -- U.6
 
 
 -- Rules for multiplying Symbols with other expressions
-prod_s :: Integral a => Expr a -> Expr a -> Expr a
+prod_s :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 prod_s sa@(Symbol _) c@(Const _)             = prod_c c sa                       -- V.1
 
@@ -470,11 +470,11 @@ prod_s sa@(Symbol a) (Prod ps)       = Prod $ mul a ps                          
 
                                                 mul _ es                     = sa:es                              -- V.9
 
-prod_s _ _ = error "prod_s is only intended for multiplying Symbol expression"
+prod_s a b = error $ "prod_s is only intended for multiplying Symbol expression: " ++ show a ++ " * " ++ show b
 
 
 -- Rules for multiplying Exp with other expressions
-prod_e :: Integral a => Expr a -> Expr a -> Expr a
+prod_e :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 prod_e ea@(Exp _ _) c@(Const _)     = prod_c c ea                                    -- W.1
 prod_e ea@(Exp _ _) sb@(Symbol _)   = prod_s sb ea
@@ -522,11 +522,11 @@ prod_e ea@(Exp a n) (Prod ps)   = Prod $ mul a n ps                             
                                                         | b == e        = (exp' b (p + 1)):es
                                                         | otherwise     = e:(mul b p es)
 
-prod_e _ _  = error "prod_e is only intended to multiply by Exp"
+prod_e a b = error $ "prod_e is only intended to multiply by Exp: " ++ show a ++ " * " ++ show b
 
 
 -- Rules for multiplyng Rec with other expressions
-prod_r :: Integral a => Expr a -> Expr a -> Expr a
+prod_r :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 prod_r r@(Rec _) c@(Const _)              = prod_c c r                              -- X.1
 prod_r r@(Rec _) sym@(Symbol _)           = prod_s sym r
@@ -541,12 +541,12 @@ prod_r rc@(Rec _) (Prod (rp@(Rec _):es))  = mul $ (prod_ rc rp):es              
 
 prod_r rc@(Rec _) (Prod es)               = Prod $ rc:es                            -- X.3
 
-prod_r _ _  = error "prod_r can only be used to multiply Rec"
+prod_r a b  = error $ "prod_r can only be used to multiply Rec: " ++ show a ++ " * " ++ show b
 
 
 
 -- Rules for multiplying Sum with other expressions
-prod_sm :: Integral a => Expr a -> Expr a -> Expr a
+prod_sm :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 
 prod_sm sm@(Sum _) c@(Const _)      = prod_c c sm
 prod_sm sm@(Sum _) sym@(Symbol _)   = prod_s sym sm
