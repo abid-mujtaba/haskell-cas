@@ -704,9 +704,19 @@ At the bottom of the file are general comments about the development process and
 
 ## AC. Adding ``Prod`` using ``sum_p``
 
-**AC.1** - We are adding two ``Prod`` expressions together. We are looking for the possibility of the first one being a constant times the second one in which case adding them together will result in an expression with an incremented constant associated with it.
+**AC.1** - We are adding two (possibly negative) ``Prod`` expressions together. We are looking for the possibility of them both being a constant (possibly 1) multiplied by the **same** remaining expression.
 
-**AC.2** - This is analogous to (Z.3) but instead of a ``Prod`` we have a general expression multiplied by a constant. If that matches the expression being added with we increment the constant.
+**AC.2** - We use pattern-matching to ensure that the second expression is also a (negative) product in which case we hand over the calculation to `sum_pc`. Note that the first argument is guaranteed to be a (negative) product based on how ``sum_p`` is called from ``sum_`` only after such a pattern-match has occurred.
+
+**AC.3** - If the second argument is not a product we simply pass calculation on to ``sum_x`` which is designed for general (non-special) addition of expressions.
+
+**AC.4** - The purpose of ``split`` is to take a (negative) product and return a tuple consisting of a constant (which can be negative or even ``1``) and the rest of the list of expressions inside the product. The output is used by the `add` function defined below it.
+ 
+**AC.5**
+
+* First we check that the two lists ``as`` and ``bs`` match.
+* If they do not the entire exercise is futile so we simply send the reconstituted products to ``sum_x``.
+* If they do match we add the constants together and multiply it with the rest of the product. By using ``*`` here we guarantee that all the edge cases of ``0``, ``1`` and negative constants will be looked after automatically.
 
 
 

@@ -47,7 +47,7 @@ import CAS
 
 main = do
           runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
-          quickTests
+--          quickTests
 
 
 -- Define the first 10 positive and 9 negative integers for testing.
@@ -116,7 +116,17 @@ tests = TestList [                                              -- We create a l
                     aE "test6" z7 (z1 * z7)
                     aE "test7" zm9 (zm9 * z1)
                     aE "test8" zm7 (z7 * zm1)
+            ,
 
+            TestLabel "Adding similar products" $
+                TestCase $ do
+
+                    let e = x + y
+
+                    aE "test1" (2 * e) (e + e)
+                    aE "test2" (5 * e) ((2 * e) + (3 * e))
+                    aE "test3" (3 * e) ((-2 * e) + (5 * e))
+                    aE "test4" (-7 * e) ((-3 * e) + (4 * (-e)))
         ]
 
 
@@ -135,7 +145,7 @@ aB = assertBool
 
 quickTests = do
                 verboseCheck prop_Add_0
-                quickCheck prop_Mul_1
+--                quickCheck prop_Mul_1
 
 
 -- Since Expr is a custom class we must make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr

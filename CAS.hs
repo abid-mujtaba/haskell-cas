@@ -334,16 +334,27 @@ sum_x a b = case (compareDegree a b) of                                         
 
 -- Rules for adding a Prod with other expressions
 
-sum_p :: Integral a => Expr a -> Expr a -> Expr a
+sum_p :: Integral a => Expr a -> Expr a -> Expr a                               -- AC.1
 
-sum_p a@(Prod ((Const c):as)) b@(Prod bs)                                -- AC.1
-        | as == bs          = Prod $ (Const (c + 1)):bs
-        | otherwise         = sum_x a b
+sum_p a b@(Prod _)       = sum_pc a b                                           -- AC.2
+sum_p a b@(Neg (Prod _)) = sum_pc a b
 
-sum_p a@(Prod ((Const c):[ea])) b                                        -- AC.2
-        | ea == b           = Prod $ (Const (c + 1)):[ea]
-        | otherwise         = sum_x a b
+sum_p a b                = sum_x a b                                            -- AC.3
 
+
+sum_pc :: Integral a => Expr a -> Expr a -> Expr a
+sum_pc pa pb = add (split pa) (split pb)
+        where
+            split (Prod ((Const c):es))         = (c, es)                       -- AC.4
+            split (Neg (Prod ((Const c):es)))   = (-c, es)
+            split (Prod es)                     = (1, es)
+            split (Neg (Prod es))               = (-1, es)
+
+            add (a, as) (b, bs)                                                 -- AC.5
+                | as == bs  = fromIntegral d * Prod as
+                | otherwise = sum_x (fromIntegral a * Prod as) (fromIntegral b * Prod bs)
+                        where
+                            d = a + b
 
 
 -- Multiplying expressions
