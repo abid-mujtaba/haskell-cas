@@ -160,15 +160,16 @@ instance (Ord a, Num a) => Ord (Expr a) where                                 --
   compare (Const _) (Neg (Const _))         = GT
   compare (Neg (Const a)) (Neg (Const b))   = compare b a
 
-  compare (Neg a) (Neg b)             = compare a b                           -- L.2
-  compare a (Neg b)                   = compare a b
-  compare (Neg a) b                   = compare a b
-
-  compare a b = compareDegree a b                                             -- L.3
+  compare a b = compareDegree a b                                             -- L.2
 
 
 -- A function for doing a degree based comparison of two expressions:
 compareDegree :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
+
+compareDegree (Neg a) (Neg b)       = compareDegree a b                       -- L.3
+compareDegree a (Neg b)             = compareDegree a b
+compareDegree (Neg a) b             = compareDegree a b
+
 compareDegree (Exp a pa) (Exp b pb)                                           -- L.4
                                 | pa == pb  = compare a b
                                 | da < db   = LT
@@ -192,7 +193,7 @@ compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
 
 compare' (Rec a) (Rec b) = compare' a b                                       -- L.6
 compare' (Symbol a) (Symbol b) = compare a b                                  -- L.7
-compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At the point one should be able to get rid of the Exp pattern in compareDegree
+compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
 
 
 
@@ -303,7 +304,7 @@ sum_c a (Sum bs) = sum_list $ add a bs                                          
                             add (Const 0) es                                = es
                             add e []                                        = [e]                        -- AA.2
 
-                            add c (e:es) = case (compare c e) of                                         -- AA.3
+                            add c (e:es) = case (compareDegree c e) of                                   -- AA.3
                                                     LT -> c:e:es
                                                     GT -> e:(add c es)
                                                     EQ -> add (c + e) es
@@ -320,12 +321,12 @@ sum_x a b@(Const _) = sum_c b a                                                 
 sum_x a (Sum bs) = sum_list $ add a bs                                          -- AB.2
                         where
                             add c []     = [c]
-                            add c (d:es) = case (compare c d) of
+                            add c (d:es) = case (compareDegree c d) of
                                                 LT -> c:d:es
                                                 GT -> d:(add c es)
                                                 EQ -> (2 * c):es
 
-sum_x a b = case (compare a b) of                                               -- AB.3
+sum_x a b = case (compareDegree a b) of                                         -- AB.3
                     LT -> Sum [a, b]
                     GT -> Sum [b, a]
                     EQ -> error "Equal expression should never arrive at sum_x"

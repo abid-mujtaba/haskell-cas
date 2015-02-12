@@ -238,10 +238,9 @@ At the bottom of the file are general comments about the development process and
     - Amongst reciprocal expressions with equal degree the lexical order is the same as it is for the expressions inside the reciprocals.
     - Amongst product of symbols the product with the lower power for the first symbol (determined by the lexical order of the symbols themselves) has lower lexical order.
 
+**L.2** - Any pair of expressions that don't fit any of the patterns above are caught by this pattern and passed on to the ``compareDegree`` function. In compare we are only looking at constant expressions and how to compare them. The rest is done by compareDegree which only cares about the degree of expressions and not their contents.
 
-**L.2** - We define the ``Neg`` of an expression to have the same order as the expression itself.
-
-**L.3** - Any pair of expressions that don't fit any of the patterns above are caught by this pattern and passed on to the ``compareDegree`` function.
+**L.3** - We define the ``Neg`` of an expression to have the same order as the expression itself.
 
 **L.4** 
 
@@ -671,7 +670,7 @@ At the bottom of the file are general comments about the development process and
 * When the head of the list ``es`` is not a (negative) constant we lexically compare the head with the constant.
 * If the constant is lexically lower than the head we simply place the constant in that location.
 * If the constant is lexically higher than the head we place the head in the position and recursively call ``add`` again with the tail of the list since the constant may need to be located further down the list.
-* When we have lexical equality it is guaranteed, from the implementation of the ``compare`` function, that the head element is also a (negative) constant. In this case we simply add the two elements to get a unified ``Const``.
+* When we have lexical equality it is guaranteed, from the implementation of the ``compareDegree`` function, that the head element is also a (negative) constant (has degree zero). In this case we simply add the two elements to get a unified ``Const``.
 * We make a recursive call to ``add`` with the newly created ``Const`` to deal with the possibility of the addition resulting in a ``Const 0``. The recursive call to ``add`` will remove the zero if that is the case.
 
 **AA.4** - If the second element is neither a constant nor a sum we simply create a ``Sum`` from just the second argument (singleton) and then recursively call ``sum_c`` on it. This works because ``sum_c`` with ``Sum`` as the second argument implements all of the rules for constructing a ``Sum`` with the correct lexical order.
@@ -696,8 +695,8 @@ At the bottom of the file are general comments about the development process and
 
 * The case of the two expressions being equal is dealt with by ``sum_`` when it deals with the equality of general expressions.
 * For unequal expressions we simply place them in lexical order inside the ``Sum``.
-* The ``compare`` function was written for the express purpose of placing general expressions in lexical order.
-* ``compare`` returns as ``Ordering`` so we use ``case`` on the result to branch execution.
+* The ``compareDegree`` function was written for the express purpose of placing general expressions in lexical order (firstly by using their degree).
+* ``compareDegree`` returns as ``Ordering`` so we use ``case`` on the result to branch execution.
 * Note that equality is considered an error because it should have been dealt earlier on by ``sum_`` when dealing with general equality of expressions.
 
 

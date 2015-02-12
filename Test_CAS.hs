@@ -155,6 +155,8 @@ arbitrary' n = do
                     where
                         op = oneof [pure (+), pure (*)]
 
+-- ToDo: Construct expressions of arbitrary length as products and sums by splitting the size n in to random parts and applying a chosen operation between them. The sub-parts are constructed by recursive calls to arbitrary'
+
 -- The non-base case uses recursion and applicative functor technique.
 -- The first thing we do is select one of two operations: * or +. We do so using the 'oneof' function which chooses one of two Gen objects from a list. We convert the functions (*) and (+) in to Gen objects by using the function 'pure' from applicative functor technique.
 
