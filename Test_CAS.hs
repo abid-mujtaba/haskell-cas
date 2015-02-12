@@ -26,6 +26,7 @@
 -- make test
 --
 --
+-- Source for HUnit usage: https://wiki.haskell.org/HUnit_1.0_User's_Guide
 -- Source for QuickCheck usage: http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html
 
 
@@ -164,23 +165,27 @@ arbitrary' n = (*) <$> arbitrary' 1 <*> arbitrary' (n - 1)
 arbitrary_atom :: Integral a => Gen (Expr a)
 arbitrary_atom = oneof [arbitrary_const, arbitrary_symbol]
 
--- arbitrary_const returns a random Const object by taking a random integer from 2 to 9 and wrapping it inside Const.
+-- arbitrary_const returns a random Const object by taking a random integer from 1 to 9 and wrapping it inside Const.
 -- We don't include 0 because it leaves sums unchanged and more importantly it reduces products to zero which is counter-productive for testing.
 -- Negative constants are handled by 'arbitrary_negative' which takes positive constants and negates them.
 arbitrary_const :: Integral a => Gen (Expr a)
-arbitrary_const = fmap const' $ elements ([1, 2 .. 9] :: [Int])
+arbitrary_const = frequency $
+                        map (\(f, n) -> (f, return $ const' n)) $
+                            [(1000, 1), (100, 2), (10, 3)] ++ map (\n -> (1, n)) [4,5..9]
 
 -- The constraint 'Integral a' in the signature is crucial since it allows us to use the const' smart constructor to create Const objects from randomly selected Int.
 
--- An alternate definition could be:
---
---        = do
---            n <- elements ([0,1..9] :: [Int])
---            return $ const' n
---
--- This alternate definition shows how one can extract a random integer from its 'Gen' context then construct a Const with it using const' and place it back in a Gen context with return. This is however equivalent to wanting to apply the function (constructor) const' to the random integer inside the Gen context and have the result remain inside the context. This is the exact purpose of 'fmap'.
+-- We use 'frequency' to change the, well, frequency with which the constants are generated when arbitrary_const is called. Our aim is to have lower integers be more frequently produces than higher ones since it will keep the expressions manageable (verboseCheck lets us know how the distribution is coming out).
+-- 'frequency' takes a list of (Int, Gen) tuples where the integer is the weight with which the Gen is produced. So the higher the integer the more likely that Gen will be generated.
 
--- We simply use fmap to apply const' inside the Gen (random) context to get a random Const which is what we want.
+-- We first create a list of (Int, Int) tuples where we list the integers 1 to 9 and attach the required weights to them. Highest for 1, then 2, then 3 and the rest are equally weighted at the bottom.
+-- The list of tuples for 1,2,3 is created explicitly. The remainder is added to it using ++ and is constructed by taking the list of integers from 4 to 9 and mapping a simple lambda function over it which transforms it in to a list of tuples with frequency 1.
+
+-- We then use map and a lambda function to create Gen (Const Int) objects out of the second element of each tuple using "return $ const' n".
+-- Note the use of pattern-matching within the lamdba function definition to gain access to the second element.
+
+-- Finally we present the constructed list to frequency for the generation of these objects.
+
 
 
 -- Analogous to 'arbitrary_const' this definition, 'arbitrary_symbol', returns a Symbol object corresponding (randomly) to x, y or z.
