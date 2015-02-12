@@ -148,7 +148,20 @@ quickTests = do
 --                quickCheck prop_Mul_1
 
 
--- Since Expr is a custom class we must make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
+-- Define the various properties checked by QuickCheck
+-- Any function that starts with "prop_" is considered a property by QuickCheck
+
+prop_Add_0 :: Expr Int -> Bool      -- A property of expressions is that adding zero to an expression should result in the same expression
+prop_Add_0 e = e + z0 == e
+    where types = e::(Expr Int)
+
+prop_Mul_1 :: Expr Int -> Bool
+prop_Mul_1 e = e * z1 == e
+    where types = e::(Expr Int)
+
+
+
+-- Since Expr is a custom class we MUST make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
 -- 'arbitrary' is a definition (it is a function that takes no arguments so it is in effect a constant) which in this context must be of type 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
 -- We define it using the 'sized' function which takes as its single argument a function taking an integer and returning a Gen (Expr a)
 -- When we use 'sized' we get access to the size integer that QuickCheck uses to create arbitrary instances. We can use this size value to more intelligently construct the expressions (which is the purpose of arbitrary')
@@ -214,13 +227,3 @@ arbitrary_symbol = fmap Symbol $ elements ["x", "y", "z"]
 -- This definition creates randomly generated negative atomic expressions
 arbitrary_neg_atom :: (Show a, Integral a) => Gen (Expr a)
 arbitrary_neg_atom = fmap negate arbitrary_atom     -- We map the negate function on the expression inside the Gen returned by arbitrary_atom
-
-
-
-prop_Add_0 :: Expr Int -> Bool      -- A property of expressions is that adding zero to an expression should result in the same expression
-prop_Add_0 e = e + z0 == e
-    where types = e::(Expr Int)
-
-prop_Mul_1 :: Expr Int -> Bool
-prop_Mul_1 e = e * z1 == e
-    where types = e::(Expr Int)

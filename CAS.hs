@@ -127,6 +127,7 @@ foldListElement acc e = acc ++ ", " ++ showActual e                             
 
 
 
+-- ToDo: Remove dependance on Show
 instance (Show a, Integral a) => Num (Expr a) where                       -- D.1 --D.2
   a + b     = sum_ a b                                          -- D.3
   a - b     = sum_ a $ neg' b                                   -- D.4
