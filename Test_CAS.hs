@@ -134,7 +134,7 @@ aB = assertBool
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
 
 quickTests = do
-                quickCheck prop_Add_0
+                verboseCheck prop_Add_0
                 quickCheck prop_Mul_1
 
 
@@ -148,13 +148,18 @@ instance Integral a => Arbitrary (Expr a) where
 
 
 arbitrary' :: Integral a => Int -> Gen (Expr a)
-arbitrary' 0 = oneof [return $ const' 0, return $ const' 1]     -- Base case which we make equal to the additive and multiplicative identities
+arbitrary' 0 = arbitrary_const                                  -- Base case which we define to be an arbitrary constant
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
-arbitrary' n = (*) <$> arbitrary' 1 <*> arbitrary' (n - 1)
+arbitrary' n = do
+                 op <*> arbitrary' 1 <*> arbitrary' (n - 1)
+                    where
+                        op = oneof [pure (+), pure (*)]
 
 -- The non-base case uses recursion and applicative functor technique.
--- We multiply an atomic expression with the result from a recursive call to arbitrary' with reduces size.
--- In effect we are basically multiplying n atomic expressions together.
+-- The first thing we do is select one of two operations: * or +. We do so using the 'oneof' function which chooses one of two Gen objects from a list. We convert the functions (*) and (+) in to Gen objects by using the function 'pure' from applicative functor technique.
+
+-- We then apply the randomly selected operator to an atomic expression and the result from a recursive call to arbitrary' with reduces size.
+-- In effect we are basically adding and multiplying (in random order) n atomic expressions together.
 -- It should now be obvious why we didn't want 0 to be a possible atomic expressions. It would collapse most of the products to zero and render the testing useless.
 
 
