@@ -50,7 +50,7 @@ import CAS
 
 main = do
           runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
-          quickTests
+--          quickTests
 
 
 -- Define the first 10 positive and 9 negative integers for testing.
@@ -138,12 +138,14 @@ tests = TestList [                                              -- We create a l
                     let e1 = -1 + x
                     let e2 = 2 * (-x) / y
                     let e3 = -y + (2 * x * y)
+                    let e4 = -1 + x + y + z
 
                     aE "test1" 0 (z2 - z2)
                     aE "test2" 0 (x - x)
                     aE "test3" 0 (e1 - e1)
                     aE "test4" 0 (e2 - e2)
                     aE "test5" 0 (e3 - e3)
+                    aE "test6" 0 (e4 - e4)
         ]
 
 
