@@ -668,3 +668,8 @@ single_prod xs = case xs of [] -> Const 1                                       
 
 simplify :: Integral a => Expr a -> Expr a
 simplify = s
+
+
+-- Define a debug function for tracing code
+debug :: String -> a -> a
+debug m a = trace ("\nDEBUG: " ++ m) a
