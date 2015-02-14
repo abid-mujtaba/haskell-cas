@@ -245,7 +245,9 @@ sum_ e (Const 0)    = e
 sum_ (Neg a) (Neg b) = Neg (sum_ a b)                                   -- Z.3
 sum_ a b@(Neg _)     = sum_ b a
 
-sum_ (Neg (Sum as)) b       = sum_ (sum_list $ map neg' as) b           -- Z.4
+sum_ (Neg a@(Sum as)) b
+       | a == b     = Const 0                                           -- Z.4
+       | otherwise  = sum_ (sum_list $ map neg' as) b
 
 sum_ (Sum [e]) s2@(Sum _)   = sum_ e s2                                 -- Z.5
 sum_ s1@(Sum (e:es)) s2@(Sum _)
@@ -258,6 +260,10 @@ sum_ a b@(Sum ss) = branch $ match a ss                                 -- Z.6
                             branch (Just es) = sum_list es
 
                             match _ []          = Nothing
+
+                            match c@(Neg d) (e:es)
+                                    | d == e    = Just es
+                                    | otherwise = fmap (e:) (match c es)
 
                             match c (d@(Neg e):es)
                                     | c == e    = Just es

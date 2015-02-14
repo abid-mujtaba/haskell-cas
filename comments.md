@@ -632,7 +632,10 @@ At the bottom of the file are general comments about the development process and
 * For adding an expression with a ``Neg`` expression (the former is guaranteed to not be a ``Neg`` because of the pattern above) we implement commutation on the pattern.
 * This means that all subsequent patterns **only** need to match with ``Neg`` in the **first** argument (the first one is handled using commutation here).
 
-**Z.4** - When adding something with a ``Neg`` ``Sum`` we map ``Neg`` over all of the elements converting it in to a ``Sum`` over ``Neg`` elements before we carry out the addition.
+**Z.4**
+
+* When adding something with a ``Neg`` ``Sum`` we first test if the expression withing the ``Neg`` is equal to the second expression in which case the answer should be zero.
+* Otherwise we map ``Neg`` over all of the elements converting it in to a ``Sum`` over ``Neg`` elements before we carry out the addition.
 
 **Z.5**
 
