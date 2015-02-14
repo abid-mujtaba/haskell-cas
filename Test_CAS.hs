@@ -176,9 +176,20 @@ arbitrary' :: (Show a, Integral a) => Int -> Gen (Expr a)
 arbitrary' 0 = arbitrary_const                                  -- Base case which we define to be an arbitrary constant
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
 arbitrary' n = do
-                 op <*> arbitrary' 1 <*> arbitrary' (n - 1)
+                 s <- split n
+                 trace ("n: " ++ show n ++ " - " ++ show s) $ op <*> arbitrary' 1 <*> arbitrary' (n - 1)
+
+                 -- NOTE the use of trace here to help us debug the newly implemented 'split' function and how we used '<-' to extract the list from the Gen context returned by 'split n' so we can show it using trace.
+
                     where
                         op = oneof [pure (+), pure (*)]
+
+                        split 0 = pure []
+                        split a = do
+                                    p <- pick a
+                                    fmap (p:) (split (a - p))
+
+                        pick a = choose (1, a)
 
 -- ToDo: Construct expressions of arbitrary length as products and sums by splitting the size n in to random parts and applying a chosen operation between them. The sub-parts are constructed by recursive calls to arbitrary'
 
@@ -188,6 +199,12 @@ arbitrary' n = do
 -- We then apply the randomly selected operator to an atomic expression and the result from a recursive call to arbitrary' with reduces size.
 -- In effect we are basically adding and multiplying (in random order) n atomic expressions together.
 -- It should now be obvious why we didn't want 0 to be a possible atomic expressions. It would collapse most of the products to zero and render the testing useless.
+
+-- We use 'split' to construct a random separation of 'n' elements in to parts. 'split' takes an integer 'n' and returns a randomly generated list of integers which all add up to 'n'.
+-- It does so recursively. The base case is 'split 0' where we return an empty list.
+-- For non-zero 'n' we use 'pick' to get a random integer inside a Gen context. We use '<-' to extract the integer from the Gen context.
+-- The next statement inside the 'do' concats the integer to the list inside 'split (a - p)'. Since the recursive call 'split (p - a)' returns a list inside a Gen we use fmap to append 'p' to the list inside the Gen to get a larger list inside the Gen.
+-- Since pick returns a monad and split is called from inside a monadic do sequence we are forced to respect the context throughout the calculation.
 
 
 
