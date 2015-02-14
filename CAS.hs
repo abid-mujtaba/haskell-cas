@@ -245,17 +245,17 @@ sum_ e (Const 0)    = e
 sum_ (Neg a) (Neg b) = Neg (sum_ a b)                                   -- Z.3
 sum_ a b@(Neg _)     = sum_ b a
 
-sum_ (Neg (Sum as)) b       = sum_ (Sum $ map neg' as) b                -- Z.4
+sum_ (Neg (Sum as)) b       = sum_ (sum_list $ map neg' as) b           -- Z.4
 
 sum_ (Sum [e]) s2@(Sum _)   = sum_ e s2                                 -- Z.5
 sum_ s1@(Sum (e:es)) s2@(Sum _)
         | s1 == s2          = 2 * s1
-        | otherwise         = sum_ (Sum es) (sum_ e s2)
+        | otherwise         = sum_ (sum_list es) (sum_ e s2)
 
 sum_ a b@(Sum ss) = branch $ match a ss                                 -- Z.6
                         where
                             branch Nothing   = sum' a b
-                            branch (Just es) = Sum es
+                            branch (Just es) = sum_list es
 
                             match _ []          = Nothing
 
