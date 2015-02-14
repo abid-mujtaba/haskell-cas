@@ -37,6 +37,7 @@ module CAS                                                           -- A.1
 
 import Prelude hiding ((^))                 -- P.1
 import qualified Prelude                    -- P.2
+import Data.List(foldl',foldl1')            -- P.3
 
 import Debug.Trace(trace)
 
@@ -117,8 +118,8 @@ showActual (Symbol sym) = sym                                                   
 showActual (Neg e)      = "Neg (" ++ showActual e ++ ")"                                                    -- M.3
 showActual (Rec e)      = "Rec (" ++ showActual e ++ ")"
 showActual (Exp e p)    = "Exp (" ++ showActual e ++ ")(" ++ show p ++ ")"
-showActual (Sum xs)     = "Sum [" ++ (drop 2 $ foldl foldListElement "" xs) ++ "]"                          -- M.4
-showActual (Prod xs)    = "Prod [" ++ (drop 2 $ foldl foldListElement "" xs) ++ "]"
+showActual (Sum xs)     = "Sum [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"                          -- M.4
+showActual (Prod xs)    = "Prod [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"
 
 
 -- Binary function that is used to show a list of expressions. It is intended for use in a fold.
@@ -206,7 +207,7 @@ degree (Neg e)     = degree e
 degree (Rec e)     = negate $ degree e
 degree (Prod xs)   = sum $ map degree xs                          -- O.2
 degree (Sum [])    = 0                                            -- O.3
-degree (Sum xs)    = foldl1 max $ map degree xs                   -- O.4
+degree (Sum xs)    = foldl1' max $ map degree xs                  -- O.4
 degree (Exp e pwr) = pwr * degree e
 
 

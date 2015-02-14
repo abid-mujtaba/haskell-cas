@@ -314,9 +314,9 @@ At the bottom of the file are general comments about the development process and
 
 **O.4** 
 
-* The degree of the sum of polynomials is the highest (maximum) of the degree of its parts. To calculate this we ``map`` ``degree`` over ``xs`` and then ``foldl1`` the ``max`` function over it.
+* The degree of the sum of polynomials is the highest (maximum) of the degree of its parts. To calculate this we ``map`` ``degree`` over ``xs`` and then ``foldl1'`` the ``max`` function over it.
 * ``max`` is a binary function that returns the larger of its two arguments.
-* We want to implement ``max`` over the whole list so we naturally use a fold. In this case ``fold11`` because with it the first element of the list serves as an accumulator. At first I was mistakenly using ``foldl max 0`` with ``0`` as the initial accumulator but that would have failed for a list with entirely negative degree polynomials. With ``foldl1`` we are guaranteed to get the correct maximum value. ``foldl1`` applies ``max`` successively over the elements of ``xs`` and keeps track of the maximum value to date.
+* We want to implement ``max`` over the whole list so we naturally use a fold. In this case ``fold11`` because with it the first element of the list serves as an accumulator. At first I was mistakenly using ``foldl max 0`` with ``0`` as the initial accumulator but that would have failed for a list with entirely negative degree polynomials. With ``foldl1`` we are guaranteed to get the correct maximum value. ``foldl1'`` applies ``max`` successively over the elements of ``xs`` and keeps track of the maximum value to date.
 
 
 
@@ -331,6 +331,8 @@ At the bottom of the file are general comments about the development process and
 * With this in place we can now define ``^`` ourselves.
 
 **P.2** - We make a qualified import of Prelude which will allow us to access it by name and access its members using the ``.`` terminology. It will allow us to refer to the hidden/suppressed ``^`` as ``Prelude.^``.
+
+**P.3** - We import the stricter versions of foldl and foldl1 from the Data.List module since these are recommended to avoid stack overflows (in pattern matching).
 
 
 
