@@ -148,7 +148,10 @@ aB = assertBool
 
 quickTests = do
                 quickCheck prop_Add_0
---                quickCheck prop_Mul_1
+                quickCheck prop_Mul_1
+                quickCheck prop_Add_equal
+                quickCheck prop_Add_equal2
+                quickCheck prop_Sub_equal
 
 
 -- Define the various properties checked by QuickCheck
@@ -162,6 +165,17 @@ prop_Mul_1 :: Expr Int -> Bool
 prop_Mul_1 e = e * z1 == e
     where types = e::(Expr Int)
 
+prop_Add_equal :: Expr Int -> Bool
+prop_Add_equal e = e + e == (2 * e)
+    where types = e :: (Expr Int)
+
+prop_Add_equal2 :: Expr Int -> Bool
+prop_Add_equal2 e = (2 * e) + (5 * e) == (7 * e)
+    where types = e :: (Expr Int)
+
+prop_Sub_equal :: Expr Int -> Bool
+prop_Sub_equal e = (e - e) == z0
+    where types = e :: (Expr Int)
 
 
 -- Since Expr is a custom class we MUST make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
