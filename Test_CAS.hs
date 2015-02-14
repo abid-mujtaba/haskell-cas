@@ -40,6 +40,7 @@ module Test_CAS
 
 
 import Control.Applicative
+import Data.List(foldl1')
 import Debug.Trace(trace,traceShow)
 
 import Test.HUnit
@@ -176,13 +177,14 @@ arbitrary' :: (Show a, Integral a) => Int -> Gen (Expr a)
 arbitrary' 0 = arbitrary_const                                  -- Base case which we define to be an arbitrary constant
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
 arbitrary' n = do
-                 s <- split n
-                 trace ("n: " ++ show n ++ " - " ++ show s) $ op <*> arbitrary' 1 <*> arbitrary' (n - 1)
-
-                 -- NOTE the use of trace here to help us debug the newly implemented 'split' function and how we used '<-' to extract the list from the Gen context returned by 'split n' so we can show it using trace.
+                 ns <- split n
+                 foldl1' (apply op) $ fmap arbitrary' ns
 
                     where
+
                         op = oneof [pure (+), pure (*)]
+
+                        apply o a b = o <*> a <*> b
 
                         split 0 = pure []
                         split a = do
@@ -193,18 +195,21 @@ arbitrary' n = do
 
 -- ToDo: Construct expressions of arbitrary length as products and sums by splitting the size n in to random parts and applying a chosen operation between them. The sub-parts are constructed by recursive calls to arbitrary'
 
--- The non-base case uses recursion and applicative functor technique.
--- The first thing we do is select one of two operations: * or +. We do so using the 'oneof' function which chooses one of two Gen objects from a list. We convert the functions (*) and (+) in to Gen objects by using the function 'pure' from applicative functor technique.
+-- The non-base case uses recursion, monad theory, and applicative functor techniques.
+-- Since the result of arbitrary' is the Gen monad (which is analogous to Random) all our calculations must be monadic and so we use 'do' notation.
 
--- We then apply the randomly selected operator to an atomic expression and the result from a recursive call to arbitrary' with reduces size.
--- In effect we are basically adding and multiplying (in random order) n atomic expressions together.
--- It should now be obvious why we didn't want 0 to be a possible atomic expressions. It would collapse most of the products to zero and render the testing useless.
-
--- We use 'split' to construct a random separation of 'n' elements in to parts. 'split' takes an integer 'n' and returns a randomly generated list of integers which all add up to 'n'.
+-- The first task in the 'do' is to use 'split' to construct a random separation of 'n' elements in to parts. 'split' takes an integer 'n' and returns a randomly generated list of integers which all add up to 'n'.
 -- It does so recursively. The base case is 'split 0' where we return an empty list.
 -- For non-zero 'n' we use 'pick' to get a random integer inside a Gen context. We use '<-' to extract the integer from the Gen context.
 -- The next statement inside the 'do' concats the integer to the list inside 'split (a - p)'. Since the recursive call 'split (p - a)' returns a list inside a Gen we use fmap to append 'p' to the list inside the Gen to get a larger list inside the Gen.
 -- Since pick returns a monad and split is called from inside a monadic do sequence we are forced to respect the context throughout the calculation.
+
+-- The second task is to create an arbitrary expression corresponding to each size in the split list 'ns'. This is done by fmapping arbitrary' over 'ns'.
+-- Then we fold the binary function (apply op) over the list of arbitrary expressions. We use fold1' because it is strict so it forces the evaluation of the expression at every step which helps with stack overflows.
+
+-- 'apply' is a function which takes three arguments. The first is an operator (* or +) placed inside the Gen context. It is choosen randomly by the definition of 'op'.
+-- The definition of 'apply' takes the operator and two arguments and uses applicative functor technique to apply the operation between the two expressions, all of them inside the Gen context (since the whole calculation is Gen monadic).
+-- Using currying this means that 'apply op' is a function that takes two Gen monads and returns a Gen monad i.e. its signature is "(Gen a -> Gen a) -> Gen a -> Gen a -> Gen a". This allows us to use (apply op) as the first argument of foldl1'
 
 
 
