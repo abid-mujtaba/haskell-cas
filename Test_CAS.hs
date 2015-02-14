@@ -130,6 +130,20 @@ tests = TestList [                                              -- We create a l
                     aE "test2" (5 * e) ((2 * e) + (3 * e))
                     aE "test3" (3 * e) ((-2 * e) + (5 * e))
                     aE "test4" (-7 * e) ((-3 * e) + (4 * (-e)))
+            ,
+
+            TestLabel "Subtracting equal expressions" $
+                TestCase $ do
+
+                    let e1 = -1 + x
+                    let e2 = 2 * (-x) / y
+                    let e3 = -y + (2 * x * y)
+
+                    aE "test1" 0 (z2 - z2)
+                    aE "test2" 0 (x - x)
+                    aE "test3" 0 (e1 - e1)
+                    aE "test4" 0 (e2 - e2)
+                    aE "test5" 0 (e3 - e3)
         ]
 
 
