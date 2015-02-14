@@ -205,7 +205,8 @@ degree (Symbol _)  = 1
 degree (Neg e)     = degree e
 degree (Rec e)     = negate $ degree e
 degree (Prod xs)   = sum $ map degree xs                          -- O.2
-degree (Sum xs)    = foldl1 max $ map degree xs                   -- O.3
+degree (Sum [])    = 0                                            -- O.3
+degree (Sum xs)    = foldl1 max $ map degree xs                   -- O.4
 degree (Exp e pwr) = pwr * degree e
 
 

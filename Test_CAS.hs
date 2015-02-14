@@ -154,9 +154,8 @@ quickTests = do
 -- Any function that starts with "prop_" is considered a property by QuickCheck
 
 prop_Add_0 :: Expr Int -> Bool      -- A property of expressions is that adding zero to an expression should result in the same expression
-prop_Add_0 e = traceShow e $        -- To get access to the generated expressions (for debugging) one uses traceShow ahead of the definitino of the prop_Add_0
-    e + z0 == e
-        where types = e::(Expr Int)
+prop_Add_0 e = e + z0 == e
+    where types = e::(Expr Int)
 
 prop_Mul_1 :: Expr Int -> Bool
 prop_Mul_1 e = e * z1 == e

@@ -310,7 +310,9 @@ At the bottom of the file are general comments about the development process and
 
 **O.2** - A product of polynomial expressions has degree equal to the sum of the degrees of its constituent parts (by definition). So we ``map`` ``degree`` (recursively) over the list to get a corresponding list comprising of the degree of each element of ``xs`` and then we use ``sum`` to add all of these number up to get the final result.
 
-**O.3** 
+**O.3** - QuickCheck tests revealed that degree was being called with an empty sum causing an exception. We explicitly set the degree of an empty sum to be zero to avoid the exception. 
+
+**O.4** 
 
 * The degree of the sum of polynomials is the highest (maximum) of the degree of its parts. To calculate this we ``map`` ``degree`` over ``xs`` and then ``foldl1`` the ``max`` function over it.
 * ``max`` is a binary function that returns the larger of its two arguments.
