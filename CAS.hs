@@ -27,7 +27,7 @@ module CAS                                                           -- A.1
       Expr(Symbol)                    -- Data typeclass.             -- A.2
       , x, y, z
       , const'                                                       -- A.3
-      , simplify
+--      , simplify
 --      , diff
 --      , eval
       , (^)                                                          -- A.4
@@ -150,7 +150,7 @@ instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
 -- We provide our own definition of the ^ function for exponentiation
 
 (^) :: (Integral a) => Expr a -> Int -> Expr a                                  -- Q.1
-a ^ p = s $ exp_ a p                                                            -- Q.2
+a ^ p = exp_ a p                                                                -- Q.2
 
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions
@@ -586,88 +586,88 @@ exp' (Exp e p) q     = Exp e (p * q)
 exp' e p             = Exp e p                                  -- S.5
 
 
--- Let us define simplification methods.
-
-s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
-
---s o@(Const c) | c < 0           = Neg (Const $ negate c)                                -- G.1
---              | otherwise       = o
+---- Let us define simplification methods.
 --
---s (Exp (Const c) p)             = Const $ (Prelude.^) c p                               -- G.2
---s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p                  -- G.3
-
-s (Sum xs)  = simplify_sum xs                                                           -- G.4
-
--- Turned off while we develop a more elegent    approach to the creation of Prod expressions
---s (Prod xs) = simplify_prod xs
-
-s e         = e                                                                         -- G.5
-
-
-
--- We define the simplification method for the list of expressions inside a Sum.
-simplify_sum :: Integral a => [Expr a] -> Expr a
-simplify_sum xs = empty_sum $ collect_sum_const xs
-
-
--- We define a utility function for collecting Const terms inside a list of expressions which are intended for encapsulation in a Sum.
-collect_sum_const :: Integral a => [Expr a] -> [Expr a]
-collect_sum_const xs = let (c, es) = foldr fold_sum_constants (0, []) xs in                                             -- H.1
-                            append_constant c es                                                                        -- H.2
-                                    where append_constant c es | c == 0    = es                                         -- H.3
-                                                               | c > 0     = es ++ [Const c]
-                                                               | otherwise = es ++ [Neg (Const (abs c))]
-
-
--- Write a binary function which we will use inside the foldr for collecting constants.
-fold_sum_constants :: Integral a => Expr a -> (a, [Expr a]) -> (a, [Expr a])        -- I.1
-fold_sum_constants e (m, es) = case e of Const n -> ((m + n), es)                   -- I.2
-                                         Neg (Const n) -> ((m - n), es)             -- I.3
-                                         _ -> (m, e:es)                             -- I.4
-
-
--- A simple function for dealing with the possibility of a sum with no expressions inside
-empty_sum :: Integral a => [Expr a] -> Expr a
-empty_sum xs = case xs of [] -> Const 0                     -- J.1
-                          [e] -> e                          -- J.2
-                          _ -> Sum xs
-
-
-
--- We define the simplification method (and its utility methods) for the list of expressions inside a Product.
-simplify_prod :: Integral a => [Expr a] -> Expr a
-simplify_prod xs = single_prod $ collect_prod_const xs
-
-
--- A utility function for collecting the Const terms inside a list of expressions intended for encapsulation by a Prod.
-collect_prod_const :: Integral a => [Expr a] -> [Expr a]
-collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in             -- K.1
-                            case (n, d) of (1, 1) -> es                                         -- K.2
-                                           (1, _) -> (rec' (Const d)):es
-                                           (_, 1) -> (Const n):es
-                                           _      -> (Const n):(rec' (Const d)):es
-
-
--- A binary function which is used inside the foldr for collecting constants
-fold_prod_constants :: Integral a => Expr a -> (a, a, [Expr a]) -> (a, a, [Expr a])
-fold_prod_constants e (n, d, es) = case e of Const m -> (n * m, d, es)                          -- K.3
-                                             Rec (Const m) -> (n, d * m, es)
-                                             _ -> (n, d, e:es)
-
-
--- A simple function for dealing with the possibility of a product with just one expression
-single_prod :: Integral a => [Expr a] -> Expr a
-single_prod xs = case xs of [] -> Const 1                                                       -- K.4
-                            [e] -> e
-                            _ -> Prod xs
-
-
-
--- We implement a full simplification method which we export.
--- For now this method simply equals the 's' method we have defined above.
-
-simplify :: Integral a => Expr a -> Expr a
-simplify = s
+--s :: Integral a => Expr a -> Expr a                   -- Takes an expression and returns a simplified expression.
+--
+----s o@(Const c) | c < 0           = Neg (Const $ negate c)                                -- G.1
+----              | otherwise       = o
+----
+----s (Exp (Const c) p)             = Const $ (Prelude.^) c p                               -- G.2
+----s (Exp (Neg (Const c)) p)       = s . Const $ (Prelude.^) (negate c) p                  -- G.3
+--
+--s (Sum xs)  = simplify_sum xs                                                           -- G.4
+--
+---- Turned off while we develop a more elegent    approach to the creation of Prod expressions
+----s (Prod xs) = simplify_prod xs
+--
+--s e         = e                                                                         -- G.5
+--
+--
+--
+---- We define the simplification method for the list of expressions inside a Sum.
+--simplify_sum :: Integral a => [Expr a] -> Expr a
+--simplify_sum xs = empty_sum $ collect_sum_const xs
+--
+--
+---- We define a utility function for collecting Const terms inside a list of expressions which are intended for encapsulation in a Sum.
+--collect_sum_const :: Integral a => [Expr a] -> [Expr a]
+--collect_sum_const xs = let (c, es) = foldr fold_sum_constants (0, []) xs in                                             -- H.1
+--                            append_constant c es                                                                        -- H.2
+--                                    where append_constant c es | c == 0    = es                                         -- H.3
+--                                                               | c > 0     = es ++ [Const c]
+--                                                               | otherwise = es ++ [Neg (Const (abs c))]
+--
+--
+---- Write a binary function which we will use inside the foldr for collecting constants.
+--fold_sum_constants :: Integral a => Expr a -> (a, [Expr a]) -> (a, [Expr a])        -- I.1
+--fold_sum_constants e (m, es) = case e of Const n -> ((m + n), es)                   -- I.2
+--                                         Neg (Const n) -> ((m - n), es)             -- I.3
+--                                         _ -> (m, e:es)                             -- I.4
+--
+--
+---- A simple function for dealing with the possibility of a sum with no expressions inside
+--empty_sum :: Integral a => [Expr a] -> Expr a
+--empty_sum xs = case xs of [] -> Const 0                     -- J.1
+--                          [e] -> e                          -- J.2
+--                          _ -> Sum xs
+--
+--
+--
+---- We define the simplification method (and its utility methods) for the list of expressions inside a Product.
+--simplify_prod :: Integral a => [Expr a] -> Expr a
+--simplify_prod xs = single_prod $ collect_prod_const xs
+--
+--
+---- A utility function for collecting the Const terms inside a list of expressions intended for encapsulation by a Prod.
+--collect_prod_const :: Integral a => [Expr a] -> [Expr a]
+--collect_prod_const xs = let (n, d, es) = foldr fold_prod_constants (1, 1, []) xs in             -- K.1
+--                            case (n, d) of (1, 1) -> es                                         -- K.2
+--                                           (1, _) -> (rec' (Const d)):es
+--                                           (_, 1) -> (Const n):es
+--                                           _      -> (Const n):(rec' (Const d)):es
+--
+--
+---- A binary function which is used inside the foldr for collecting constants
+--fold_prod_constants :: Integral a => Expr a -> (a, a, [Expr a]) -> (a, a, [Expr a])
+--fold_prod_constants e (n, d, es) = case e of Const m -> (n * m, d, es)                          -- K.3
+--                                             Rec (Const m) -> (n, d * m, es)
+--                                             _ -> (n, d, e:es)
+--
+--
+---- A simple function for dealing with the possibility of a product with just one expression
+--single_prod :: Integral a => [Expr a] -> Expr a
+--single_prod xs = case xs of [] -> Const 1                                                       -- K.4
+--                            [e] -> e
+--                            _ -> Prod xs
+--
+--
+--
+---- We implement a full simplification method which we export.
+---- For now this method simply equals the 's' method we have defined above.
+--
+--simplify :: Integral a => Expr a -> Expr a
+--simplify = s
 
 
 -- Define a debug function for tracing code
