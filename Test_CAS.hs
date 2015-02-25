@@ -150,6 +150,26 @@ tests = TestList [                                              -- We create a l
                     aE "test6" 0 (e4 - e4)
                     aE "test7" 0 (e5 - e5)
                     aE "test8" 0 (e6 - e6)
+            ,
+
+            TestLabel "Additive Commutation" $
+                TestCase $ do
+
+                    let e1 = (2 + y)
+                    let e2 = (1 + 2 * z)
+
+                    aE "test1" (x + y) (y + x)
+                    aE "test2" (e1 + e2) (e2 + e1)
+--            ,
+--
+--            TestLabel "Multiplicative Commutation" $
+--                TestCase $ do
+--
+--                    let e1 = (-1 - y)
+--                    let e2 = (x - 2)
+--
+--                    aE "test1" (x * y) (y * x)
+--                    aE "test2" (e1 * e2) (e2 * e1)
         ]
 
 
@@ -165,13 +185,16 @@ aB = assertBool
 
 -- We define a composite IO action consisting of all quickCheck property tests defined in the module
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
+-- We use 'printTestCase' to attach a label to each test which will be printed if the test fails. This will let us know at a glance what went wrong.
 
 quickTests = do
-                quickCheck prop_Add_0
-                quickCheck prop_Mul_1
-                quickCheck prop_Add_equal
-                quickCheck prop_Add_equal2
-                quickCheck prop_Sub_equal
+                quickCheck $ printTestCase "Adding zero to an expression" prop_Add_0
+                quickCheck $ printTestCase "Multiplying an expression by one" prop_Mul_1
+                quickCheck $ printTestCase "Adding an expression with itself" prop_Add_equal
+                quickCheck $ printTestCase "Add a constant times an expression with another contant times its expressions" prop_Add_equal2
+                quickCheck $ printTestCase "Subtract an expression from itself" prop_Sub_equal
+--                quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
+--                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
 
 
 -- Define the various properties checked by QuickCheck
@@ -196,6 +219,14 @@ prop_Add_equal2 e = (2 * e) + (5 * e) == (7 * e)
 prop_Sub_equal :: Expr Int -> Bool
 prop_Sub_equal e = (e - e) == z0
     where types = e :: (Expr Int)
+
+prop_Add_Commute :: Expr Int -> Expr Int -> Bool
+prop_Add_Commute e1 e2 = e1 + e2 == e2 + e1
+    where types = (e1 :: Expr Int, e2 :: Expr Int)
+
+prop_Mul_Commute :: Expr Int -> Expr Int -> Bool
+prop_Mul_Commute e1 e2 = e1 * e2 == e2 * e1
+    where types = (e1 :: Expr Int, e2 :: Expr Int)
 
 
 -- Since Expr is a custom class we MUST make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
