@@ -155,11 +155,13 @@ tests = TestList [                                              -- We create a l
             TestLabel "Additive Commutation" $
                 TestCase $ do
 
-                    let e1 = (2 + y)
-                    let e2 = (1 + 2 * z)
+                    let e2 = (1 + 2 * y)
+                    let e3 = (2 + y)
+                    let e4 = (1 + 2 * z)
 
                     aE "test1" (x + y) (y + x)
-                    aE "test2" (e1 + e2) (e2 + e1)
+                    aE "test2" (x + e2) (e2 + x)
+                    aE "test3" (e3 + e4) (e4 + e3)
 --            ,
 --
 --            TestLabel "Multiplicative Commutation" $
