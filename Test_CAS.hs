@@ -43,6 +43,8 @@ import Control.Applicative
 import Data.List(foldl1')
 import Debug.Trace(trace,traceShow)
 
+import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
+
 import Test.HUnit
 import Test.QuickCheck
 
@@ -152,16 +154,24 @@ tests = TestList [                                              -- We create a l
                     aE "test8" 0 (e6 - e6)
             ,
 
-            TestLabel "Additive Commutation" $
+            TestLabel "Order of Product Elements" $
                 TestCase $ do
 
-                    let e2 = (1 + 2 * y)
-                    let e3 = (2 + y)
-                    let e4 = (1 + 2 * z)
+                    aE "test1" "(x * y)" $ show (x * y)
+                    aE "test2" "(2 * x)" $ show (x * 2)
+                    aE "test3" "(2 * x^2 * y)" $ show (2 * y * x^2)
+                    aE "test4" "-(2 * x * y^2)" $ show (x * (-2) * y^2)
 
-                    aE "test1" (x + y) (y + x)
-                    aE "test2" (x + e2) (e2 + x)
-                    aE "test3" (e3 + e4) (e4 + e3)
+--            TestLabel "Additive Commutation" $
+--                TestCase $ do
+--
+--                    let e2 = (1 + 2 * y)
+--                    let e3 = (2 + y)
+--                    let e4 = (1 + 2 * z)
+--
+--                    aE "test1" (x + y) (y + x)
+--                    aE "test2" (x + e2) (e2 + x)
+--                    aE "test3" (e3 + e4) (e4 + e3)
 --            ,
 --
 --            TestLabel "Multiplicative Commutation" $
