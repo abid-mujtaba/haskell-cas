@@ -679,3 +679,11 @@ exp' e p             = Exp e p                                  -- S.5
 -- Define a debug function for tracing code
 debug :: String -> a -> a
 debug m a = trace ("\nDEBUG: " ++ m) a
+
+-- Define a debug function for printing values
+debug_vars :: Show a => [(String, a)] -> b -> b
+debug_vars es b = debug (prnt es) b
+    where
+        prnt []            = error "debug_vars called with empty list"
+        prnt [(s, e)]      = s ++ ": " ++ show e
+        prnt ((s, e):xs)   = s ++ ": " ++ show e ++ " _ " ++ prnt xs
