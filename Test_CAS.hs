@@ -260,8 +260,6 @@ arbitrary' n = do
 
                         pick a = choose (1, a)
 
--- ToDo: Construct expressions of arbitrary length as products and sums by splitting the size n in to random parts and applying a chosen operation between them. The sub-parts are constructed by recursive calls to arbitrary'
-
 -- The non-base case uses recursion, monad theory, and applicative functor techniques.
 -- Since the result of arbitrary' is the Gen monad (which is analogous to Random) all our calculations must be monadic and so we use 'do' notation.
 
