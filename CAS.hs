@@ -47,7 +47,7 @@ data Expr a =                               -- B.1, B.2
             | Sum [Expr a]                  -- B.4
             | Prod [Expr a]
             | Neg (Expr a)
-            | Rec (Expr a)                  -- B.5
+--            | Rec (Expr a)                  -- B.5
             | Exp (Expr a) Int              -- B.6
             | Symbol String                 -- B.7
             deriving (Eq)                   -- B.8
@@ -96,7 +96,7 @@ instance Show a => Show (Expr a) where
   show (Sum xs)     = showExprList " + " xs                             -- C.3
   show (Prod xs)    = showExprList " * " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
   show (Neg a)      = '-' : show a                                      -- C.4
-  show (Rec a)      = "1/" ++ show a
+--  show (Rec a)      = "1/" ++ show a
   show (Exp a p)    = show a ++ "^" ++ show p
   show (Symbol sym) = sym                                               -- C.5
 
@@ -116,7 +116,7 @@ showActual :: Show a => Expr a -> String
 showActual (Const c)    = "Const " ++ show c                                                                -- M.1
 showActual (Symbol sym) = sym                                                                               -- M.2
 showActual (Neg e)      = "Neg (" ++ showActual e ++ ")"                                                    -- M.3
-showActual (Rec e)      = "Rec (" ++ showActual e ++ ")"
+--showActual (Rec e)      = "Rec (" ++ showActual e ++ ")"
 showActual (Exp e p)    = "Exp (" ++ showActual e ++ ")(" ++ show p ++ ")"
 showActual (Sum xs)     = "Sum [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"                          -- M.4
 showActual (Prod xs)    = "Prod [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"
@@ -143,7 +143,8 @@ instance (Show a, Integral a) => Num (Expr a) where                       -- D.1
 -- We make Expr an instance of Fractional so we can use the '/' operator.
 
 instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
-  a / b = a * rec' b                                           -- E.2
+--  a / b = a * rec' b                                           -- E.2
+  a / b = undefined
   fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.3
 
 
@@ -193,7 +194,7 @@ compareDegree a b                                                             --
 -- A function for comparing expressions with equal degree
 compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
 
-compare' (Rec a) (Rec b) = compare' a b                                       -- L.6
+--compare' (Rec a) (Rec b) = compare' a b                                       -- L.6
 compare' (Symbol a) (Symbol b) = compare a b                                  -- L.7
 compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
 
@@ -204,7 +205,7 @@ degree :: Num a => Expr a -> Int                                  -- O.1
 degree (Const _)   = 0
 degree (Symbol _)  = 1
 degree (Neg e)     = degree e
-degree (Rec e)     = negate $ degree e
+--degree (Rec e)     = negate $ degree e
 degree (Prod xs)   = sum $ map degree xs                          -- O.2
 degree (Sum [])    = 0                                            -- O.3
 degree (Sum xs)    = foldl1' max $ map degree xs                  -- O.4
@@ -216,9 +217,9 @@ degree (Exp e pwr) = pwr * degree e
 
 -- Creating the reciprocal of an expression
 
-rec' :: Integral a => Expr a -> Expr a
-rec' (Rec e)    = e
-rec' e          = Rec e
+--rec' :: Integral a => Expr a -> Expr a
+--rec' (Rec e)    = e
+--rec' e          = Rec e
 
 
 -- Negation of an expression
@@ -421,7 +422,7 @@ prod' :: (Show a, Integral a) => Expr a -> Expr a -> Expr a       -- T.1
 prod' c@(Const _) e     = prod_c c e                    -- T.2
 prod' sym@(Symbol _) e  = prod_s sym e
 prod' e@(Exp _ _) d     = prod_e e d
-prod' r@(Rec _) e       = prod_r r e
+--prod' r@(Rec _) e       = prod_r r e
 prod' sm@(Sum _) e      = prod_sm sm e
 
 prod' a b = error $ "Patterns for multiplication exhausted. The patterns aren't comprehensive.: " ++ show a ++ " * " ++ show b
@@ -434,13 +435,13 @@ prod_c :: (Show a, Integral a) => Expr a -> Expr a -> Expr a                    
 prod_c (Const a) (Const b)               = Const (a*b)                          -- U.1b
 prod_c a@(Const _) sym@(Symbol _)        = Prod [a, sym]                        -- U.2
 prod_c a@(Const _) b@(Exp _ _)           = Prod [a, b]                          -- U.3
-prod_c a@(Const _) b@(Rec _)             = Prod [b, a]                          -- U.4
+--prod_c a@(Const _) b@(Rec _)             = Prod [b, a]                          -- U.4
 prod_c a@(Const _) b@(Sum _)             = Prod [a, b]
 
 prod_c c@(Const v) (Prod ps) = Prod $ mul v ps                                           -- U.5
                                 where
                                     mul a ((Const b):es)        = Const (a * b):es       -- U.5a
-                                    mul a (r@(Rec _):es)        = r:(mul a es)           -- U.5b     -- ToDo: Implement cancellation
+--                                    mul a (r@(Rec _):es)        = r:(mul a es)           -- U.5b     -- ToDo: Implement cancellation
                                     mul _ es                    = c:es                   -- U.5c
 
 prod_c a b = error $ "prod_c is only intended for multiplying Const with other expressions: " ++ show a ++ " * " ++ show b           -- U.6
@@ -460,14 +461,14 @@ prod_s sa@(Symbol a) eb@(Exp (Symbol b) _)                                      
                                         | otherwise  = Prod [eb, sa]
 
 prod_s sa@(Symbol _) e@(Exp _ _ )    = Prod [sa, e]                              -- V.4
-prod_s sa@(Symbol _) r@(Rec _)       = Prod [r, sa]                              -- ToDo: Deal with cancellation
+--prod_s sa@(Symbol _) r@(Rec _)       = Prod [r, sa]                              -- ToDo: Deal with cancellation
 prod_s sa@(Symbol _) ss@(Sum _)      = Prod [sa, ss]
 
 prod_s sa@(Symbol a) (Prod ps)       = Prod $ mul a ps                                                            -- V.5
                                             where
                                                 mul b (c@(Const _):es)      = c:(mul b es)                        -- V.6
                                                 -- ToDo: Add functionality for cancellation of symbol with Rec
-                                                mul _ (r@(Rec _):es)        = r:(mul a es)
+--                                                mul _ (r@(Rec _):es)        = r:(mul a es)
 
                                                 mul b (sc@(Symbol c):es)                                          -- V.7
                                                                 | b < c      = sa:sc:es
@@ -495,7 +496,7 @@ prod_e ea@(Exp (Symbol a) _) eb@(Exp (Symbol b) _)                              
 prod_e ea@(Exp (Symbol _) _) eb@(Exp _ _)   = Prod [ea, eb]                          -- W.3
 prod_e ea@(Exp _ _) eb@(Exp (Symbol _) _)   = Prod [eb, ea]
 
-prod_e ea@(Exp _ _) r@(Rec _)               = Prod [r, ea]
+--prod_e ea@(Exp _ _) r@(Rec _)               = Prod [r, ea]
 prod_e ea@(Exp (Symbol _) _) sm@(Sum _)     = Prod [ea, sm]                          -- W.4
 
 prod_e ea@(Exp _ _) sm@(Sum _)     = Prod [sm, ea]                                   -- W.5
@@ -503,7 +504,7 @@ prod_e ea@(Exp _ _) sm@(Sum _)     = Prod [sm, ea]                              
 prod_e ea@(Exp (Symbol a) n) (Prod ps)   = Prod $ mul a n ps                                       -- W.6
                                             where
                                                 mul b p (c@(Const _):es)    = c:(mul b p es)
-                                                mul b p (r@(Rec _):es)      = r:(mul b p es)
+--                                                mul b p (r@(Rec _):es)      = r:(mul b p es)
 
                                                 mul b p (sc@(Symbol c):es)
                                                                 | b < c     = ea:sc:es
@@ -521,7 +522,7 @@ prod_e ea@(Exp a n) (Prod ps)   = Prod $ mul a n ps                             
                                         where
                                             mul _ _ []                  = [ea]
                                             mul b p (c@(Const _):es)    = c:(mul b p es)
-                                            mul b p (r@(Rec _):es)      = r:(mul b p es)
+--                                            mul b p (r@(Rec _):es)      = r:(mul b p es)
 
                                             mul b p (ec@(Exp c pc):es)
                                                         | b == c        = (exp' b (p + pc)):es
@@ -535,22 +536,22 @@ prod_e a b = error $ "prod_e is only intended to multiply by Exp: " ++ show a ++
 
 
 -- Rules for multiplyng Rec with other expressions
-prod_r :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
-
-prod_r r@(Rec _) c@(Const _)              = prod_c c r                              -- X.1
-prod_r r@(Rec _) sym@(Symbol _)           = prod_s sym r
-prod_r r@(Rec _) e@(Exp _ _)              = prod_e e r
-
-prod_r (Rec ra) (Rec rb)                  = rec' (prod_ ra rb)            -- ToDo: Implement cancellation.
-prod_r r@(Rec _) sm@(Sum _)               = Prod [r, sm]
-prod_r rc@(Rec _) (Prod (rp@(Rec _):es))  = mul $ (prod_ rc rp):es                  -- X.2
-                                                where
-                                                    mul [e]    = e
-                                                    mul (a:as) = prod_ a (mul as)
-
-prod_r rc@(Rec _) (Prod es)               = Prod $ rc:es                            -- X.3
-
-prod_r a b  = error $ "prod_r can only be used to multiply Rec: " ++ show a ++ " * " ++ show b
+--prod_r :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
+--
+--prod_r r@(Rec _) c@(Const _)              = prod_c c r                              -- X.1
+--prod_r r@(Rec _) sym@(Symbol _)           = prod_s sym r
+--prod_r r@(Rec _) e@(Exp _ _)              = prod_e e r
+--
+--prod_r (Rec ra) (Rec rb)                  = rec' (prod_ ra rb)            -- ToDo: Implement cancellation.
+--prod_r r@(Rec _) sm@(Sum _)               = Prod [r, sm]
+--prod_r rc@(Rec _) (Prod (rp@(Rec _):es))  = mul $ (prod_ rc rp):es                  -- X.2
+--                                                where
+--                                                    mul [e]    = e
+--                                                    mul (a:as) = prod_ a (mul as)
+--
+--prod_r rc@(Rec _) (Prod es)               = Prod $ rc:es                            -- X.3
+--
+--prod_r a b  = error $ "prod_r can only be used to multiply Rec: " ++ show a ++ " * " ++ show b
 
 
 
@@ -560,7 +561,7 @@ prod_sm :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 prod_sm sm@(Sum _) c@(Const _)      = prod_c c sm
 prod_sm sm@(Sum _) sym@(Symbol _)   = prod_s sym sm
 prod_sm sm@(Sum _) e@(Exp _ _)      = prod_e e sm
-prod_sm sm@(Sum _) r@(Rec _)        = prod_r r sm
+--prod_sm sm@(Sum _) r@(Rec _)        = prod_r r sm
 
 prod_sm sa@(Sum _) sb@(Sum _) = Prod [sa, sb]                                            -- Y.1
 
@@ -572,7 +573,8 @@ prod_sm sa@(Sum _) (Prod ps) = Prod $ ps ++ [sa]                                
 exp_ :: Integral a => Expr a -> Int -> Expr a
 exp_ e p                                                        -- S.1
     | p > 0     = exp' e p
-    | p < 0     = rec' (exp' e $ abs p)
+--    | p < 0     = rec' (exp' e $ abs p)
+    | p < 0     = undefined
     | otherwise = Const 1
 
 
@@ -582,7 +584,7 @@ exp' (Neg e) p                                                  -- S.2
         | odd p     = neg' (exp' e p)
         | otherwise = exp' e p
 
-exp' (Rec e) p      = rec' (exp' e p)                            -- S.3
+--exp' (Rec e) p      = rec' (exp' e p)                            -- S.3
 
 exp' _ 0 = Const 1
 exp' e 1 = e
