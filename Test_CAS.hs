@@ -161,6 +161,14 @@ tests = TestList [                                              -- We create a l
                     aE "test2" "(2 * x)" $ show (x * 2)
                     aE "test3" "(2 * x^2 * y)" $ show (2 * y * x^2)
                     aE "test4" "-(2 * x * y^2)" $ show (x * (-2) * y^2)
+            ,
+
+            TestLabel "Graded Reversed Lexical Order" $
+                TestCase $ do
+
+                    aE "test1" EQ $ compare x x
+                    aE "test2" LT $ compare 2 x
+                    aE "test4" GT $ compare x y
 
 --            TestLabel "Additive Commutation" $
 --                TestCase $ do
@@ -207,6 +215,7 @@ quickTests = do
                 quickCheck $ printTestCase "Subtract an expression from itself" prop_Sub_equal
 --                quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
 --                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
+                quickCheck $ printTestCase "Reverse Comparison Test" prop_Rev_Order
 
 
 -- Define the various properties checked by QuickCheck
@@ -240,6 +249,12 @@ prop_Mul_Commute :: Expr Int -> Expr Int -> Bool
 prop_Mul_Commute e1 e2 = e1 * e2 == e2 * e1
     where types = (e1 :: Expr Int, e2 :: Expr Int)
 
+prop_Rev_Order :: Expr Int -> Expr Int -> Bool
+prop_Rev_Order e1 e2 = (compare e1 e2) == (flip $ compare e2 e1)
+    where types = (e1 :: Expr Int, e2 :: Expr Int)
+          flip LT = GT
+          flip GT = LT
+          flip EQ = EQ
 
 -- Since Expr is a custom class we MUST make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
 -- 'arbitrary' is a definition (it is a function that takes no arguments so it is in effect a constant) which in this context must be of type 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
