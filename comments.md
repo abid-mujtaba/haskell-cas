@@ -231,32 +231,27 @@ At the bottom of the file are general comments about the development process and
 * We only need to define the ``compare`` function while making Expr an instance of the Ord class. Since it takes two objects, compares them and generates the resulting ``Ordering`` object (with values of ``LT``, ``EQ`` or ``GT``) we get the remaining comparison operators (``<``, ``<=``, ``==``, ``>``, ``>=``) for free. 
 * In addition the Data.List.sort function will also work automatically once ``Expr`` is made an instance of the ``Ord`` type-class.
 * In this instantiation we are basically implementing the lexical order of expressions especially as used to place them inside a ``Sum``.
-* The lexical order is defined as follows:
-    - If the expressions have different (polynomial) degrees than the one with lower degree (which can be negative comes first). Note that constants have zero degree.
-    - If the degrees match and the expressions are symbolic than they obey symbolic lexical order.
-    - Amongst two symbols the lexical order is the alphabetic order.
-    - Amongst reciprocal expressions with equal degree the lexical order is the same as it is for the expressions inside the reciprocals.
-    - Amongst product of symbols the product with the lower power for the first symbol (determined by the lexical order of the symbols themselves) has lower lexical order.
+* The lexical order is defined to be "Graded/Degree reverse lexicographic order"
 
 **L.2** - Any pair of expressions that don't fit any of the patterns above are caught by this pattern and passed on to the ``compareDegree`` function. In compare we are only looking at constant expressions and how to compare them. The rest is done by compareDegree which only cares about the degree of expressions and not their contents.
 
 **L.3** - We define the ``Neg`` of an expression to have the same order as the expression itself.
 
-**L.4** 
-
-* When comparing two exponents we use pattern matching to access both the inner expression and the power (index) by which they are raised.
-* We use guards to deal with the various cases: The powers match, the various comparisons of the total degree of each expression, etc.
-* Note the use of the ``where`` keyboard to calculate and define the constants ``da`` and ``db`` which are used in the guards.
-
-**L.5**
+**L.4**
 
 * Catch-all pattern for comparing expressions which are NOT both exponents.
 * We compare the degree of both expressions to calculate an order.
 * Note that when the degrees are equal we pass on the arguments to the ``compare'`` function.
 
-**L.6** - When two reciprocal expressions have the same degree we want their lexical order to the same as their inner expressions. This means that ``1/x LT 1/z`` since ``x LT z``. This is how we want it to be.
+**L.5** - When two reciprocal expressions have the same degree we want their lexical order to the same as their inner expressions. This means that ``1/x LT 1/z`` since ``x LT z``. This is how we want it to be.
  
-**L.7** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. The lexical ordering of two symbols is their alphabetic order which ironically is also determined by using ``compare`` on the ``String``s inside the symbols.
+**L.6** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. The lexical ordering of two symbols is the opposite of their alphabetic order which ironically is also determined by using ``compare`` on the ``String``s inside the symbols e.g. x > y (lexically) which means x should come before y in a sum (it is x + y not y + x).
+
+**L.7**
+
+* In compare' we are handling exponents whose total degree matches (inner degree times exponent). We use pattern-matching to deal with several possibilities.
+* If the power of the two exponents match as well then the lexical order is given by the lexical order between the bases of the two exponents.
+* If the power doesn't much then in the system we are defining here we want the expression with the higher power (lower degree in the base) to come first which is why when ``pa < pb`` we return ``LT``.
 
 
 

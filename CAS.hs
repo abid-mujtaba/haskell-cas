@@ -173,16 +173,8 @@ compareDegree (Neg a) (Neg b)       = compareDegree a b                       --
 compareDegree a (Neg b)             = compareDegree a b
 compareDegree (Neg a) b             = compareDegree a b
 
-compareDegree (Exp a pa) (Exp b pb)                                           -- L.4
-                                | pa == pb  = compare a b
-                                | da < db   = LT
-                                | da > db   = GT
-                                | otherwise = compare' a b
-                                    where
-                                        da = pa * degree a
-                                        db = pb * degree b
 -- ToDo compare exponent with non-exponent expressions
-compareDegree a b                                                             -- L.5
+compareDegree a b                                                             -- L.4
             | da < db       = LT
             | da > db       = GT
             | otherwise     = compare' a b
@@ -194,8 +186,12 @@ compareDegree a b                                                             --
 -- A function for comparing expressions with equal degree
 compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
 
---compare' (Rec a) (Rec b) = compare' a b                                       -- L.6
-compare' (Symbol a) (Symbol b) = compare a b                                  -- L.7
+--compare' (Rec a) (Rec b) = compare' a b                                       -- L.5
+compare' (Symbol a) (Symbol b) = compare b a                                    -- L.6
+compare' (Exp a pa) (Exp b pb)
+                        | pa == pb  = compare a b                               -- L.7
+                        | pa < pb   = LT
+                        | otherwise = GT
 compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
 
 
