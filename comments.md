@@ -232,8 +232,7 @@ At the bottom of the file are general comments about the development process and
 * In addition the Data.List.sort function will also work automatically once ``Expr`` is made an instance of the ``Ord`` type-class.
 * In this instantiation we are basically implementing the lexical order of expressions especially as used to place them inside a ``Sum``.
 * The lexical order is defined to be "Graded/Degree reverse lexicographic order"
-
-**L.2** - Any pair of expressions that don't fit any of the patterns above are caught by this pattern and passed on to the ``compareDegree`` function. In compare we are only looking at constant expressions and how to compare them. The rest is done by compareDegree which only cares about the degree of expressions and not their contents.
+* This ``compare`` function starts by comparing the degree of expressions and if those match hands over to compare'
 
 **L.3** - We define the ``Neg`` of an expression to have the same order as the expression itself.
 
@@ -252,6 +251,11 @@ At the bottom of the file are general comments about the development process and
 * In compare' we are handling exponents whose total degree matches (inner degree times exponent). We use pattern-matching to deal with several possibilities.
 * If the power of the two exponents match as well then the lexical order is given by the lexical order between the bases of the two exponents.
 * If the power doesn't much then in the system we are defining here we want the expression with the higher power (lower degree in the base) to come first which is why when ``pa < pb`` we return ``LT``.
+
+**L.8**
+
+* Now that we have compared an exponent with another exponent we deal with the possibility of an exponent being compared with a non-exponent expression with the same degree (so a Sum or Prod).
+* In such a case an exponent has higher order according to the rule defined in ``L.7``. We want a pure exponent to appear first inside a sum followed by a more complex expression with equal degree.
 
 
 

@@ -154,44 +154,44 @@ instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
 a ^ p = exp_ a p                                                                -- Q.2
 
 
--- We make Expr an instance of Ord so that we can compare and sort expressions
+-- We make Expr an instance of Ord so that we can compare and sort expressions.
 
-instance (Ord a, Num a) => Ord (Expr a) where                                 -- L.1
+instance (Ord a, Num a) => Ord (Expr a) where                               -- L.1
 
-  compare (Const a) (Const b)               = compare a b
-  compare (Neg (Const _)) (Const _)         = LT
-  compare (Const _) (Neg (Const _))         = GT
-  compare (Neg (Const a)) (Neg (Const b))   = compare b a
+    compare (Const a) (Const b)               = compare a b
+    compare (Neg (Const _)) (Const _)         = LT
+    compare (Const _) (Neg (Const _))         = GT
+    compare (Neg (Const a)) (Neg (Const b))   = compare b a
 
-  compare a b = compareDegree a b                                             -- L.2
+    compare (Neg a) (Neg b)       = compare a b                             -- L.3
+    compare a (Neg b)             = compare a b
+    compare (Neg a) b             = compare a b
 
-
--- A function for doing a degree based comparison of two expressions:
-compareDegree :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
-
-compareDegree (Neg a) (Neg b)       = compareDegree a b                       -- L.3
-compareDegree a (Neg b)             = compareDegree a b
-compareDegree (Neg a) b             = compareDegree a b
-
--- ToDo compare exponent with non-exponent expressions
-compareDegree a b                                                             -- L.4
-            | da < db       = LT
-            | da > db       = GT
-            | otherwise     = compare' a b
-                where
-                    da = degree a
-                    db = degree b
+    -- ToDo compare exponent with non-exponent expressions
+    compare a b                                                             -- L.4
+                | da < db       = LT
+                | da > db       = GT
+                | otherwise     = compare' a b
+                    where
+                        da = degree a
+                        db = degree b
 
 
 -- A function for comparing expressions with equal degree
 compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
 
 --compare' (Rec a) (Rec b) = compare' a b                                       -- L.5
+
 compare' (Symbol a) (Symbol b) = compare b a                                    -- L.6
+
 compare' (Exp a pa) (Exp b pb)
                         | pa == pb  = compare a b                               -- L.7
                         | pa < pb   = LT
                         | otherwise = GT
+
+compare' (Exp _ _) _ = GT                                                       -- L.8
+compare' _ (Exp _ _) = LT
+
 compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
 
 
@@ -310,7 +310,7 @@ sum_c a (Sum bs) = sum_list $ add a bs                                          
                             add (Const 0) es                                = es
                             add e []                                        = [e]                        -- AA.2
 
-                            add c (e:es) = case (compareDegree c e) of                                   -- AA.3
+                            add c (e:es) = case (compare c e) of                                   -- AA.3
                                                     LT -> c:e:es
                                                     GT -> e:(add c es)
                                                     EQ -> add (c + e) es
@@ -327,12 +327,12 @@ sum_x a b@(Const _) = sum_c b a                                                 
 sum_x a (Sum bs) = sum_list $ add a bs                                          -- AB.2
                         where
                             add c []     = [c]
-                            add c (d:es) = case (compareDegree c d) of
+                            add c (d:es) = case (compare c d) of
                                                 LT -> c:d:es
                                                 GT -> d:(add c es)
                                                 EQ -> (2 * c):es
 
-sum_x a b = case (compareDegree a b) of                                         -- AB.3
+sum_x a b = case (compare a b) of                                         -- AB.3
                     LT -> Sum [a, b]
                     GT -> Sum [b, a]
                     EQ -> Sum [a, b]        -- ToDo: Implement lexical ordering of expressions with equal degree
