@@ -16,7 +16,7 @@
 #  This is the Makefile which provides targets for common actions that one can perform with this project.
 
 # We provide a list of phony targets which specify actions that are not based on changes in the code-base
-.PHONY: clean, test
+.PHONY: clean, test, ghci
 
 clean:				# Clean the compilation by-products (.hi and .o files and executables)
 	rm -f *.hi *.o Test_CAS test
@@ -38,3 +38,10 @@ Test_CAS: Test_CAS.hs CAS.hs
 # Similarly if CAS.hs was changed recently we want the compilation to occur again to incorporate these changes.
 # The command simply compiles the Test_CAS.hs file and creates the Test_CAS executable
 # Note the use of -main-is which is used to specify the main function since it is inside the Test_CAS module and not a module named Main which is where ghc searches for it by default.
+
+
+ghci:
+	make clean
+	ghci
+
+# Running ghci with a compiled module adds both Prelude and CAS together which causes conflicts in such things as the ^ operator. So in this target we first remove the compiled modules and then run ghci.
