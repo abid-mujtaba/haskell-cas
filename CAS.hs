@@ -337,7 +337,7 @@ sum_x a (Sum bs) = sum_list $ add a bs                                          
 sum_x a b = case (compare a b) of                                         -- AB.3
                     GT -> Sum [a, b]
                     LT -> Sum [b, a]
-                    EQ -> Sum [a, b] -- error "Only equal expressions should have equal compare result. In that case execution shouldn't arrive here. -- ToDO: Replace with error when all additions have been exhausted
+                    EQ -> Sum [a, b] -- error "Only equal expressions should have equal compare result. In that case execution shouldn't arrive here. -- ToDO: Replace with error when all additions have been exhaustedle
 
 
 -- Rules for adding a Prod with other expressions
