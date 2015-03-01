@@ -168,7 +168,18 @@ tests = TestList [                                              -- We create a l
 
                     aE "test1" EQ $ compare x x
                     aE "test2" LT $ compare 2 x
-                    aE "test4" GT $ compare x y
+                    aE "test3" GT $ compare x y
+                    aE "test4" GT $ compare (x^2) x
+                    aE "test5" LT $ compare x (y^2)
+            ,
+
+            TestLabel "Order of Added Elements" $
+                TestCase $ do
+
+                    aE "test1" "(x + 2)" $ show (x + 2)
+                    aE "test2" "(x + y)" $ show (x + y)
+                    aE "test3" "(x^2 + y)" $ show (x^2 + y)
+                    aE "test4" "(x + y^2)" $ show (x + y^2)
 
 --            TestLabel "Additive Commutation" $
 --                TestCase $ do
