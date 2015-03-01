@@ -673,10 +673,9 @@ At the bottom of the file are general comments about the development process and
 
 **AA.3**
 
-* When the head of the list ``es`` is not a (negative) constant we lexically compare the head with the constant.
-* If the constant is lexically lower than the head we simply place the constant in that location.
-* If the constant is lexically higher than the head we place the head in the position and recursively call ``add`` again with the tail of the list since the constant may need to be located further down the list.
-* When we have lexical equality it is guaranteed, from the implementation of the ``compareDegree`` function, that the head element is also a (negative) constant (has degree zero). In this case we simply add the two elements to get a unified ``Const``.
+* If the constant is lexically higher than the head we simply place the constant in that location.
+* If the constant is lexically lower than the head we place the head in the position and recursively call ``add`` again with the tail of the list since the constant may need to be located further down the list.
+* When we have lexical equality it is guaranteed, from the implementation of the ``compare`` function, that the head element is also a (negative) constant (has degree zero). In this case we simply add the two elements to get a unified ``Const``.
 * We make a recursive call to ``add`` with the newly created ``Const`` to deal with the possibility of the addition resulting in a ``Const 0``. The recursive call to ``add`` will remove the zero if that is the case.
 
 **AA.4** - If the second element is neither a constant nor a sum we simply create a ``Sum`` from just the second argument (singleton) and then recursively call ``sum_c`` on it. This works because ``sum_c`` with ``Sum`` as the second argument implements all of the rules for constructing a ``Sum`` with the correct lexical order.
@@ -700,10 +699,10 @@ At the bottom of the file are general comments about the development process and
 **AB.3**
 
 * The case of the two expressions being equal is dealt with by ``sum_`` when it deals with the equality of general expressions.
-* For unequal expressions we simply place them in lexical order inside the ``Sum``.
-* The ``compareDegree`` function was written for the express purpose of placing general expressions in lexical order (firstly by using their degree).
-* ``compareDegree`` returns an ``Ordering`` so we use ``case`` on the result to branch execution.
-* Note that ``EQ`` here corresponds to the result of ``compareDegree``. Two expressions which are unequal but have the same polynomial degree will be considered ``EQ``. We put them inside the ``Sum`` with their incoming order for now.
+* For unequal expressions we simply place them in graded reverse lexical order inside the ``Sum``.
+* The ``compare`` function was written for the express purpose of placing general expressions in lexical order (firstly by using their degree).
+* ``compare`` returns an ``Ordering`` so we use ``case`` on the result to branch execution.
+* Note that ``EQ`` here corresponds to the result of ``compare``. Two expressions which are unequal should never have ``EQ`` for the result of ``compare`` thus this is explicitly declared to be an error.
 
 
 

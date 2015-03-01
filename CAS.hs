@@ -307,15 +307,17 @@ sum_c (Neg (Const a)) (Const b)
 
 sum_c a (Sum bs) = sum_list $ add a bs                                                                   -- AA.1
                         where
-                            add (Const 0) es                                = es
-                            add e []                                        = [e]                        -- AA.2
+                            add (Const 0) es             = es
+                            add e []                     = [e]                                           -- AA.2
+                            add c (d@(Const _):es)       = add (c + d) es                                -- AA.3
+                            add c (d@(Neg (Const _)):es) = add (c + d) es
 
-                            add c (e:es) = case (compare c e) of                                   -- AA.3
-                                                    LT -> c:e:es
-                                                    GT -> e:(add c es)
+                            add c (e:es) = case (compare c e) of                                         -- AA.4
+                                                    GT -> c:e:es
+                                                    LT -> e:(add c es)
                                                     EQ -> add (c + e) es
 
-sum_c a b  = sum_c a (Sum [b])                                                                           -- AA.4
+sum_c a b  = sum_c a (Sum [b])                                                                           -- AA.5
 
 
 -- Rules for adding non-Const/Sum/Prod expressions with other expressions
@@ -328,14 +330,14 @@ sum_x a (Sum bs) = sum_list $ add a bs                                          
                         where
                             add c []     = [c]
                             add c (d:es) = case (compare c d) of
-                                                LT -> c:d:es
-                                                GT -> d:(add c es)
+                                                GT -> c:d:es
+                                                LT -> d:(add c es)
                                                 EQ -> (2 * c):es
 
 sum_x a b = case (compare a b) of                                         -- AB.3
-                    LT -> Sum [a, b]
-                    GT -> Sum [b, a]
-                    EQ -> Sum [a, b]        -- ToDo: Implement lexical ordering of expressions with equal degree
+                    GT -> Sum [a, b]
+                    LT -> Sum [b, a]
+                    EQ -> Sum [a, b] -- error "Only equal expressions should have equal compare result. In that case execution shouldn't arrive here. -- ToDO: Replace with error when all additions have been exhausted
 
 
 -- Rules for adding a Prod with other expressions
