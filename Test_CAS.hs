@@ -180,6 +180,14 @@ tests = TestList [                                              -- We create a l
                     aE "test2" "(x + y)" $ show (x + y)
                     aE "test3" "(x^2 + y)" $ show (x^2 + y)
                     aE "test4" "(x + y^2)" $ show (x + y^2)
+            ,
+
+            TestLabel "Comparing expressions" $
+                TestCase $ do
+
+                    aE "test1" LT $ compare (x + y) (y + z)
+                    aE "test3" LT $ compare (x - z - 2) (1 - y)
+
 
 --            TestLabel "Additive Commutation" $
 --                TestCase $ do
@@ -224,9 +232,11 @@ quickTests = do
                 quickCheck $ printTestCase "Adding an expression with itself" prop_Add_equal
                 quickCheck $ printTestCase "Add a constant times an expression with another contant times its expressions" prop_Add_equal2
                 quickCheck $ printTestCase "Subtract an expression from itself" prop_Sub_equal
+                quickCheck $ printTestCase "Reverse Comparison Test" prop_Rev_Order
+--                quickCheck $ printTestCase "Comparing equal expressions" prop_Compare_Equality
+--                quickCheck $ printTestCase "Comparing unequal expressions" prop_Compare_Inequality
 --                quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
 --                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
-                quickCheck $ printTestCase "Reverse Comparison Test" prop_Rev_Order
 
 
 -- Define the various properties checked by QuickCheck
@@ -266,6 +276,14 @@ prop_Rev_Order e1 e2 = (compare e1 e2) == (flip $ compare e2 e1)
           flip LT = GT
           flip GT = LT
           flip EQ = EQ
+
+prop_Compare_Equality :: Expr Int -> Bool
+prop_Compare_Equality e = (compare e e) == EQ
+    where types = e :: (Expr Int)
+
+prop_Compare_Inequality :: Expr Int -> Expr Int -> Bool
+prop_Compare_Inequality e1 e2 = if e1 == e2 then (compare e1 e2) == EQ
+                                            else (compare e1 e2) /= EQ
 
 -- Since Expr is a custom class we MUST make it an instance of the Arbitrary type-class before we can use it inside QuickCheck properties. The instantiation will let QuickCheck know how to generate random objects of type Expr
 -- 'arbitrary' is a definition (it is a function that takes no arguments so it is in effect a constant) which in this context must be of type 'Gen (Expr a)' i.e. an IO which corresponds to a random expression.
