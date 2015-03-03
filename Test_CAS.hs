@@ -179,14 +179,18 @@ tests = TestList [                                              -- We create a l
                     aE "test1" "(x + 2)" $ show (x + 2)
                     aE "test2" "(x + y)" $ show (x + y)
                     aE "test3" "(x^2 + y)" $ show (x^2 + y)
-                    aE "test4" "(x + y^2)" $ show (x + y^2)
+                    aE "test4" "(y^2 + x)" $ show (x + y^2)
             ,
 
             TestLabel "Comparing expressions" $
                 TestCase $ do
 
-                    aE "test1" LT $ compare (x + y) (y + z)
-                    aE "test3" LT $ compare (x - z - 2) (1 - y)
+                    aE "test1" EQ $ compare x x
+                    aE "test2" GT $ compare x y
+                    aE "test3" LT $ compare y x
+                    aE "test4" EQ $ compare (x + y) (y + x)
+                    aE "test5" GT $ compare (x + y) (y + z)
+                    aE "test6" GT $ compare (x - z - 2) (1 - y)
 
 
 --            TestLabel "Additive Commutation" $
