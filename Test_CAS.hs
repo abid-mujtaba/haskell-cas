@@ -180,6 +180,7 @@ tests = TestList [                                              -- We create a l
                     aE "test2" "(x + y)" $ show (x + y)
                     aE "test3" "(x^2 + y)" $ show (x^2 + y)
                     aE "test4" "(y^2 + x)" $ show (x + y^2)
+                    aE "test5" "(y + (2 * z) + 3)" $ show $ (2 + y) + (1 + 2 * z)
             ,
 
             TestLabel "Comparing expressions" $
