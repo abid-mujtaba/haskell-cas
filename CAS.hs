@@ -157,7 +157,7 @@ a ^ p = exp_ a p                                                                
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions.
 
-instance (Ord a, Num a) => Ord (Expr a) where                               -- L.1
+instance (Show a, Ord a, Num a) => Ord (Expr a) where                               -- L.1
 
     compare (Const a) (Const b)               = compare a b
     compare (Neg (Const _)) (Const _)         = LT
@@ -179,11 +179,25 @@ instance (Ord a, Num a) => Ord (Expr a) where                               -- L
 
 
 -- A function for comparing expressions with equal degree
-compare' :: (Ord a, Num a) => Expr a -> Expr a -> Ordering
+compare' :: (Show a, Ord a, Num a) => Expr a -> Expr a -> Ordering
 
 --compare' (Rec a) (Rec b) = compare' a b                                       -- L.5
 
 compare' (Symbol a) (Symbol b) = compare b a                                    -- L.6
+
+compare' (Sum as) (Sum bs) = cList as bs                                        -- L.9
+    where
+        cList [] []         = EQ                                                -- L.10
+        cList [] _          = GT                                                -- L.11
+        cList _  []         = LT
+        cList (m:ms) (n:ns) = mappend (compare m n) $ cList ms ns               -- L.12
+
+compare' (Sum as) e = cmp as e                                                  -- L.13
+    where
+        cmp [] _     = LT
+        cmp (n:ns) m = mappend (compare n m) $ cmp ns m
+
+compare' p s@(Sum _) = flipCompare $ compare' s p                               -- L.14
 
 compare' (Exp a pa) (Exp b pb)
                         | pa == pb  = compare a b                               -- L.7
@@ -193,14 +207,14 @@ compare' (Exp a pa) (Exp b pb)
 compare' (Exp _ _) _ = GT                                                       -- L.8
 compare' _ (Exp _ _) = LT
 
-compare' (Sum as) (Sum bs) = cList as bs                                        -- L.9
-    where
-        cList [] []         = EQ                                                -- L.10
-        cList [] _          = GT                                                -- L.11
-        cList _  []         = LT
-        cList (m:ms) (n:ns) = mappend (compare m n) $ cList ms ns               -- L.12
-
 compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
+
+
+-- Flip the provided Ordering
+flipCompare :: Ordering -> Ordering
+flipCompare LT = GT
+flipCompare GT = LT
+flipCompare EQ = EQ
 
 
 

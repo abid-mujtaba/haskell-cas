@@ -266,9 +266,12 @@ At the bottom of the file are general comments about the development process and
 **L.12**
 
 * The recursion occurs by comparing the heads of both lists. If the comparison is ``EQ`` we move on to the remaining part (tail) of both lists. If the comparison is not ``EQ`` then we simply return the value.
-* We use ``mappend`` from ``Data.Monoid`` which treats ``Ordering`` as a monoid. ``mappend`` is defined such that if the first argument is ``LT`` or ``GT`` then that is the result of ``mappaend`` **regardless** of the value of the second argument.
+* We use ``mappend`` from ``Data.Monoid`` which treats ``Ordering`` as a monoid. ``mappend`` is defined such that if the first argument is ``LT`` or ``GT`` then that is the result of ``mappend`` **regardless** of the value of the second argument.
 * If the first argument is ``EQ`` then the result is the value of the second argument. This is exactly what we want since we place the recursive call in the second argument so that it is only called if the first argument is ``EQ``.
 
+**L.13** - Compare a ``Sum`` with a general expression (non-``Sum`` since that match occurs earlier). The comparison is carried out analogous to the two ``Sum`` comparison but with only the single other expression compared successively with elements of the list inside the ``Sum``.
+
+**L.14** - Comparison is an inherently anti-symmetric operation. We use the ``flipCompare`` method to flip the resulting ``Ordering`` after you have flipped the arguments.
 
 
 ## M. showActual

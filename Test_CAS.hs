@@ -191,6 +191,7 @@ tests = TestList [                                              -- We create a l
                     aE "test4" EQ $ compare (x + y) (y + x)
                     aE "test5" GT $ compare (x + y) (y + z)
                     aE "test6" GT $ compare (x - z - 2) (1 - y)
+                    aE "test7" GT $ compare (x^2 + y^2) (z^2)
 
 
 --            TestLabel "Additive Commutation" $
