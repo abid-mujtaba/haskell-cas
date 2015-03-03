@@ -171,6 +171,10 @@ tests = TestList [                                              -- We create a l
                     aE "test3" GT $ compare x y
                     aE "test4" GT $ compare (x^2) x
                     aE "test5" LT $ compare x (y^2)
+                    aE "test6" GT $ compare x (2 * y)
+                    aE "test7" LT $ compare (2 * y) (3 * x)
+                    aE "test8" EQ $ compare (2 * x) (2 * x)
+                    aE "test9" GT $ compare (x * y) (y * z)
             ,
 
             TestLabel "Order of Added Elements" $
