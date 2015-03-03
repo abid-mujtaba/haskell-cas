@@ -38,6 +38,7 @@ module CAS                                                           -- A.1
 import Prelude hiding ((^))                 -- P.1
 import qualified Prelude                    -- P.2
 import Data.List(foldl',foldl1')            -- P.3
+import Data.Monoid(mappend)                 -- P.4
 
 import Debug.Trace(trace)
 
@@ -191,6 +192,13 @@ compare' (Exp a pa) (Exp b pb)
 
 compare' (Exp _ _) _ = GT                                                       -- L.8
 compare' _ (Exp _ _) = LT
+
+compare' (Sum as) (Sum bs) = cList as bs                                        -- L.9
+    where
+        cList [] []         = EQ                                                -- L.10
+        cList [] _          = GT                                                -- L.11
+        cList _  []         = LT
+        cList (m:ms) (n:ns) = mappend (compare m n) $ cList ms ns               -- L.12
 
 compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
 

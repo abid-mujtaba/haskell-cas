@@ -257,6 +257,18 @@ At the bottom of the file are general comments about the development process and
 * Now that we have compared an exponent with another exponent we deal with the possibility of an exponent being compared with a non-exponent expression with the same degree (so a Sum or Prod).
 * In such a case an exponent has higher order according to the rule defined in ``L.7``. We want a pure exponent to appear first inside a sum followed by a more complex expression with equal degree.
 
+**L.9** - When comparing two ``Sum``s we perform a comparison of the list of expressions encapsulated.
+
+**L.10** - This is the base case. If both lists are exhausted simultaneously it means the lists must be equal and so the ``Sum``s must be equal.
+
+**L.11** - The first list whose arguments are exhausted takes higher precedence.
+
+**L.12**
+
+* The recursion occurs by comparing the heads of both lists. If the comparison is ``EQ`` we move on to the remaining part (tail) of both lists. If the comparison is not ``EQ`` then we simply return the value.
+* We use ``mappend`` from ``Data.Monoid`` which treats ``Ordering`` as a monoid. ``mappend`` is defined such that if the first argument is ``LT`` or ``GT`` then that is the result of ``mappaend`` **regardless** of the value of the second argument.
+* If the first argument is ``EQ`` then the result is the value of the second argument. This is exactly what we want since we place the recursive call in the second argument so that it is only called if the first argument is ``EQ``.
+
 
 
 ## M. showActual
@@ -331,7 +343,9 @@ At the bottom of the file are general comments about the development process and
 
 **P.2** - We make a qualified import of Prelude which will allow us to access it by name and access its members using the ``.`` terminology. It will allow us to refer to the hidden/suppressed ``^`` as ``Prelude.^``.
 
-**P.3** - We import the stricter versions of foldl and foldl1 from the Data.List module since these are recommended to avoid stack overflows (in pattern matching).
+**P.3** - We import the stricter versions of ``foldl`` and ``foldl1`` from the Data.List module since these are recommended to avoid stack overflows (in pattern matching).
+
+**P.4** - We import the ``mappend`` function so that we can combine ``Ordering`` (``LT``, ``GT`` and ``EQ``) in a specific fashion.
 
 
 
