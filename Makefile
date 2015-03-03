@@ -42,6 +42,7 @@ Test_CAS: Test_CAS.hs CAS.hs
 
 ghci:
 	make clean
-	ghci
+	ghci CAS.hs
 
 # Running ghci with a compiled module adds both Prelude and CAS together which causes conflicts in such things as the ^ operator. So in this target we first remove the compiled modules and then run ghci.
+# By providing the module name after ghci the module is loaded from the start.
