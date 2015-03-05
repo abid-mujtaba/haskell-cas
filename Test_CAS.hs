@@ -166,15 +166,18 @@ tests = TestList [                                              -- We create a l
             TestLabel "Graded Reversed Lexical Order" $
                 TestCase $ do
 
-                    aE "test1" EQ $ compare x x
-                    aE "test2" LT $ compare 2 x
-                    aE "test3" GT $ compare x y
-                    aE "test4" GT $ compare (x^2) x
-                    aE "test5" LT $ compare x (y^2)
-                    aE "test6" GT $ compare x (2 * y)
-                    aE "test7" LT $ compare (2 * y) (3 * x)
-                    aE "test8" EQ $ compare (2 * x) (2 * x)
-                    aE "test9" GT $ compare (x * y) (y * z)
+                    aE "test1"  EQ $ compare x x
+                    aE "test2"  LT $ compare 2 x
+                    aE "test3"  GT $ compare x y
+                    aE "test4"  GT $ compare (x^2) x
+                    aE "test5"  LT $ compare x (y^2)
+                    aE "test6"  GT $ compare x (2 * y)
+                    aE "test7"  LT $ compare (2 * y) (3 * x)
+                    aE "test8"  EQ $ compare (2 * x) (2 * x)
+                    aE "test9"  GT $ compare (x * y) (y * z)
+                    aE "test10" LT $ compare (x * y) (x^2)
+                    aE "test11" GT $ compare (x * y^2 * z) (x * y * z^2)
+                    aE "test12" GT $ compare (x * y * z) (x * z^2)
             ,
 
             TestLabel "Order of Added Elements" $
@@ -197,6 +200,8 @@ tests = TestList [                                              -- We create a l
                     aE "test5" GT $ compare (x + y) (y + z)
                     aE "test6" GT $ compare (x - z - 2) (1 - y)
                     aE "test7" GT $ compare (x^2 + y^2) (z^2)
+                    aE "test8" GT $ compare y (2*z)
+                    aE "test9" LT $ compare z (3*y)
 
 
 --            TestLabel "Additive Commutation" $
