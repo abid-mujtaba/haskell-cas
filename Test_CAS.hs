@@ -178,6 +178,11 @@ tests = TestList [                                              -- We create a l
                     aE "test10" LT $ compare (x * y) (x^2)
                     aE "test11" GT $ compare (x * y^2 * z) (x * y * z^2)
                     aE "test12" GT $ compare (x * y * z) (x * z^2)
+                    aE "test13" EQ $ compare (x * y * z) (x * y * z)
+                    aE "test14" EQ $ compare (x * y^2 * z) (x * y^2 * z)
+                    aE "test15" LT $ compare x (2 * x)
+                    aE "test16" GT $ compare (3 * x) x
+                    aE "test17" LT $ compare x (-2 * x)             -- Negative constants shouldn't impact the order of terms
             ,
 
             TestLabel "Order of Added Elements" $
