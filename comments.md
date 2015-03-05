@@ -244,7 +244,7 @@ At the bottom of the file are general comments about the development process and
 
 **L.5** - When two reciprocal expressions have the same degree we want their lexical order to the same as their inner expressions. This means that ``1/x LT 1/z`` since ``x LT z``. This is how we want it to be.
  
-**L.6** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. The lexical ordering of two symbols is the opposite of their alphabetic order which ironically is also determined by using ``compare`` on the ``String``s inside the symbols e.g. x > y (lexically) which means x should come before y in a sum (it is x + y not y + x).
+**L.6** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. Since lexical ordering is defined for all products (even single Symbols) in the function ``cmpProdList`` we simply put the ``Symbol``s inside singletons and pass them to this function.
 
 **L.7**
 

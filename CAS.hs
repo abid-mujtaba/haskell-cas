@@ -157,7 +157,7 @@ a ^ p = exp_ a p                                                                
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions.
 
-instance (Show a, Ord a, Num a) => Ord (Expr a) where                               -- L.1
+instance (Show a, Ord a, Integral a) => Ord (Expr a) where                               -- L.1
 
     compare (Const a) (Const b)               = compare a b
     compare (Neg (Const _)) (Const _)         = LT
@@ -179,11 +179,11 @@ instance (Show a, Ord a, Num a) => Ord (Expr a) where                           
 
 
 -- A function for comparing expressions with equal degree
-compare' :: (Show a, Ord a, Num a) => Expr a -> Expr a -> Ordering
+compare' :: (Show a, Ord a, Integral a) => Expr a -> Expr a -> Ordering
 
 --compare' (Rec a) (Rec b) = compare' a b                                       -- L.5
 
-compare' (Symbol a) (Symbol b) = compare b a                                    -- L.6
+compare' a@(Symbol _) b@(Symbol _) = cmpProdList [a] [b]                        -- L.6
 
 compare' (Sum as) (Sum bs) = cList as bs                                        -- L.9
     where
@@ -199,15 +199,39 @@ compare' (Sum as) e = cmp as e                                                  
 
 compare' p s@(Sum _) = flipCompare $ compare' s p                               -- L.14
 
-compare' (Exp a pa) (Exp b pb)
-                        | pa == pb  = compare a b                               -- L.7
-                        | pa < pb   = LT
-                        | otherwise = GT
+compare' a@(Exp _ _) b@(Exp _ _) = cmpProdList [a] [b]
+
+compare' (Prod as) (Prod bs) = cmpProdList as bs
 
 compare' (Exp _ _) _ = GT                                                       -- L.8
 compare' _ (Exp _ _) = LT
 
-compare' _ _ = EQ           -- ToDo: Implement a proper function for this which also deals with Exp. At that point one should be able to get rid of the Exp pattern in compareDegree
+compare' e p@(Prod _) = compare' (Prod [e]) p
+compare' p@(Prod _) e = compare' p (Prod [e])
+
+compare' _ _ = EQ           -- ToDo: Exhaust all possible patterns and get rid of this
+
+
+cmpProdList :: (Integral a, Show a) => [Expr a] -> [Expr a] -> Ordering
+cmpProdList as bs = cList (reverse as) (reverse bs)
+    where
+        cList [] []           = EQ
+        cList [] _            = LT
+        cList _  []           = GT
+        cList (m:ms) (n:ns)   = mappend (cmp m n) (cList ms ns)
+
+        cmp (Symbol a) (Symbol b)           = compare b a
+
+        cmp (Exp (Symbol a) pa) (Exp (Symbol b) pb)
+                | a == b    = indexCompare pa pb
+                | otherwise = compare b a
+
+        cmp (Symbol a) (Exp (Symbol b) _)
+                | a == b    = LT
+                | otherwise = compare b a
+        cmp s@(Exp (Symbol _) _) e = flipCompare $ cmp e s
+
+        cmp a b = compare a b
 
 
 -- Flip the provided Ordering
@@ -215,6 +239,16 @@ flipCompare :: Ordering -> Ordering
 flipCompare LT = GT
 flipCompare GT = LT
 flipCompare EQ = EQ
+
+
+-- Compute Ordering based on comparing index powers
+indexCompare :: Int -> Int -> Ordering
+indexCompare a b
+    | d < 0     = GT
+    | d > 0     = LT
+    | otherwise = EQ
+        where
+            d = a - b
 
 
 
