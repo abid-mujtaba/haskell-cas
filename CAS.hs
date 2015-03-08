@@ -212,10 +212,11 @@ compare' p@(Prod _) e = compare' p (Prod [e])
 compare' _ _ = EQ           -- ToDo: Exhaust all possible patterns and get rid of this
 
 
+-- Compare two list of expressions from inside Prod
 cmpProdList :: (Integral a, Show a) => [Expr a] -> [Expr a] -> Ordering
-cmpProdList as bs = cList (reverse as) (reverse bs)
+cmpProdList as bs = cList (reverse as) (reverse bs)                             -- L.15
     where
-        cList [] []           = EQ
+        cList [] []           = EQ                                              -- L.16
         cList [] _            = LT
         cList _  []           = GT
         cList (m:ms) (n:ns)   = mappend (cmp m n) (cList ms ns)
@@ -227,7 +228,7 @@ cmpProdList as bs = cList (reverse as) (reverse bs)
                 | otherwise = compare b a
 
         cmp (Symbol a) (Exp (Symbol b) _)
-                | a == b    = LT
+                | a == b    = GT
                 | otherwise = compare b a
         cmp s@(Exp (Symbol _) _) e = flipCompare $ cmp e s
 

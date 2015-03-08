@@ -273,6 +273,14 @@ At the bottom of the file are general comments about the development process and
 
 **L.14** - Comparison is an inherently anti-symmetric operation. We use the ``flipCompare`` method to flip the resulting ``Ordering`` after you have flipped the arguments.
 
+**L.15** - We are implementing graded reverse lexicographic order in which when comparing monomials one starts looking at the components from right to left, hence we reverse both lists before passing them to the ``cList`` function.
+
+**L.16**
+
+* There are three base cases for the recursive function ``cList``.
+* If both lists are empty that means all corresponding elements of both lists gave ``EQ`` result in comparison (that is they were equal) in which case the two lists must be equal and so the result must clearly by ``EQ``. **Alternately** from a theoretical point where we don't need to concern ourselves with how we get there, in lexical order the comparison of two empty lists should always result in ``EQ``.
+* If the first list becomes empty while the second one is not it means that the second list has an entry which
+
 
 ## M. showActual
 
