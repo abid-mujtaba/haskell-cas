@@ -254,8 +254,8 @@ quickTests = do
                 quickCheck $ printTestCase "Subtract an expression from itself" prop_Sub_equal
                 quickCheck $ printTestCase "Reverse Comparison Test" prop_Rev_Order
 --                quickCheck $ printTestCase "Comparing equal expressions" prop_Compare_Equality
---                quickCheck $ printTestCase "Comparing unequal expressions" prop_Compare_Inequality
---                quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
+                quickCheck $ printTestCase "Comparing unequal expressions" prop_Compare_Inequality
+                quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
 --                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
 
 
