@@ -1,5 +1,10 @@
-
 -- We declare useful symbols and constants here which we will use in both ghci and the Test module
+
+module Vars (
+    x, y, z,
+    z0, z1, z2, z3, z4, z5, z6, z7, z8, z9,
+    zm1, zm2, zm3, zm4, zm5, zm6, zm7, zm8, zm9
+) where
 
 import Prelude hiding ((^))             -- We have to suppress the Prelude definition of (^) since it conflicts with the one in CAS
 import CAS
