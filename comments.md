@@ -66,8 +66,6 @@ At the bottom of the file are general comments about the development process and
 
 **C.2** -  We pattern match on the 'Const a' constructor. In the case of constant we simply show the number. The 'a' in this line is NOT the same as the 'a' in the instance declaration line above it. Here 'a' matches the value inside the 'Const a' constructor. Since the instance declaration limits 'Expr a' to type-parameters 'a' that are an instance of 'Show' so we can run the 'show' method directly on the value 'a' inside the 'Const a' parameter
 
-**C.3** - We use the utility function showList to print the expression with its parts separated by the " + " symbol
-
 **C.4** - The negation of an expression is simply appending '-' in front of it. We use the concatenation operator ':' to prepend '-' in front of the String representation of the expression
 
 **C.5** - Since 's' is a String (from the definition of the 'Symbol' constructor) we don't need to use 'show' here. Had we done so it would have printed the strings surrounded by quotation marks
@@ -79,6 +77,8 @@ At the bottom of the file are general comments about the development process and
 * For a non-empty list we print the surrounding parentheses and use another related utility function to print the meat of the expression.
 
 **C.7** - In this utility function for a single element we simply print the expression within. For a larger list we use a head:tail pattern-match to extract the head show it, add the separator and then use recursion on the rest.
+
+**C.8** - We analyze the elements of the list, in particular the first two elements. If the second element is negative we print a minus "-" and then recursively call showSum with the second element changed from negative to positive so that when it is printed another negative sign isn't printed.
 
 
 

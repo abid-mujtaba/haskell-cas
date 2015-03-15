@@ -179,6 +179,8 @@ tests = TestList [                                              -- We create a l
                     aE "test3" "(x^2 + y)" $ show (x^2 + y)
                     aE "test4" "(y^2 + x)" $ show (x + y^2)
                     aE "test5" "(y + (2 * z) + 1)" $ show $ y + (1 + 2 * z)
+                    aE "test6" "(x - y)" $ show (x - y)
+                    aE "test7" "(x - y)" $ show (-y + x)
             ,
 
             TestLabel "Comparing expressions" $

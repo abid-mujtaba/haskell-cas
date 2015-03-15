@@ -63,7 +63,7 @@ const' c | c < 0     = Neg (Const $ negate . fromIntegral $ c)         -- N.2
 
 instance Show a => Show (Expr a) where
   show (Const a)    = show a                                            -- C.2
-  show (Sum xs)     = showExprList " + " xs                             -- C.3
+  show (Sum xs)     = "(" ++ showSum xs ++ ")"
   show (Prod xs)    = showExprList " * " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
   show (Neg a)      = '-' : show a                                      -- C.4
 --  show (Rec a)      = "1/" ++ show a
@@ -79,6 +79,12 @@ showExprList' :: Show a => String -> [Expr a] -> String                 -- C.7
 showExprList' _ []       = ""
 showExprList' _ [e]      = show e
 showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
+
+showSum :: Show a => [Expr a] -> String
+showSum []                      = error "Shouldn't have to show an empty sum"
+showSum [e]                     = show e
+showSum (e : ( (Neg f):es ))    = show e ++ " - " ++ showSum (f:es)     -- C.8
+showSum (e : es)                = show e ++ " + " ++ showSum es
 
 
 -- Utility (Debugging) method for printing out the expression as it really is (in terms of its Constructors)
