@@ -234,7 +234,12 @@ At the bottom of the file are general comments about the development process and
 * The lexical order is defined to be "Graded/Degree reverse lexicographic order"
 * This ``compare`` function starts by comparing the degree of expressions and if those match hands over to compare'
 
-**L.3** - We define the ``Neg`` of an expression to have the same order as the expression itself.
+**L.3**
+
+* We define the comparison of two ``Neg`` expressions to have the same ordering as the expressions itself.
+* When only one expression is negative then two possibilities exist.
+* If the expression inside the negative is the same as the other expression then the positive expression is greater.
+* If the absolute value of the two expressions are not equal then we return the ordering  of the absolute value of the two.
 
 **L.4**
 

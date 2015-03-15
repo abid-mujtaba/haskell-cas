@@ -126,7 +126,7 @@ a ^ p = exp_ a p                                                                
 
 -- We make Expr an instance of Ord so that we can compare and sort expressions.
 
-instance (Show a, Ord a, Integral a) => Ord (Expr a) where                               -- L.1
+instance (Show a, Ord a, Integral a) => Ord (Expr a) where                  -- L.1
 
     compare (Const a) (Const b)               = compare a b
     compare (Neg (Const _)) (Const _)         = LT
@@ -134,8 +134,12 @@ instance (Show a, Ord a, Integral a) => Ord (Expr a) where                      
     compare (Neg (Const a)) (Neg (Const b))   = compare b a
 
     compare (Neg a) (Neg b)       = compare a b                             -- L.3
-    compare a (Neg b)             = compare a b
-    compare (Neg a) b             = compare a b
+    compare a (Neg b)
+             | a == b    = GT
+             | otherwise = compare a b
+    compare (Neg a) b
+             | a == b    = LT
+             | otherwise = compare a b
 
     -- ToDo compare exponent with non-exponent expressions
     compare a b                                                             -- L.4
