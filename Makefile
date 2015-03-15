@@ -42,7 +42,8 @@ Test_CAS: Test_CAS.hs CAS.hs
 
 ghci:
 	make clean
-	ghci CAS.hs
+	ghci Vars.hs
 
 # Running ghci with a compiled module adds both Prelude and CAS together which causes conflicts in such things as the ^ operator. So in this target we first remove the compiled modules and then run ghci.
 # By providing the module name after ghci the module is loaded from the start.
+# Since Vars.hs imports CAS before it defines useful symbols and constants you automatically import CAS when you load the Vars module
