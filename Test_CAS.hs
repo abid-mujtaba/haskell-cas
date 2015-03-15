@@ -207,6 +207,7 @@ tests = TestList [                                              -- We create a l
                     aE "test7" GT $ compare (x^2 + y^2) (z^2)
                     aE "test8" GT $ compare y (2*z)
                     aE "test9" LT $ compare z (3*y)
+                    aE "test10" GT $ compare (x + 1) (y + 2)
             ,
 
             TestLabel "Additive Commutation" $
@@ -224,8 +225,8 @@ tests = TestList [                                              -- We create a l
             TestLabel "Multiplicative Commutation" $
                 TestCase $ do
 
-                    let e1 = (-1 - y)
-                    let e2 = (x - 2)
+                    let e1 = (x + 1)
+                    let e2 = (y + 2)
 
                     aE "test1" (x * y) (y * x)
                     aE "test2" (e1 * e2) (e2 * e1)
