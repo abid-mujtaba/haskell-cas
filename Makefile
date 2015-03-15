@@ -19,25 +19,25 @@
 .PHONY: clean, test, ghci
 
 clean:				# Clean the compilation by-products (.hi and .o files and executables)
-	rm -f *.hi *.o Test_CAS test
+	rm -f *.hi *.o Test test
 
 
-test: Test_CAS
-	@./Test_CAS		# The @ symbol stops the executed command from being printed. We simply run the 'Test_CAS' executable
+test: Test
+	@./Test			# The @ symbol stops the executed command from being printed. We simply run the 'Test' executable
 
-# The test target has the file Test_CAS as its dependency.
-# If the file doesn't exist the 'Test_CAS' rule is executed. 
+# The test target has the file Test as its dependency.
+# If the file doesn't exist the 'Test' rule is executed. 
 # If it does exist the rule is still tested for recursive dependencies
 
 
-Test_CAS: Test_CAS.hs CAS.hs
-	ghc --make -main-is Test_CAS.main Test_CAS.hs
+Test: Test.hs CAS.hs Vars.hs
+	ghc --make -main-is Test.main Test.hs
 
-# We declare Test_CAS.hs to be a dependency of the executable Test_CAS.
-# If the timestamp on Test_CAS.hs is newer than that of Test_CAS Make knows that code changes have been made and so it runs the command (rule) specified.
+# We declare Test.hs to be a dependency of the executable Test.
+# If the timestamp on Test.hs is newer than that of Test Make knows that code changes have been made and so it runs the command (rule) specified.
 # Similarly if CAS.hs was changed recently we want the compilation to occur again to incorporate these changes.
-# The command simply compiles the Test_CAS.hs file and creates the Test_CAS executable
-# Note the use of -main-is which is used to specify the main function since it is inside the Test_CAS module and not a module named Main which is where ghc searches for it by default.
+# The command simply compiles the Test.hs file and creates the Test executable
+# Note the use of -main-is which is used to specify the main function since it is inside the Test module and not a module named Main which is where ghc searches for it by default.
 
 
 ghci:

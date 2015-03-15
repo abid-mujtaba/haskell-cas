@@ -31,7 +31,7 @@
 
 
 
-module Test_CAS
+module Test
     (
         main,               -- We must export the main function if we want the module to be compilable
         tests,

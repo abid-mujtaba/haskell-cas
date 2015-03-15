@@ -11,4 +11,4 @@ test.hs
 # Ignore executables
 
 test
-Test_CAS
+Test
