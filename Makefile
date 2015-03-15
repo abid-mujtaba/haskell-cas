@@ -36,6 +36,7 @@ test: Test
 
 
 # Define targets for running a subset of the tests. This is carried out by redefining the MAIN variable
+# Note how 'test' is the only target of both 'unit' and 'quick'. The drawback of this strategy is that the 'Test' target is only activated when one of the .hs scripts change. So running one of the test targets after another one does NOT recompile the module and so the previously specified tests are run. This can be overcome by either running 'make clean' or by "touching" one of the dependencies of the 'Test' target. 
 
 unit: MAIN = main_unit
 unit: test
