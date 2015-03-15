@@ -634,7 +634,7 @@ At the bottom of the file are general comments about the development process and
 
 ## Y. Multiplying by ``Sum``
 
-**Y.1** - The possibility of the two sums being equal is handled earlier by ``prod_``.
+**Y.1** - The order of two sum expressions inside a product is based on their lexical order given by ``compare``. The possibility of the two sums being equal is handled earlier by ``prod_``.
 
 **Y.2** - ``prod_`` takes care of the possibility of the ``Sum`` (or an exponent of it) being inside the product so we are assured that the ``Sum`` just need sto be placed inside the ``Prod``. We take the arbitrary decision to place any such ``Sum`` at the end of the product (without any ordering).
 

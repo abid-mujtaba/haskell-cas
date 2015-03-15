@@ -587,9 +587,12 @@ prod_sm sm@(Sum _) sym@(Symbol _)   = prod_s sym sm
 prod_sm sm@(Sum _) e@(Exp _ _)      = prod_e e sm
 --prod_sm sm@(Sum _) r@(Rec _)        = prod_r r sm
 
-prod_sm sa@(Sum _) sb@(Sum _) = Prod [sa, sb]                                            -- Y.1
+prod_sm sa@(Sum _) sb@(Sum _) = case compare sa sb of                   -- Y.1
+                                    GT -> Prod [sa, sb]
+                                    LT -> Prod [sb, sa]
+                                    EQ -> error "Equal expressions shouldn't appear in prod_sm"
 
-prod_sm sa@(Sum _) (Prod ps) = Prod $ ps ++ [sa]                                         -- Y.2     -- ToDo: Implement ordering of Sum expressions
+prod_sm sa@(Sum _) (Prod ps) = Prod $ ps ++ [sa]                        -- Y.2     -- ToDo: Implement ordering of Sum expressions
 
 
 -- Exponentiation of expressions
