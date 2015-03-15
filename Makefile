@@ -16,7 +16,12 @@
 #  This is the Makefile which provides targets for common actions that one can perform with this project.
 
 # We provide a list of phony targets which specify actions that are not based on changes in the code-base
-.PHONY: clean, test, ghci
+.PHONY: clean, test, ghci, unit, quick
+
+# We define a simple variable for specifying which main function in the Test.hs script to use
+# The default value is 'main' and is used when the 'make test' is executed
+# The 'unit' and 'quick' targets redefine this variable before running 'test'
+MAIN = main
 
 clean:				# Clean the compilation by-products (.hi and .o files and executables)
 	rm -f *.hi *.o Test test
@@ -30,14 +35,24 @@ test: Test
 # If it does exist the rule is still tested for recursive dependencies
 
 
+# Define targets for running a subset of the tests. This is carried out by redefining the MAIN variable
+
+unit: MAIN = main_unit
+unit: test
+
+quick: MAIN = main_quick
+quick: test
+
+
 Test: Test.hs CAS.hs Vars.hs
-	ghc --make -main-is Test.main Test.hs
+	ghc --make -main-is Test.$(MAIN) Test.hs
 
 # We declare Test.hs to be a dependency of the executable Test.
 # If the timestamp on Test.hs is newer than that of Test Make knows that code changes have been made and so it runs the command (rule) specified.
 # Similarly if CAS.hs was changed recently we want the compilation to occur again to incorporate these changes.
 # The command simply compiles the Test.hs file and creates the Test executable
 # Note the use of -main-is which is used to specify the main function since it is inside the Test module and not a module named Main which is where ghc searches for it by default.
+# Note the use of the MAIN variable to define which function to use as the main function while compiling the script. The different targets (test, unit and quick) define this differently to access different main functions to limit the tests being run
 
 
 ghci:

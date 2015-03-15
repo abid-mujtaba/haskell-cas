@@ -33,7 +33,9 @@
 
 module Test
     (
-        main,               -- We must export the main function if we want the module to be compilable
+        main,               -- We must export the main functions to create the relevant executables
+        main_unit,
+        main_quick,
         tests,
     )
     where
@@ -51,9 +53,16 @@ import Test.QuickCheck
 import CAS
 import Vars
 
-main = do
-          runTestTT tests          -- In the main function we simply run the tests. So running the executable (TestCAS) will now cause the tests to be executed
-          quickTests
+main = do                     -- In the main function we simply run the tests. So running the executable (Test) will cause the tests to be executed
+          main_unit
+          main_quick
+
+
+main_unit = do                -- This IO Action runs only the unit tests
+                runTestTT tests
+
+main_quick = do               -- This IO Action runs only the property checks
+                quickTests
 
 
 
@@ -185,6 +194,8 @@ tests = TestList [                                              -- We create a l
                     aE "test8" GT $ compare y (2*z)
                     aE "test9" LT $ compare z (3*y)
                     aE "test10" GT $ compare (x + 1) (y + 2)
+                    aE "test11" GT $ compare x (-x)
+                    aE "test12" GT $ compare (z + 1) (-z + 1)
             ,
 
             TestLabel "Additive Commutation" $
