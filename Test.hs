@@ -42,7 +42,6 @@ module Test
 
 
 import Control.Applicative
-import Data.List(foldl1')
 import Debug.Trace(trace,traceShow)
 
 import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
@@ -310,9 +309,13 @@ arbitrary' 0 = arbitrary_const                                  -- Base case whi
 arbitrary' 1 = oneof [arbitrary_atom, arbitrary_neg_atom]       -- When the required size is 1 we simply return an atomic expression (which can be negative)
 arbitrary' n = do
                  ns <- split n
-                 foldl1' (apply op) $ fmap arbitrary' ns
+                 assemble ns
 
                     where
+                        assemble (b:bs) = assemble' bs $! arbitrary' b       -- The result of split is never [] (at least a singleton)
+
+                        assemble' [] e = e
+                        assemble' (c:cs) e = assemble' cs $! apply op (arbitrary' c) e
 
                         op = oneof [pure (+), pure (*)]
 
@@ -334,13 +337,16 @@ arbitrary' n = do
 -- The next statement inside the 'do' concats the integer to the list inside 'split (a - p)'. Since the recursive call 'split (p - a)' returns a list inside a Gen we use fmap to append 'p' to the list inside the Gen to get a larger list inside the Gen.
 -- Since pick returns a monad and split is called from inside a monadic do sequence we are forced to respect the context throughout the calculation.
 
--- The second task is to create an arbitrary expression corresponding to each size in the split list 'ns'. This is done by fmapping arbitrary' over 'ns'.
--- Then we fold the binary function (apply op) over the list of arbitrary expressions. We use fold1' because it is strict so it forces the evaluation of the expression at every step which helps with stack overflows.
+-- The definition of assemble basically sets it up to use assemble' which performs a "strict" accumulation of the expression as it goes along
+-- Note how we take the first integer 'b' and use arbitrary' to create an expression from it. This serves as the initial state of the accumulator. We use $! to force strict evaluation of the result of arbitrary' b to avoid a Stack Overflow
+
+-- The base case of assemble' occurs when the list of integers is empty in which case we simply return the accumulated expression 'e'
+-- For the recursive case we apply an operation between arbitrary' c and the expression e which is the accumulator to create the new accumulator. The result of this operation is evaulated strictly and becomes the new accumulator for the recusrive call to assemble' using cs
+
 
 -- 'apply' is a function which takes three arguments. The first is an operator (* or +) placed inside the Gen context. It is choosen randomly by the definition of 'op'.
 -- The definition of 'apply' takes the operator and two arguments and uses applicative functor technique to apply the operation between the two expressions, all of them inside the Gen context (since the whole calculation is Gen monadic).
--- Using currying this means that 'apply op' is a function that takes two Gen monads and returns a Gen monad i.e. its signature is "(Gen a -> Gen a) -> Gen a -> Gen a -> Gen a". This allows us to use (apply op) as the first argument of foldl1'
-
+-- Using currying this means that 'apply op' is a function that takes two Gen monads and returns a Gen monad i.e. its signature is "(Gen a -> Gen a) -> Gen a -> Gen a -> Gen a".
 
 
 -- Constants and Symbols are the atomic expressions. Everything else is constructed from these (or by encapsulatng them in some fashion).
