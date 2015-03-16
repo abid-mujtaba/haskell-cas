@@ -64,7 +64,7 @@ const' c | c < 0     = Neg (Const $ negate . fromIntegral $ c)         -- N.2
 instance Show a => Show (Expr a) where
   show (Const a)    = show a                                            -- C.2
   show (Sum xs)     = "(" ++ showSum xs ++ ")"
-  show (Prod xs)    = showExprList " * " xs                             -- ToDo: After implementing sorting we can remove the * symbols like human algebraic notation
+  show (Prod xs)    = showExprList " * " xs
   show (Neg a)      = '-' : show a                                      -- C.4
 --  show (Rec a)      = "1/" ++ show a
   show (Exp a p)    = show a ++ "^" ++ show p
@@ -147,7 +147,6 @@ instance (Show a, Ord a, Integral a) => Ord (Expr a) where                  -- L
              | a == b    = LT
              | otherwise = compare a b
 
-    -- ToDo compare exponent with non-exponent expressions
     compare a b                                                             -- L.4
                 | da < db       = LT
                 | da > db       = GT
@@ -188,7 +187,7 @@ compare' _ (Exp _ _) = LT
 compare' e p@(Prod _) = compare' (Prod [e]) p
 compare' p@(Prod _) e = compare' p (Prod [e])
 
-compare' _ _ = EQ           -- ToDo: Exhaust all possible patterns and get rid of this
+compare' _ _ = error "compare should never end up here"
 
 
 -- Compare two list of expressions from inside Prod
@@ -401,7 +400,13 @@ sum_pc pa pb = add (split pa) (split pb)
                             d = a + b
 
 
--- Multiplying expressions
+-- Multiplying
+
+prod_list :: Integral a => [Expr a] -> Expr a
+prod_list []     = Const 1
+prod_list [e]    = e
+prod_list es     = Prod es
+
 
 prod_ :: (Show a, Integral a) => Expr a -> Expr a -> Expr a               -- R.1a
 
@@ -602,7 +607,23 @@ prod_sm sa@(Sum _) sb@(Sum _) = case compare sa sb of                   -- Y.1
                                     LT -> Prod [sb, sa]
                                     EQ -> error "Equal expressions shouldn't appear in prod_sm"
 
-prod_sm sa@(Sum _) (Prod ps) = Prod $ ps ++ [sa]                        -- Y.2     -- ToDo: Implement ordering of Sum expressions
+prod_sm sa@(Sum _) (Prod ps) = prod_list $ mul sa ps                                            -- Y.2
+                                  where
+                                      mul a []      = [a]                                       -- Y.3
+                                      mul a (e@(Symbol _):es) = e:(mul a es)                    -- Y.4
+                                      mul a (e@(Exp (Symbol _) _):es)  = e:(mul a es)
+                                      mul a (e:es)
+                                            | gt a e    = a:e:es                                -- Y.5
+                                            | otherwise = e:(mul a es)
+
+                                      gt a e                                                    -- Y.6
+                                            | degree a < degree e   = True
+                                            | degree a > degree e   = False
+                                            | cmp == GT             = True
+                                            | cmp == LT             = False
+                                            | otherwise             = error "Equality should already been tested for"
+                                                where
+                                                    cmp = compare a e
 
 
 -- Exponentiation of expressions

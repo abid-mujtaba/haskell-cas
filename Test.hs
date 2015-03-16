@@ -146,6 +146,10 @@ tests = TestList [                                              -- We create a l
                     aE "test2" "(2 * x)" $ show (x * 2)
                     aE "test3" "(2 * x^2 * y)" $ show (2 * y * x^2)
                     aE "test4" "-(2 * x * y^2)" $ show (x * (-2) * y^2)
+                    aE "test5" "(x * y * (y + z))" $ show (x * y * (y + z))
+                    aE "test6" "(x * z^2 * (x + y))" $ show ((x + y) * z^2 * x)
+                    aE "test7" "(x * z^2 * (x + y) * (y + z))" $ show ((y + z) * z^2 * (x + y) * x)
+                    aE "test8" "(x * y^2 * (y + z)^3)" $ show ((y + z)^2 * y^2 * (y + z) * x)
             ,
 
             TestLabel "Graded Reversed Lexical Order" $

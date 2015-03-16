@@ -641,7 +641,19 @@ At the bottom of the file are general comments about the development process and
 
 **Y.1** - The order of two sum expressions inside a product is based on their lexical order given by ``compare``. The possibility of the two sums being equal is handled earlier by ``prod_``.
 
-**Y.2** - ``prod_`` takes care of the possibility of the ``Sum`` (or an exponent of it) being inside the product so we are assured that the ``Sum`` just need sto be placed inside the ``Prod``. We take the arbitrary decision to place any such ``Sum`` at the end of the product (without any ordering).
+**Y.2** - The purpose of ``mul`` is to place the Sum ``sa`` inside the list of expressions that comprise the product.
+
+**Y.3** - Recursive base case. If we arrive at the end of the list then this is where the Sum must be placed.
+
+**Y.4** - The rules we are implementing require that a Sum be placed after all Symbols and Exponent of Symbols.
+
+**Y.5** - When comparing with a non-symbol(-exponent) element we find out whether the Sum is lexically "greater" than the element in question. This is done according to rules that are slightly different from that used for constructing Sums and so we define the "gt" function. If the Sum is "greater" than the element it appears first in the list.
+
+**Y.6**
+
+* The special rules for constructing Products require that (when not comparing with symbols or exponent there-of - handled earlier) if the degree of the Sum is lower than that of the element it appears first and vice versa. This is the opposite of how ``compare`` (used in construction of Sums) behaves.
+* If the degrees are equal we fall to the ``cmp`` guards where we follow the usual lexical ordering.
+* The ``otherwise`` guard is declared to be an error because equality of an expression with an element of the Product is dealt with by an earlier pattern.
 
 
 ## Z. Adding expressions
