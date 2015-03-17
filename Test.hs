@@ -150,6 +150,7 @@ tests = TestList [                                              -- We create a l
                     aE "test6" "(x * z^2 * (x + y))" $ show ((x + y) * z^2 * x)
                     aE "test7" "(x * z^2 * (x + y) * (y + z))" $ show ((y + z) * z^2 * (x + y) * x)
                     aE "test8" "(x * y^2 * (y + z)^3)" $ show ((y + z)^2 * y^2 * (y + z) * x)
+                    aE "test9" "((y + z) * ((x * y) + 1))" $ show ((x * y + 1) * (y + z))
             ,
 
             TestLabel "Graded Reversed Lexical Order" $
@@ -220,9 +221,12 @@ tests = TestList [                                              -- We create a l
 
                     let e1 = (x + 1)
                     let e2 = (y + 2)
+                    let e3 = (z * (x + (2 * y)))
+                    let e4 = (((x * y) + 1) * (y + z))
 
                     aE "test1" (x * y) (y * x)
                     aE "test2" (e1 * e2) (e2 * e1)
+                    aE "test3" (e3 * e4) (e4 * e3)
         ]
 
 
@@ -247,10 +251,10 @@ quickTests = do
                 quickCheck $ printTestCase "Add a constant times an expression with another contant times its expressions" prop_Add_equal2
                 quickCheck $ printTestCase "Subtract an expression from itself" prop_Sub_equal
                 quickCheck $ printTestCase "Reverse Comparison Test" prop_Rev_Order
---                quickCheck $ printTestCase "Comparing equal expressions" prop_Compare_Equality
+                quickCheck $ printTestCase "Comparing equal expressions" prop_Compare_Equality
                 quickCheck $ printTestCase "Comparing unequal expressions" prop_Compare_Inequality
                 quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
---                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
+                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
 
 
 -- Define the various properties checked by QuickCheck

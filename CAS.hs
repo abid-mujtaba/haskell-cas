@@ -602,7 +602,7 @@ prod_sm sm@(Sum _) sym@(Symbol _)   = prod_s sym sm
 prod_sm sm@(Sum _) e@(Exp _ _)      = prod_e e sm
 --prod_sm sm@(Sum _) r@(Rec _)        = prod_r r sm
 
-prod_sm sa@(Sum _) sb@(Sum _) = case compare sa sb of                   -- Y.1
+prod_sm sa@(Sum _) sb@(Sum _) = case cmp_prod sa sb of                   -- Y.1
                                     GT -> Prod [sa, sb]
                                     LT -> Prod [sb, sa]
                                     EQ -> error "Equal expressions shouldn't appear in prod_sm"
@@ -612,18 +612,18 @@ prod_sm sa@(Sum _) (Prod ps) = prod_list $ mul sa ps                            
                                       mul a []      = [a]                                       -- Y.3
                                       mul a (e@(Symbol _):es) = e:(mul a es)                    -- Y.4
                                       mul a (e@(Exp (Symbol _) _):es)  = e:(mul a es)
-                                      mul a (e:es)
-                                            | gt a e    = a:e:es                                -- Y.5
-                                            | otherwise = e:(mul a es)
 
-                                      gt a e                                                    -- Y.6
-                                            | degree a < degree e   = True
-                                            | degree a > degree e   = False
-                                            | cmp == GT             = True
-                                            | cmp == LT             = False
-                                            | otherwise             = error "Equality should already been tested for"
-                                                where
-                                                    cmp = compare a e
+                                      mul a (e:es)  = case cmp_prod a e of                      -- Y.5
+                                                            GT -> a:e:es
+                                                            LT -> e:(mul a es)
+                                                            EQ -> error "Equality should already have been tested for"
+
+
+cmp_prod :: (Show a, Integral a) => Expr a -> Expr a -> Ordering
+cmp_prod a b
+    | degree a < degree b   = GT                    -- Y.6
+    | degree a > degree b   = LT
+    | otherwise             = compare a b
 
 
 -- Exponentiation of expressions
