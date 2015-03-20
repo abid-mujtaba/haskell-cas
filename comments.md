@@ -46,7 +46,7 @@ At the bottom of the file are general comments about the development process and
 
 **B.4** - This is a recursive constructor with the Constructor name 'Sum' and which takes a list of 'Expr a' objects as its constructor parameters
 
-**B.5** - The reciprocal of an expression (1 / Expr)
+**B.5** - A fraction. Consists of a numerator and a denominator.
 
 **B.6** - Expression raised to an INTEGER power.
 
@@ -115,7 +115,7 @@ At the bottom of the file are general comments about the development process and
 * The instance declaration has a minor subtlety in the type-constraint 'Integral a'. Usually in such an overloading scenario the type-constraint would be (Fractional a). Note in the definition of the type Expr that the only constructor that (without recursion) uses the type-parameter 'a' is 'Const a'. For our application we are ONLY interested in expressions that contain integer constants so we restrict the type parameter 'a' here to 'Integral a'.
 * If a non-integer constant is found see (E.3)
 
-**E.2** - To construct the reciprocal part we use the ``rec'`` function instead of ``Rec`` because the former is aware of how to properly construct reciprocals in particular how the reciprocal of a reciprocal is equal to the inner expression itself. This automatically simplifies the expression as we construct it.
+**E.2** - To construct the reciprocal part we use the ``frac'`` function instead of ``Frac`` because the former is aware of how to properly construct fractions. It automatically simplifies the expression as we construct it.
 
 **E.3** - We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
 

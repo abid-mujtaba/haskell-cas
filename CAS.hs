@@ -47,7 +47,7 @@ data Expr a =                               -- B.1, B.2
             | Sum [Expr a]                  -- B.4
             | Prod [Expr a]
             | Neg (Expr a)
---            | Rec (Expr a)                  -- B.5
+            | Frac (Expr a) (Expr a)        -- B.5
             | Exp (Expr a) Int              -- B.6
             | Symbol String                 -- B.7
             deriving (Eq)                   -- B.8
@@ -66,6 +66,7 @@ instance Show a => Show (Expr a) where
   show (Sum xs)     = "(" ++ showSum xs ++ ")"
   show (Prod xs)    = showExprList " * " xs
   show (Neg a)      = '-' : show a                                      -- C.4
+  show (Frac a b)    = show a ++ "/" ++ show b
 --  show (Rec a)      = "1/" ++ show a
   show (Exp a p)    = show a ++ "^" ++ show p
   show (Symbol sym) = sym                                               -- C.5
@@ -92,9 +93,9 @@ showActual :: Show a => Expr a -> String
 showActual (Const c)    = "Const " ++ show c                                                                -- M.1
 showActual (Symbol sym) = sym                                                                               -- M.2
 showActual (Neg e)      = "Neg (" ++ showActual e ++ ")"                                                    -- M.3
---showActual (Rec e)      = "Rec (" ++ showActual e ++ ")"
+showActual (Frac a b)   = "Frac (" ++ showActual a ++ ")(" ++ showActual b ++ ")"
 showActual (Exp e p)    = "Exp (" ++ showActual e ++ ")(" ++ show p ++ ")"
-showActual (Sum xs)     = "Sum [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"                          -- M.4
+showActual (Sum xs)     = "Sum [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"                         -- M.4
 showActual (Prod xs)    = "Prod [" ++ (drop 2 $ foldl' foldListElement "" xs) ++ "]"
 
 
@@ -119,8 +120,7 @@ instance (Show a, Integral a) => Num (Expr a) where                       -- D.1
 -- We make Expr an instance of Fractional so we can use the '/' operator.
 
 instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
---  a / b = a * rec' b                                           -- E.2
-  a / b = undefined
+  a / b = Frac a b                                                       -- E.2
   fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.3
 
 
