@@ -12,3 +12,6 @@ test.hs
 
 test
 Test
+
+# Ignore profiling output
+*.prof
