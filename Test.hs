@@ -242,19 +242,19 @@ aB = assertBool
 
 -- We define a composite IO action consisting of all quickCheck property tests defined in the module
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
--- We use 'printTestCase' to attach a label to each test which will be printed if the test fails. This will let us know at a glance what went wrong.
+-- We use 'counterexample' to attach a label to each test which will be printed if the test fails. This will let us know at a glance what went wrong.
 
 quickTests = do
-                quickCheck $ printTestCase "Adding zero to an expression" prop_Add_0
-                quickCheck $ printTestCase "Multiplying an expression by one" prop_Mul_1
-                quickCheck $ printTestCase "Adding an expression with itself" prop_Add_equal
-                quickCheck $ printTestCase "Add a constant times an expression with another contant times its expressions" prop_Add_equal2
-                quickCheck $ printTestCase "Subtract an expression from itself" prop_Sub_equal
-                quickCheck $ printTestCase "Reverse Comparison Test" prop_Rev_Order
-                quickCheck $ printTestCase "Comparing equal expressions" prop_Compare_Equality
-                quickCheck $ printTestCase "Comparing unequal expressions" prop_Compare_Inequality
-                quickCheck $ printTestCase "Additive Commutation between two expressions" prop_Add_Commute
-                quickCheck $ printTestCase "Multiplicative Commutation between two expressions" prop_Mul_Commute
+                quickCheck $ counterexample "Adding zero to an expression" prop_Add_0
+                quickCheck $ counterexample "Multiplying an expression by one" prop_Mul_1
+                quickCheck $ counterexample "Adding an expression with itself" prop_Add_equal
+                quickCheck $ counterexample "Add a constant times an expression with another contant times its expressions" prop_Add_equal2
+                quickCheck $ counterexample "Subtract an expression from itself" prop_Sub_equal
+                quickCheck $ counterexample "Reverse Comparison Test" prop_Rev_Order
+                quickCheck $ counterexample "Comparing equal expressions" prop_Compare_Equality
+                quickCheck $ counterexample "Comparing unequal expressions" prop_Compare_Inequality
+                quickCheck $ counterexample "Additive Commutation between two expressions" prop_Add_Commute
+                quickCheck $ counterexample "Multiplicative Commutation between two expressions" prop_Mul_Commute
 
 
 -- Define the various properties checked by QuickCheck
