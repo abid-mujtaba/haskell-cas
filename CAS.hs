@@ -66,8 +66,7 @@ instance Show a => Show (Expr a) where
   show (Sum xs)     = "(" ++ showSum xs ++ ")"
   show (Prod xs)    = showExprList " * " xs
   show (Neg a)      = '-' : show a                                      -- C.4
-  show (Frac a b)    = show a ++ "/" ++ show b
---  show (Rec a)      = "1/" ++ show a
+  show (Frac n d)   = show n ++ "/" ++ show d
   show (Exp a p)    = show a ++ "^" ++ show p
   show (Symbol sym) = sym                                               -- C.5
 
@@ -121,7 +120,7 @@ instance (Show a, Integral a) => Num (Expr a) where                       -- D.1
 
 instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
   a / b = Frac a b                                                       -- E.2
-  fromRational _ = error "fromRational NOT implemented in Fractional (Expr a): Only integer constants are allowed in Expr."             -- E.3
+  fromRational _ = error "Only integer constants are allowed in Expr."             -- E.3
 
 
 -- We provide our own definition of the ^ function for exponentiation
@@ -236,7 +235,7 @@ degree :: Num a => Expr a -> Int                                  -- O.1
 degree (Const _)   = 0
 degree (Symbol _)  = 1
 degree (Neg e)     = degree e
---degree (Rec e)     = negate $ degree e
+degree (Frac n d)  = degree n - degree d
 degree (Prod xs)   = sum $ map degree xs                          -- O.2
 degree (Sum [])    = 0                                            -- O.3
 degree (Sum xs)    = foldl1' max $ map degree xs                  -- O.4
