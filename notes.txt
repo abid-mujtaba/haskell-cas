@@ -1,0 +1,12 @@
+Profiling:
+
+    - The program was throwing Stack Overflows during the quick-checks.
+    - To diagnose these I wished to compile the tests with profiling activated.
+    - This required the use of '-prof' and '-fprof-auto' flags in the 'ghc make' command.
+    - This command failed because profiling wasn't enabled in ghc as well as in any of the other packages being used.
+
+To Enable Profiling:
+
+    - sudo apt-get install ghc-prof         # A variant of ghc with profiling enabled. This provides the 'base' module (which includes Prelude) with profiling
+    - To upgrade any Haskell package to use profiling issue: sudo cabal install -p <package> --reinstall
+    - If any of the dependencies of the package doesn't have profiling enabled then this command will fail and one will have to reinstall the dependency (with profiling enabled) first.
