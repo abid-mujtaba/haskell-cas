@@ -15,3 +15,6 @@ Test
 
 # Ignore profiling output
 *.prof
+*.hp
+*.aux
+*.ps

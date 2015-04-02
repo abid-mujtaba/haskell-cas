@@ -28,7 +28,7 @@ PROF =
 PROF_FLAGS =
 
 clean:				# Clean the compilation by-products (.hi, .o, .prof files and executables)
-	rm -f *.hi *.o *.prof Test test
+	rm -f *.hi *.o *.prof *.hp *.aux *.ps Test test
 
 
 test: Test
@@ -50,12 +50,16 @@ quick: test
 
 # Define a phony target for compiling and executing the tests with profiling activated. This makes use of the PROF and PROF_FLAGS variables which are empty by default.
 
-prof: PROF_FLAGS = -prof -fprof-auto
+prof: PROF_FLAGS = -prof -fprof-auto-calls
 prof: PROF = +RTS -p
 prof: test
 
+heap: PROF_FLAGS = -prof -fprof-auto-calls
+heap: PROF = +RTS -h -L50
+heap: test
 
-Test: Test.hs CAS.hs Vars.hs
+
+Test: Test.hs CAS.hs Vars.hs Makefile
 	ghc --make ${PROF_FLAGS} -main-is Test.$(MAIN) Test.hs
 
 # We declare Test.hs to be a dependency of the executable Test.
