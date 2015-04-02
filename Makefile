@@ -16,7 +16,7 @@
 #  This is the Makefile which provides targets for common actions that one can perform with this project.
 
 # We provide a list of phony targets which specify actions that are not based on changes in the code-base
-.PHONY: clean, test, ghci, unit, quick, prof
+.PHONY: clean, test, ghci, unit, quick, prof, heap, stats
 
 # We define a simple variable for specifying which main function in the Test.hs script to use
 # The default value is 'main' and is used when the 'make test' is executed
@@ -50,13 +50,21 @@ quick: test
 
 # Define a phony target for compiling and executing the tests with profiling activated. This makes use of the PROF and PROF_FLAGS variables which are empty by default.
 
+# Time and Space Profiling. Generates a Test.prof file.
 prof: PROF_FLAGS = -prof -fprof-auto-calls
 prof: PROF = +RTS -p
 prof: test
 
+# Heap Profiling. This generates a Test.hp file. One can plot the profile data by running 'hp2ps Test.hp' which generates a Test.ps file with a graph in it.
+# The -L50 flag tells the profile to use 50 characters (instead of the default 25) for the methods being profiled.
+# Note that the profiled method names are in reverse order with the last method in the call-tree listed first.
 heap: PROF_FLAGS = -prof -fprof-auto-calls
 heap: PROF = +RTS -h -L50
 heap: test
+
+stats: PROF_FLAGS = -rtsopts
+stats: PROF = +RTS -sstderr
+stats: test
 
 
 Test: Test.hs CAS.hs Vars.hs Makefile
