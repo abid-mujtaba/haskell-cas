@@ -10,3 +10,5 @@ To Enable Profiling:
     - sudo apt-get install ghc-prof         # A variant of ghc with profiling enabled. This provides the 'base' module (which includes Prelude) with profiling
     - To upgrade any Haskell package to use profiling issue: sudo cabal install -p <package> --reinstall
     - If any of the dependencies of the package doesn't have profiling enabled then this command will fail and one will have to reinstall the dependency (with profiling enabled) first.
+
+    - To insist that cabal install all libraries with profiling enabled edit ~/.cabal/config and add the line 'library-profiling: True' (uncomment the default False valued line and change it)

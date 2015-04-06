@@ -22,6 +22,9 @@
 --
 -- Details comments to this code are given in the accompanying 'comments.md' file. These are labelled using a simple scheme which consists of an uppercase letter followed by a number, e.g. C.3 (search for this label in the comments file to find the relevant comment)
 
+-- The following comment is an instruction to the compiler which gives us access to the ! pattern which is used to require strictness is specified variables
+{-# LANGUAGE BangPatterns #-}
+
 module CAS                                                           -- A.1
     (
       Expr(Symbol)                    -- Data typeclass.             -- A.2
