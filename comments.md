@@ -284,7 +284,22 @@ At the bottom of the file are general comments about the development process and
 
 * There are three base cases for the recursive function ``cList``.
 * If both lists are empty that means all corresponding elements of both lists gave ``EQ`` result in comparison (that is they were equal) in which case the two lists must be equal and so the result must clearly by ``EQ``. **Alternately** from a theoretical point where we don't need to concern ourselves with how we get there, in lexical order the comparison of two empty lists should always result in ``EQ``.
-* If the first list becomes empty while the second one is not it means that the second list has an entry which
+* If the first list becomes empty while the second one is not it means that the second list has an entry which means that the first list is lexically lower and vice versa.
+
+**L.17**
+
+* For the case of two non-empty lists we compare the head of both lists using `cmp`.
+* If the result of the comparison of heads is unequal to `EQ` than the rules that goves the monoid `mappend` means that the second argument of `mappend` is NOT evaluated and the first argument is returned as the result.
+* If `cmp` evalautes to `EQ` then the second argument is evaluated which is simply a recursive call to cList.
+
+**L.18** - The `cmp` function is defined to compare elements which are inside a product. These have slightly different rules than for sums and this is why we need a dedicated function for this. Note that this uses ``compare`` recursively.
+
+**L.19**
+
+* We compare two exponents with the same degree.
+* The first step is to compare the outer degrees of the exponents, since the base of each could have a degree higher than one. Analogous to total degree the element with lower outer degree is lexically lower.
+* If the outer degrees of the two expressions is equals, and since we are in compare' whether the total degree is equal it means that the inner degrees are also equal.
+* Consequently we simply pass both inner expressions to compare' to get the comparison result.
 
 
 ## M. showActual

@@ -179,7 +179,10 @@ compare' (Sum as) e = cmp as e                                                  
 
 compare' p s@(Sum _) = flipCompare $ compare' s p                               -- L.14
 
-compare' a@(Exp _ _) b@(Exp _ _) = cmpProdList [a] [b]
+compare' (Exp a pa) (Exp b pb)                                                  -- L.19
+        | pa < pb       = LT
+        | pa > pb       = GT
+        | otherwise     = compare' a b
 
 compare' (Prod as) (Prod bs) = cmpProdList as bs
 
@@ -199,9 +202,9 @@ cmpProdList as bs = cList (reverse as) (reverse bs)                             
         cList [] []           = EQ                                              -- L.16
         cList [] _            = LT
         cList _  []           = GT
-        cList (m:ms) (n:ns)   = mappend (cmp m n) (cList ms ns)
+        cList (m:ms) (n:ns)   = mappend (cmp m n) (cList ms ns)                 -- L.17
 
-        cmp (Symbol a) (Symbol b)           = compare b a
+        cmp (Symbol a) (Symbol b)           = compare b a                       -- L.18
 
         cmp (Exp (Symbol a) pa) (Exp (Symbol b) pb)
                 | a == b    = indexCompare pa pb
@@ -210,7 +213,7 @@ cmpProdList as bs = cList (reverse as) (reverse bs)                             
         cmp (Symbol a) (Exp (Symbol b) _)
                 | a == b    = GT
                 | otherwise = compare b a
-        cmp s@(Exp (Symbol _) _) e = flipCompare $ cmp e s
+        cmp e@(Exp (Symbol _) _) s = flipCompare $ cmp s e
 
         cmp a b = compare a b
 
