@@ -16,7 +16,7 @@
 #  This is the Makefile which provides targets for common actions that one can perform with this project.
 
 # We provide a list of phony targets which specify actions that are not based on changes in the code-base
-.PHONY: clean, test, ghci, unit, quick, prof, heap, stats, prof_test, heapd, heapr, heapb 
+.PHONY: clean, test, ghci, unit, quick, prof, heap, stats, prof_test, heap-d, heap-r, heap-b, heap-y
 
 # We define a simple variable for specifying which main function in the Test.hs script to use
 # The default value is 'main' and is used when the 'make test' is executed
@@ -60,23 +60,30 @@ prof: PROF = +RTS -p
 prof: prof_test
 
 
-# Heap Profiling. This generates a Test.hp file. One can plot the profile data by running 'hp2ps Test.hp' which generates a Test.ps file with a graph in it.
+# Source for heap profile options: https://downloads.haskell.org/~ghc/7.6.3/docs/html/users_guide/prof-heap.html
+
+# Heap Profiling by cost-center. This generates a Test.hp file. One can plot the profile data by running 'hp2ps Test.hp' which generates a Test.ps file with a graph in it.
 # The -L20 flag tells the profile to use 20 characters (instead of the default 25) for the methods being profiled.
 # Note that the profiled method names are in reverse order with the last method in the call-tree listed first.
 heap: PROF = +RTS -hc -L20
 heap: prof_test
 
-# Heap Profiling that displays thunks on the heap in particular closures which don't have a well-defined name
-heapd: PROF = +RTS -hd -L20
-heapd: prof_test
+# Heap profile by "closure description"
+# This displays thunks on the heap in particular closures which don't have a well-defined name
+heap-d: PROF = +RTS -hd -L20
+heap-d: prof_test
 
 # Heap Profiling that focuses on retainers
-heapr: PROF = +RTS -hr -L20
-heapr: prof_test
+heap-r: PROF = +RTS -hr -L20
+heap-r: prof_test
 
 # Biographical Heap Profiling
-heapb: PROF = +RTS -hc -hbdrag,void
-heapb: prof_test
+heap-b: PROF = +RTS -hc -hbdrag,void
+heap-b: prof_test
+
+# Heap Profile broken down by "type"
+heap-y: PROF = +RTS -hy
+heap-y: prof_test 
 
 
 
