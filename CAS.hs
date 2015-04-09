@@ -73,11 +73,11 @@ instance Show a => Show (Expr a) where
 
 
 showExprList :: Show a => String -> [Expr a] -> String                  -- C.6
-showExprList _ []   = "(0)"
+showExprList _ []   = error "Shouldn't have to show an empty product"
 showExprList sep es = "(" ++ showExprList' sep es ++ ")"
 
 showExprList' :: Show a => String -> [Expr a] -> String                 -- C.7
-showExprList' _ []       = ""
+showExprList' _ []       = error "Shouldn't have to show an empty list of expressions"
 showExprList' _ [e]      = show e
 showExprList' sep (e:es) = show e ++ sep ++ showExprList' sep es
 
@@ -161,7 +161,7 @@ compare' :: (Show a, Ord a, Integral a) => Expr a -> Expr a -> Ordering
 
 --compare' (Rec a) (Rec b) = compare' a b                                       -- L.5
 
-compare' a@(Symbol _) b@(Symbol _) = cmpProdList [a] [b]                        -- L.6
+compare' (Symbol a) (Symbol b) = compare b a                                    -- L.6
 
 compare' (Sum as) (Sum bs) = cList as bs                                        -- L.9
     where
@@ -175,7 +175,7 @@ compare' (Sum as) e = cmp as e                                                  
         cmp [] _     = LT
         cmp (n:ns) m = mappend (compare n m) $ cmp ns m
 
-compare' p s@(Sum _) = flipCompare $ compare' s p                               -- L.14
+compare' e s@(Sum _) = flipCompare $ compare' s e                               -- L.14
 
 compare' (Exp a pa) (Exp b pb)                                                  -- L.19
         | pa < pb       = LT
@@ -202,7 +202,7 @@ cmpProdList as bs = cList (reverse as) (reverse bs)                             
         cList _  []           = GT
         cList (m:ms) (n:ns)   = mappend (cmp m n) (cList ms ns)                 -- L.17
 
-        cmp (Symbol a) (Symbol b)           = compare b a                       -- L.18
+        cmp a@(Symbol _) b@(Symbol _)           = compare' a b                  -- L.18
 
         cmp (Exp (Symbol a) pa) (Exp (Symbol b) pb)
                 | a == b    = indexCompare pa pb
