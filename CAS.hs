@@ -28,7 +28,6 @@
 module CAS                                                           -- A.1
     (
       Expr(Symbol)                    -- Data typeclass.             -- A.2
-      , const'                                                       -- A.3
 --      , simplify
 --      , diff
 --      , eval

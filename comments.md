@@ -30,8 +30,6 @@ At the bottom of the file are general comments about the development process and
 
 **A.2** - ``Expr(Symbol)`` signifies that ONLY its ``Symbol`` value constructor is to be exported. All of the other constructors are hidden. Our intention is to allow a user to build up complex expressions by starting with ``Symbol``s and ``Const`` values as building blocks and tying them together with arithmetic operations without having to explicitly use the rest of the value constructors. To access ``Const`` values we use the ``const'`` function described in *A.3*
 
-**A.3** - We export the ``const'`` function as it provides the only mechanism available outside the module for creating ``Const`` objects (since we did NOT export ``Const``).
-
 **A.4** - We export the ``^`` infix function which we have defined in the module (overriding the Prelude definition of the same)
 
 
