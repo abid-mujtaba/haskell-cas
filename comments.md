@@ -372,9 +372,7 @@ At the bottom of the file are general comments about the development process and
 
 **P.2** - We make a qualified import of Prelude which will allow us to access it by name and access its members using the ``.`` terminology. It will allow us to refer to the hidden/suppressed ``^`` as ``Prelude.^``.
 
-**P.3** - We import the stricter versions of ``foldl`` and ``foldl1`` from the Data.List module since these are recommended to avoid stack overflows (in pattern matching).
-
-**P.4** - We import the ``mappend`` function so that we can combine ``Ordering`` (``LT``, ``GT`` and ``EQ``) in a specific fashion.
+**P.3** - We import the ``mappend`` function so that we can combine ``Ordering`` (``LT``, ``GT`` and ``EQ``) in a specific fashion.
 
 
 
