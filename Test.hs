@@ -73,41 +73,6 @@ main_quick = do               -- This IO Action runs only the property checks
 
 tests = TestList [                                              -- We create a list of TestCases
 
-            TestLabel "Comparing Constants" $                     -- We use TestLabel to add a label to the TestCase which will be shown in case of failure
-                TestCase $ do                                   -- Each TestCase contains a sequence of assertions inside a do construct
-
-                    aE "test1" z2 z2                            -- If this assertion fails both "Testing Constants" and "test1" will appear in the report
-                    aE "test2" zm3 zm3
-
-                    aB "test3" $ z4 > z3
-                    aB "test4" $ z5 < z6
-                    aB "test5" $ zm3 < zm2
-                    aB "test6" $ zm7 > zm8
-                    aB "test7" $ z6 > zm5
-                    aB "test8" $ z6 > zm6
-            ,                                                   -- This comma delimits the TestLabels inside the TestList list
-
-            TestLabel "Adding Constants" $
-                TestCase $ do
-
-                    aE "test1" z5 (z2 + z3)
-                    aE "test2" z4 (z7 + zm3)
-                    aE "test3" zm4 (zm4 + z0)
-            ,
-
-            TestLabel "Multiplying Constants" $
-                TestCase $ do
-
-                    aE "test1" z6 (z2 * z3)
-                    aE "test2" z0 (z0 * z9)
-                    aE "test3" z8 (zm2 * zm4)
-                    aE "test4" z0 (zm9 * z0)
-                    aE "test5" zm6 (z2 * zm3)
-                    aE "test6" z7 (z1 * z7)
-                    aE "test7" zm9 (zm9 * z1)
-                    aE "test8" zm7 (z7 * zm1)
-            ,
-
             TestLabel "Adding similar products" $
                 TestCase $ do
 
@@ -129,7 +94,6 @@ tests = TestList [                                              -- We create a l
                     let e5 = -1 + e4
                     let e6 = e5 + z
 
-                    aE "test1" 0 (z2 - z2)
                     aE "test2" 0 (x - x)
                     aE "test3" 0 (e1 - e1)
 --                    aE "test4" 0 (e2 - e2)
@@ -266,11 +230,11 @@ quickTests = do
 -- Any function that starts with "prop_" is considered a property by QuickCheck
 
 prop_Add_0 :: Expr Int -> Bool      -- A property of expressions is that adding zero to an expression should result in the same expression
-prop_Add_0 e = e + z0 == e
+prop_Add_0 e = e + 0 == e
     where types = e::(Expr Int)
 
 prop_Mul_1 :: Expr Int -> Bool
-prop_Mul_1 e = e * z1 == e
+prop_Mul_1 e = e * 1 == e
     where types = e::(Expr Int)
 
 prop_Add_equal :: Expr Int -> Bool
@@ -282,7 +246,7 @@ prop_Add_equal2 e = (2 * e) + (5 * e) == (7 * e)
     where types = e :: (Expr Int)
 
 prop_Sub_equal :: Expr Int -> Bool
-prop_Sub_equal e = (e - e) == z0
+prop_Sub_equal e = (e - e) == 0
     where types = e :: (Expr Int)
 
 prop_Add_Commute :: Expr Int -> Expr Int -> Bool
@@ -365,16 +329,16 @@ arbitrary' n = do
 -- Constants and Symbols are the atomic expressions. Everything else is constructed from these (or by encapsulatng them in some fashion).
 -- We collect the Const and Symbol expression in to a single arbitrary definition which produces them with equal likelihood
 -- This definition will be used to create negative atomic expressions as well.
-arbitrary_atom :: Integral a => Gen (Expr a)
+arbitrary_atom :: (Integral a, Show a) => Gen (Expr a)
 arbitrary_atom = oneof [arbitrary_const, arbitrary_symbol]
 
 -- arbitrary_const returns a random Const object by taking a random integer from 1 to 9 and wrapping it inside Const.
 -- We don't include 0 because it leaves sums unchanged and more importantly it reduces products to zero which is counter-productive for testing.
 -- Negative constants are handled by 'arbitrary_negative' which takes positive constants and negates them.
-arbitrary_const :: Integral a => Gen (Expr a)
+arbitrary_const :: (Integral a, Show a) => Gen (Expr a)
 arbitrary_const = frequency $
-                        map (\(f, n) -> (f, return $ const' n)) $
-                            [(1000, 1), (100, 2), (10, 3)] ++ map (\n -> (1, n)) [4,5..9]
+                        map (\(f, n) -> (f, return n)) $
+                            [(1000, 1), (100, 2), (10, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9)]
 
 -- The constraint 'Integral a' in the signature is crucial since it allows us to use the const' smart constructor to create Const objects from randomly selected Int.
 
@@ -384,7 +348,7 @@ arbitrary_const = frequency $
 -- We first create a list of (Int, Int) tuples where we list the integers 1 to 9 and attach the required weights to them. Highest for 1, then 2, then 3 and the rest are equally weighted at the bottom.
 -- The list of tuples for 1,2,3 is created explicitly. The remainder is added to it using ++ and is constructed by taking the list of integers from 4 to 9 and mapping a simple lambda function over it which transforms it in to a list of tuples with frequency 1.
 
--- We then use map and a lambda function to create Gen (Const Int) objects out of the second element of each tuple using "return $ const' n".
+-- We then use map and a lambda function to create Gen (Const Int) objects out of the second element of each tuple using "return n".
 -- Note the use of pattern-matching within the lamdba function definition to gain access to the second element.
 
 -- Finally we present the constructed list to frequency for the generation of these objects.
