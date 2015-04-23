@@ -113,7 +113,7 @@ At the bottom of the file are general comments about the development process and
 * The instance declaration has a minor subtlety in the type-constraint 'Integral a'. Usually in such an overloading scenario the type-constraint would be (Fractional a). Note in the definition of the type Expr that the only constructor that (without recursion) uses the type-parameter 'a' is 'Const a'. For our application we are ONLY interested in expressions that contain integer constants so we restrict the type parameter 'a' here to 'Integral a'.
 * If a non-integer constant is found see (E.3)
 
-**E.2** - To construct the reciprocal part we use the ``frac'`` function instead of ``Frac`` because the former is aware of how to properly construct fractions. It automatically simplifies the expression as we construct it.
+**E.2** - To construct the reciprocal part we use the ``frac`` function instead of ``Frac`` because the former is aware of how to properly construct fractions. It automatically simplifies the expression as we construct it.
 
 **E.3** - We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
 
@@ -473,7 +473,7 @@ At the bottom of the file are general comments about the development process and
 
 * We define an intermediary function between ``(^)`` and ``exp'``.
 * Its purpose it to deal with the possibility of negative powers in an exponent without falling in to an infinite recursion.
-* When the power is negative we place the exponent inside a ``Rec`` and send the absolute value of ``p`` to the ``exp'`` call.
+* When the power is negative we invert the exponent by creating a ``Frac`` with ``Const 1`` in the numerator and place the exponent in the denominator but with a positive exponent by sending the absolute value of ``p`` to the ``exp'`` call.
 * When the power is zero we return ``1``. This will in all likelihood shadow the rule ``exp` _ 0 = Const 1`` but we leave the latter in place for the sake of completeness.
 
 **S.2**
@@ -778,6 +778,17 @@ At the bottom of the file are general comments about the development process and
 * If they do not the entire exercise is futile so we simply send the reconstituted products to ``sum_x``.
 * If they do match we add the constants together and multiply it with the rest of the product. By using ``*`` here we guarantee that all the edge cases of ``0``, ``1`` and negative constants will be looked after automatically.
 
+
+
+## AD. Constructing ``Frac``
+
+**AD.1** - High level matching of numerator and denominator. If the two match we simply cancel them out and return 1. Otherwise we use ``frac'`` to further probe the possibility of cancellation.
+
+**AD.2** - Comparing two exponents in a fraction. Testing for the possibility of base matching. Note how ``exp_`` handles the possibility of zero and negative values of ``p - q``.
+
+**AD.3** - Handles the possibility of an exponent in the numerator and a non-exponent in the denominator. The next pattern handles the reverse.
+
+**AD.4** - All cases not handled here are automatically placed in a ``Frac`` object without any modification.
 
 
 ## Debugging

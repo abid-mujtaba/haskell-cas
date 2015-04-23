@@ -120,7 +120,7 @@ instance (Show a, Integral a) => Num (Expr a) where                       -- D.1
 -- We make Expr an instance of Fractional so we can use the '/' operator.
 
 instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
-  a / b = Frac a b                                                       -- E.2
+  a / b = frac a b                                                       -- E.2
   fromRational _ = error "Only integer constants are allowed in Expr."             -- E.3
 
 
@@ -634,8 +634,7 @@ cmp_prod a b
 exp_ :: Integral a => Expr a -> Int -> Expr a
 exp_ e p                                                        -- S.1
     | p > 0     = exp' e p
---    | p < 0     = rec' (exp' e $ abs p)
-    | p < 0     = undefined
+    | p < 0     = frac (Const 1) (exp' e $ abs p)
     | otherwise = Const 1
 
 
@@ -653,6 +652,28 @@ exp' e 1 = e
 exp' (Const c) p     = Const (c Prelude.^ p)                    -- S.4
 exp' (Exp e p) q     = Exp e (p * q)
 exp' e p             = Exp e p                                  -- S.5
+
+
+frac :: Integral a => Expr a -> Expr a -> Expr a
+frac a b
+    | a == b        = Const 1                                   -- AD.1
+    | otherwise     = frac' a b
+
+
+frac' :: Integral a => Expr a -> Expr a -> Expr a
+frac' ea@(Exp a p) eb@(Exp b q)                                 -- AD.2
+    | a == b        = exp_ a (p - q)
+    | otherwise     = Frac ea eb
+
+frac' ea@(Exp a p) b
+    | a == b        = exp_ a (p - 1)                            -- AD.3
+    | otherwise     = Frac ea b
+
+frac' a eb@(Exp b p)
+    | a == b        = Frac (Const 1) (exp_ b (p - 1))
+    | otherwise     = Frac a eb
+
+frac' a b = Frac a b                                            -- AD.4
 
 
 -- Define a debug function for tracing code
