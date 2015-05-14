@@ -39,6 +39,7 @@ module CAS                                                           -- A.1
 import Prelude hiding ((^))                 -- P.1
 import qualified Prelude                    -- P.2
 import Data.Monoid(mappend)                 -- P.3
+import Data.List(delete)
 
 import Debug.Trace(trace)
 
@@ -661,19 +662,41 @@ frac a b
 
 
 frac' :: Integral a => Expr a -> Expr a -> Expr a
-frac' ea@(Exp a p) eb@(Exp b q)                                 -- AD.2
-    | a == b        = exp_ a (p - q)
-    | otherwise     = Frac ea eb
 
-frac' ea@(Exp a p) b
-    | a == b        = exp_ a (p - 1)                            -- AD.3
-    | otherwise     = Frac ea b
+-- ToDo: Use frac_ in the next three patterns in an element wise fashion with branching
+frac' (Prod as) (Prod bs) = undefined
 
-frac' a eb@(Exp b p)
-    | a == b        = Frac (Const 1) (exp_ b (p - 1))
-    | otherwise     = Frac a eb
+frac' p@(Prod as) b
+    | elem b as     = Prod $ delete b as
+    | otherwise     = Frac p b
 
-frac' a b = Frac a b                                            -- AD.4
+frac' a p@(Prod bs)
+    | elem a bs     = Frac (Const 1) (Prod $ delete a bs)
+
+
+frac' a b = branch $ frac_ a b
+                where
+                    branch Nothing  = Frac a b
+                    branch (Just e) = e
+
+
+frac_ :: Integral a => Expr a -> Expr a -> Maybe (Expr a)           -- AD.2
+frac_ (Exp a p) (Exp b q)
+    | a == b        = Just $ exp_ a (p - q)
+    | otherwise     = Nothing
+
+frac_ (Exp a p) b
+    | a == b        = Just $ exp_ a (p - 1)
+    | otherwise     = Nothing
+
+frac_ a (Exp b p)
+    | a == b        = Just $ Frac (Const 1) (exp_ b (p - 1))
+    | otherwise     = Nothing
+
+frac_ a b
+    | a == b        = Just $ Const 1
+    | otherwise     = Nothing
+
 
 
 -- Define a debug function for tracing code

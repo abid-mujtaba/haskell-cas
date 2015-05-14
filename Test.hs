@@ -196,6 +196,17 @@ tests = TestList [                                              -- We create a l
                     aE "test1" (x * y) (y * x)
                     aE "test2" (e1 * e2) (e2 * e1)
                     aE "test3" (e3 * e4) (e4 * e3)
+            ,
+
+            TestLabel "Division" $
+                TestCase $ do
+
+                    aE "test1" 1 (x / x)
+                    aE "test2" x (x^2 / x)
+                    aE "test3" (1/x) (x/x^2)
+                    aE "test4" (x^2) (x^7 / x^5)
+                    aE "test5" (1/x^3) (x^5 / x^8)
+                    aE "test6" (x + y) ((x + y)^3 / (x + y)^2)
         ]
 
 

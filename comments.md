@@ -784,11 +784,15 @@ At the bottom of the file are general comments about the development process and
 
 **AD.1** - High level matching of numerator and denominator. If the two match we simply cancel them out and return 1. Otherwise we use ``frac'`` to further probe the possibility of cancellation.
 
-**AD.2** - Comparing two exponents in a fraction. Testing for the possibility of base matching. Note how ``exp_`` handles the possibility of zero and negative values of ``p - q``.
+**AD.2**
 
-**AD.3** - Handles the possibility of an exponent in the numerator and a non-exponent in the denominator. The next pattern handles the reverse.
+* ``frac_`` expects two non-``Prod`` elements and attempts to simplify them during division.
+* It uses pattern-matching to handle different cases.
+* If a simplification is performed the result is returned wrapped inside a ``Just`` context.
+* Otherwise a ``Nothing`` is returned to indicate that no simplification was possible.
+* It checks for one or both expressions being exponents and finally equality  between elements.
+* ``Prod`` in either numerator and/or denominator is handled in an element wise fashion where ``frac_`` is called for each element in a recursive fashion.
 
-**AD.4** - All cases not handled here are automatically placed in a ``Frac`` object without any modification.
 
 
 ## Debugging
