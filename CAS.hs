@@ -127,7 +127,7 @@ instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
 
 -- We provide our own definition of the ^ function for exponentiation
 
-(^) :: (Integral a) => Expr a -> Int -> Expr a                                  -- Q.1
+(^) :: (Integral a, Show a) => Expr a -> Int -> Expr a                                  -- Q.1
 a ^ p = exp_ a p                                                                -- Q.2
 
 
@@ -632,7 +632,7 @@ cmp_prod a b
 
 -- Exponentiation of expressions
 
-exp_ :: Integral a => Expr a -> Int -> Expr a
+exp_ :: (Integral a, Show a) => Expr a -> Int -> Expr a
 exp_ e p                                                        -- S.1
     | p > 0     = exp' e p
     | p < 0     = frac (Const 1) (exp' e $ abs p)
@@ -655,13 +655,13 @@ exp' (Exp e p) q     = Exp e (p * q)
 exp' e p             = Exp e p                                  -- S.5
 
 
-frac :: Integral a => Expr a -> Expr a -> Expr a
+frac :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
 frac a b
     | a == b        = Const 1                                   -- AD.1
     | otherwise     = frac' a b
 
 
-frac' :: Integral a => Expr a -> Expr a -> Expr a
+frac' :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
 
 -- ToDo: Use frac_ in the next three patterns in an element wise fashion with branching
 frac' (Prod as) (Prod bs) = undefined
@@ -680,7 +680,7 @@ frac' a b = branch $ frac_ a b
                     branch (Just e) = e
 
 
-frac_ :: Integral a => Expr a -> Expr a -> Maybe (Expr a)           -- AD.2
+frac_ :: (Integral a, Show a) => Expr a -> Expr a -> Maybe (Expr a)           -- AD.2
 frac_ (Exp a p) (Exp b q)
     | a == b        = Just $ exp_ a (p - q)
     | otherwise     = Nothing
