@@ -207,6 +207,8 @@ tests = TestList [                                              -- We create a l
                     aE "test4" (x^2) (x^7 / x^5)
                     aE "test5" (1/x^3) (x^5 / x^8)
                     aE "test6" (x + y) ((x + y)^3 / (x + y)^2)
+                    aE "test7" (x * z) ((x * y * z) / y)
+                    aE "test8" (x * y * z) ((x * y^2 * z) / y)
         ]
 
 

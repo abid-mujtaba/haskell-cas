@@ -666,9 +666,13 @@ frac' :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
 -- ToDo: Use frac_ in the next three patterns in an element wise fashion with branching
 frac' (Prod as) (Prod bs) = undefined
 
-frac' p@(Prod as) b
-    | elem b as     = Prod $ delete b as
-    | otherwise     = Frac p b
+frac' (Prod as) b = divide [] as b
+                        where
+                            divide es [] d       = Frac (Prod es) d
+                            divide es (x:xs) d   = branch es xs x d $ frac_ x d
+
+                            branch es xs x d Nothing    = divide (x:es) xs d
+                            branch es xs _ _ (Just e)   = prod_ e $ prod_list (es ++ xs)
 
 frac' a p@(Prod bs)
     | elem a bs     = Frac (Const 1) (Prod $ delete a bs)
