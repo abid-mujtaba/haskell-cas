@@ -668,14 +668,13 @@ frac' (Prod as) (Prod bs) = undefined
 
 frac' (Prod as) b = divide [] as b
                         where
-                            divide es [] d       = Frac (Prod es) d
+                            divide es [] d       = Frac (Prod (reverse es)) d
                             divide es (x:xs) d   = branch es xs x d $ frac_ x d
 
                             branch es xs x d Nothing    = divide (x:es) xs d
-                            branch es xs _ _ (Just e)   = prod_ e $ prod_list (es ++ xs)
+                            branch es xs _ _ (Just e)   = prod_ e $ prod_list ((reverse es) ++ xs)
 
-frac' a p@(Prod bs)
-    | elem a bs     = Frac (Const 1) (Prod $ delete a bs)
+frac' a p@(Prod _)  = rec $ frac' p a
 
 
 frac' a b = branch $ frac_ a b
@@ -701,6 +700,10 @@ frac_ a b
     | a == b        = Just $ Const 1
     | otherwise     = Nothing
 
+
+rec :: (Integral a, Show a) => Expr a -> Expr a
+rec (Frac n d) = Frac d n
+rec e = Frac 1 e
 
 
 -- Define a debug function for tracing code

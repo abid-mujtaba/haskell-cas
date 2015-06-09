@@ -201,6 +201,9 @@ tests = TestList [                                              -- We create a l
             TestLabel "Division" $
                 TestCase $ do
 
+                    let w = Symbol "w"
+                    let q = w * x * y * z
+
                     aE "test1" 1 (x / x)
                     aE "test2" x (x^2 / x)
                     aE "test3" (1/x) (x/x^2)
@@ -209,6 +212,8 @@ tests = TestList [                                              -- We create a l
                     aE "test6" (x + y) ((x + y)^3 / (x + y)^2)
                     aE "test7" (x * z) ((x * y * z) / y)
                     aE "test8" (x * y * z) ((x * y^2 * z) / y)
+                    aE "test9" (w * x * z) (q / y)
+                    aE "test10" (1 / (w * x * z)) (y / q)
         ]
 
 
