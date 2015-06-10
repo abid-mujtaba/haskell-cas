@@ -115,7 +115,7 @@ At the bottom of the file are general comments about the development process and
 
 **E.2** - To construct the reciprocal part we use the ``frac`` function instead of ``Frac`` because the former is aware of how to properly construct fractions. It automatically simplifies the expression as we construct it.
 
-**E.3** - We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Prod and Rec.
+**E.3** - We define the fromRational method to be an 'error' so that when this method is called the specified error message is printed. This ensures that the constants in our expressions are only allowed to be integers. We will deal with rational fractions by using Frac.
 
 
 
@@ -215,7 +215,6 @@ At the bottom of the file are general comments about the development process and
 **K.3** 
 
 * Again we use the case expression to pattern match against the element of the expression list (an arbitrary expression). If it is a ``Const`` we multiply it with the accumulator's numerator value.
-* If it is ``Rec (Const m)`` it is a constant in the denominator so we multiply it with the accumulator's denominator value.
 * Otherwise we simply append the expression to the accumulator's expression list ``es``
 
 **K.4** - A careful study of ``collect_prod_const`` will reveal that there exists a special case where both ``n`` and ``d`` are equal to ``1`` and ``es`` is null (``[]``). In this case the function returns an empty list (a Product with no elements). This actually corresponds to a value of ``1`` which is what the corresponding pattern match returns.
@@ -487,9 +486,7 @@ At the bottom of the file are general comments about the development process and
 * The first pattern we match is for a negative base.
 * We extract the expression within the ``Neg``.
 * If the power is even we realise that the negative part is turned to a positive ``(-1)^(2n) = 1`` so we simply return the expression inside the ``Neg`` exponentiated using a recursive call.
-* If the power is odd the result must be negative overall because ``(-1)^(2n+1) = -1`` and so we surround the recursive exponent with a final ``Neg``.
-
-**S.3** - The exponent of an inverse expression is the inverse of the exponent of the expression.
+* If the power is odd the result must be negative overall because ``(-1)^(2n+1) = -1`` and so we surround the recursive exponent with a final ``Neg``..
 
 **S.4**
 
@@ -538,26 +535,18 @@ At the bottom of the file are general comments about the development process and
 
 **U.3** - This is based on the assumption that no exponent will ever have a ``Const`` in its base because such exponents will already have been converted in to the resulting ``Const`` values.
 
-**U.4** - ``Rec`` is **always** the first element in a ``Prod`` (when it is present)
-
 
 *Multiplying a ``Const`` with a ``Prod``
 
 **U.5**
 
-* This pattern is based on the assumption that every ``Prod`` has the same construction format: ``[<Rec>, <Const>, ...]`` where the first element is optionally a ``Rec`` (the ONLY one in the ``Prod`` - they are all collected in to one). The next element is a ``Const`` (if there is no ``Rec`` element this will be the first, otherwise it will be the second element). ``Const`` is also optional.
+* This pattern is based on the assumption that every ``Prod`` has the same construction format: ``[<Const>, ...]`` where first element is a ``Const`` if one is present.
 * Note that the case of the product and/or the constant being negative is handled by the rules defined for abstract ``Neg`` objects being multiplied which use recursion.
 * Instead of the where-pattern we could have gone with multiple patterns but they would have looked cumbersome. This way not only is the logic cleaner but the whole category of ``Const * Prod`` can be rejected in one pattern test rather than having multiple pattern tests. 
 
 **U.5a** - This pattern corresponds to the first element (of the list of elements inside the ``Prod``) being a ``Const``. We multiply the constant values together and append it to the rest of the list of expressions ``es`` which we got by pattern-matching.
 
-**U.5b**
-
-* If the first element is a ``Rec`` we place it at the head of the list. The rest of the list is created by recursively calling ``mul`` on the value of the ``Const`` i.e. ``a`` and ``es`` the rest of the list inside the ``Prod`` (after the ``Rec`` has been removed).
-* Note how we used an as-pattern to keep a handle on the ``Rec`` objects which are used on the RHS.
-* Note how we used ``_`` inside the ``Rec`` pattern because the rule we are defining doesn't require knowledge of its internals (for now).
-
-**U.5c** - If the first element of the list is neither a ``Const`` nor a ``Rec`` we simply append the ``Const`` in front of the entire list.
+**U.5b** - If the first element of the list is not a ``Const`` we simply append the ``Const`` in front of the entire list.
 
 **U.6** - ``prod_c`` is **only** intended for ``Const`` patterns. So the catch-all pattern at the bottom raises an error which will inform us if ``prod_c`` is every used incorrectly.
  
@@ -641,16 +630,6 @@ At the bottom of the file are general comments about the development process and
 * We match for the head being exponent first so that it isn't hidden by the pattern that follows (which is more general - as a rule patterns move from specific to general).
 * Note the *otherwise* case where the exponent is always sent to ``mul`` recursively when ``b != c``. This opens up the possibility of the list ``es`` becoming empty which is why we need the base case at the top.
 * These patterns allow for general expressions inside the exponent to be multiplied with the same expression or an exponent of it in the Product. This is a desired simplification we want during expression construction (when we are multiplying expressions).
-
-
-
-## X. Multiplying by ``Rec``
-
-**X.1** - Explicit rules/patterns for implementing commutation with expressions whose rules have been defined already (above ``prod_r`` inside ``prod'``)
-
-**X.2** - We multiply the two ``Rec`` together and then multiply it with the rest of the elements using ``mul`` which builds the product back up piece by piece using recursion.
-
-**X.3** - By construction the **single** ``Rec`` expression is always the first element of the ``Prod`` (if it exists).
 
 
 
