@@ -220,6 +220,21 @@ tests = TestList [                                              -- We create a l
                     aE "test8" (x * y * z) ((x * y^2 * z) / y)
                     aE "test9" (w * x * z) (q / y)
                     aE "test10" (1 / (w * x * z)) (y / q)
+            ,
+
+            TestLabel "Multiplying Fractions" $
+                TestCase $ do
+
+                    let xi = 1/x
+                    let yi = 1/y
+
+                    aE "test1" (2/x) (2 * xi)
+                    aE "test2" (y/x) (xi * y)
+                    aE "test3" (1/(x * y)) (xi * yi)
+                    aE "test4" (1/(x^2)) (xi * xi)
+                    aE "test5" 1 (x * xi)
+                    aE "test6" x (y * (x/y))
+                    aE "test7" xi (yi * (y/x))
         ]
 
 

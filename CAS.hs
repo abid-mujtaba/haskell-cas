@@ -457,6 +457,8 @@ prod_ ea eb                                             -- R.7
 
 prod' :: (Show a, Integral a) => Expr a -> Expr a -> Expr a       -- T.1
 
+prod' f@(Frac _ _) e    = prod_f f e
+prod' e f@(Frac _ _)    = prod_f f e
 prod' c@(Const _) e     = prod_c c e                    -- T.2
 prod' sym@(Symbol _) e  = prod_s sym e
 prod' e@(Exp _ _) d     = prod_e e d
@@ -564,7 +566,20 @@ prod_e ea@(Exp a n) (Prod ps)   = Prod $ mul a n ps                             
 prod_e a b = error $ "prod_e is only intended to multiply by Exp: " ++ show a ++ " * " ++ show b
 
 
+-- Rules for mutiplying Frac with other expressions
 
+prod_f :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
+
+prod_f (Frac na da) (Frac nb db) = branch na da nb db (frac_ na db) (frac_ nb da)
+    where
+        branch nc dc nd dd Nothing  Nothing      = Frac (nc * nd) (dc * dd)
+        branch _ dc nd _   (Just a) Nothing      = Frac (nd * a) dc
+        branch nc _ _ dd   Nothing  (Just b)     = Frac (nc * b) dd
+
+prod_f (Frac n d) e = branch n d e $ frac_ e d
+    where
+        branch na da ea Nothing      = Frac (na * ea) da
+        branch na _ _ (Just s)       = na * s
 
 
 -- Rules for multiplying Sum with other expressions
