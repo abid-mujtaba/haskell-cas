@@ -151,6 +151,10 @@ tests = TestList [                                              -- We create a l
                     aE "test7" "(x - y)" $ show (-y + x)
                     aE "test8" "(x/y + 1)" $ show (1 + x/y)
                     aE "test9" "(x + x/y)" $ show (x + x/y)
+                    aE "test10" "(1/x + 1/y)" $ show (1/x + 1/y)
+                    aE "test11" "(x/y + y/z)" $ show (x/y + y/z)
+                    aE "test12" "(x/y + z/y)" $ show (x/y + z/y)
+                    aE "test13" "(x^2/y + z^2/x)" $ show (x^2/y + z^2/x)
             ,
 
             TestLabel "Comparing expressions" $

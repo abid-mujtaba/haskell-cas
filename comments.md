@@ -247,6 +247,10 @@ At the bottom of the file are general comments about the development process and
 
 **L.5**
 
+- We are comparing two Frac with equal degree.
+- First we compare the numerators. If it is not EQ we return the result.
+- Otherwise we compare the denominators.
+- Note the use of ``mappend`` to perform this lazily and only compare the denominators if the comparision for the numerators turns out to be equal.
 - We want a Frac to have higher precedence (is written first) whenever it is compared with a non-Frac expression.
  
 **L.6** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. We want ``x`` to appear before ``y`` so ``compare' x y`` should be equal to ``GT`` as required by reverse lexical order. To achieve that we must reverse the alphabetic ordering of the ``String`` inside the ``Symbol``. 

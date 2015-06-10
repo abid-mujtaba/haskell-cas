@@ -160,7 +160,7 @@ instance (Show a, Ord a, Integral a) => Ord (Expr a) where                  -- L
 -- A function for comparing expressions with equal degree
 compare' :: (Show a, Ord a, Integral a) => Expr a -> Expr a -> Ordering
 
-compare' (Frac _ _) (Frac _ _) = undefined                                      -- L.5
+compare' (Frac an ad) (Frac bn bd) = mappend (compare an bn) (compare ad bd)        -- L.5
 compare' (Frac _ _) _   = GT
 compare' _ (Frac _ _)   = LT
 
