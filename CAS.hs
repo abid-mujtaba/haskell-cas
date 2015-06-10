@@ -160,7 +160,9 @@ instance (Show a, Ord a, Integral a) => Ord (Expr a) where                  -- L
 -- A function for comparing expressions with equal degree
 compare' :: (Show a, Ord a, Integral a) => Expr a -> Expr a -> Ordering
 
---compare' (Rec a) (Rec b) = compare' a b                                       -- L.5
+compare' (Frac _ _) (Frac _ _) = undefined                                      -- L.5
+compare' (Frac _ _) _   = GT
+compare' _ (Frac _ _)   = LT
 
 compare' (Symbol a) (Symbol b) = compare b a                                    -- L.6
 
@@ -663,7 +665,8 @@ frac a b
 
 frac' :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
 
--- ToDo: Use frac_ in the next three patterns in an element wise fashion with branching
+-- ToDo: Implement division where one or both expressions are of type Frac
+-- ToDo: Implement Prod / Prod
 frac' (Prod as) (Prod bs) = undefined
 
 frac' (Prod as) b = divide [] as b                              -- AD.2

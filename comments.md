@@ -245,7 +245,9 @@ At the bottom of the file are general comments about the development process and
 * We compare the degree of both expressions to calculate an order.
 * Note that when the degrees are equal we pass on the arguments to the ``compare'`` function.
 
-**L.5** - When two reciprocal expressions have the same degree we want their lexical order to the same as their inner expressions. This means that ``1/x LT 1/z`` since ``x LT z``. This is how we want it to be.
+**L.5**
+
+- We want a Frac to have higher precedence (is written first) whenever it is compared with a non-Frac expression.
  
 **L.6** - We pattern-matched to look at the scenario where we are comparing two ``Symbol`` objects. We want ``x`` to appear before ``y`` so ``compare' x y`` should be equal to ``GT`` as required by reverse lexical order. To achieve that we must reverse the alphabetic ordering of the ``String`` inside the ``Symbol``. 
 
