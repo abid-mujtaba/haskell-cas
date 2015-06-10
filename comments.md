@@ -784,7 +784,35 @@ At the bottom of the file are general comments about the development process and
 
 **AD.1** - High level matching of numerator and denominator. If the two match we simply cancel them out and return 1. Otherwise we use ``frac'`` to further probe the possibility of cancellation.
 
-**AD.2**
+**AD.2** 
+
+- We are dividing a ``Prod`` by a non-``Prod`` expression and we are looking for the possibility of cancellation.
+- To check for cancellation we recurse over the list of expressions inside the ``Prod`` and look for a possible cancellation using ``frac_`` function which is designed for this purpose. It tries all possible cancellations and returns a ``Nothing`` if unsuccessful.
+- To that end we use the ``divide`` function defined after ``where``.
+- It uses two lists and the denominator.
+- The first list contains all of the elements that have already been tried and for which no cancellation occured.
+- The second list contains all of the elements that remain.
+
+**AD.3**
+
+- This is the base case where the second list is empty.
+- If the second list becomes empty it means no cancellation was possible and so we construct the uncancelled fraction.
+- We use ``reverse`` on ``es`` because the way the elements are collected in ``es`` is in reverse order. The first element from ``xs`` is put in ``es``, then the second one is added using ``:`` so that it is now in the order 2:1:[] rather than 1:2:[].
+
+**AD.4**
+
+- This is the general (non-base case) and it in turn uses the ``branch`` function to carry out its task.
+- We pass to branch the processed and unprocessed list of expressions ``es`` and ``xs`` respectively along with the current element ``x`` and the denominator ``d``.
+- In addition the last argument is constructed by calling ``frac_`` on ``x`` and ``d``.
+- If the call to ``frac_`` returns ``Nothing`` it means no simplification was possible and so we append ``x`` to ``es`` (note how the element is added in reverse order that is to the start of ``es`` and not its end) and pass the remaining list ``xs`` in a recursive call to ``divide``
+- If ``frac_`` returns a ``Just e`` then the simplification was successful and we return a ``Prod`` consisting of the simplified term multipled by ``es`` and ``xs``.
+- Since ``es`` was constructed in a reverse fashion we use ``reverse`` to put it right end up before we stitch it with ``xs``.
+ 
+**AD.5** - For the case of a non-``Prod`` expression being divided by a ``Prod`` we use the ``rec`` function to flip it around and use the ``Prod`` divided by non-``Prod`` function defined above.
+
+**AD.6** - This is the catch-all at the bottom which is used for all patterns that do not match the ones defined above for ``frac'``. For these we use ``frac_`` to attempt a simplification. If it works the simplified expression is returned otherwise an explicit ``Frac`` is constructed.
+
+**AD.7**
 
 * ``frac_`` expects two non-``Prod`` elements and attempts to simplify them during division.
 * It uses pattern-matching to handle different cases.
@@ -792,8 +820,6 @@ At the bottom of the file are general comments about the development process and
 * Otherwise a ``Nothing`` is returned to indicate that no simplification was possible.
 * It checks for one or both expressions being exponents and finally equality  between elements.
 * ``Prod`` in either numerator and/or denominator is handled in an element wise fashion where ``frac_`` is called for each element in a recursive fashion.
-
-
 
 ## Debugging
 

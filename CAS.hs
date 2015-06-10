@@ -666,24 +666,24 @@ frac' :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
 -- ToDo: Use frac_ in the next three patterns in an element wise fashion with branching
 frac' (Prod as) (Prod bs) = undefined
 
-frac' (Prod as) b = divide [] as b
+frac' (Prod as) b = divide [] as b                              -- AD.2
                         where
-                            divide es [] d       = Frac (Prod (reverse es)) d
-                            divide es (x:xs) d   = branch es xs x d $ frac_ x d
+                            divide es [] d       = Frac (Prod (reverse es)) d               -- AD.3
+                            divide es (x:xs) d   = branch es xs x d $ frac_ x d             -- AD.4
 
                             branch es xs x d Nothing    = divide (x:es) xs d
                             branch es xs _ _ (Just e)   = prod_ e $ prod_list ((reverse es) ++ xs)
 
-frac' a p@(Prod _)  = rec $ frac' p a
+frac' a p@(Prod _)  = rec $ frac' p a                           -- AD.5
 
 
-frac' a b = branch $ frac_ a b
+frac' a b = branch $ frac_ a b                                  -- AD.6
                 where
                     branch Nothing  = Frac a b
                     branch (Just e) = e
 
 
-frac_ :: (Integral a, Show a) => Expr a -> Expr a -> Maybe (Expr a)           -- AD.2
+frac_ :: (Integral a, Show a) => Expr a -> Expr a -> Maybe (Expr a)           -- AD.7
 frac_ (Exp a p) (Exp b q)
     | a == b        = Just $ exp_ a (p - q)
     | otherwise     = Nothing
