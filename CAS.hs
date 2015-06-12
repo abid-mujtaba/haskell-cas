@@ -631,8 +631,9 @@ exp' (Neg e) p                                                  -- S.2
 exp' _ 0 = Const 1
 exp' e 1 = e
 
-exp' (Const c) p     = Const (c Prelude.^ p)                    -- S.4
+exp' (Const c) p     = Const (c Prelude.^ p)                    -- S.3
 exp' (Exp e p) q     = Exp e (p * q)
+exp' (Frac n d) q    = Frac (exp' n q) (exp' d q)
 exp' e p             = Exp e p                                  -- S.5
 
 

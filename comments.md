@@ -488,10 +488,12 @@ At the bottom of the file are general comments about the development process and
 * If the power is even we realise that the negative part is turned to a positive ``(-1)^(2n) = 1`` so we simply return the expression inside the ``Neg`` exponentiated using a recursive call.
 * If the power is odd the result must be negative overall because ``(-1)^(2n+1) = -1`` and so we surround the recursive exponent with a final ``Neg``..
 
-**S.4**
+**S.3**
 
 * Note the use of ``Prelude.^`` to refer to the ``^`` inside ``Prelude`` which we hid when we imported ``Prelude``. Here is where the qualified import of ``Prelude`` comes in handy.
 * We overrode ``^`` to only work with the first argument being ``Expr a`` while here we want to raise in Int to an Int power for which we must use the function defined inside ``Prelude``.
+
+**S.4** - Exponentiation of a fraction is implemented simply as the exponentiation of its numerator and denominator separately.
 
 **S.5** - When our patterns are exhausted we simply exponent the expression (this can be ``Symbol``, ``Sum`` or ``Prod``).
 
