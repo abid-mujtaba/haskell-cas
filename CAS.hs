@@ -575,6 +575,7 @@ prod_f (Frac na da) (Frac nb db) = branch na da nb db (frac_ na db) (frac_ nb da
         branch nc dc nd dd Nothing  Nothing      = Frac (nc * nd) (dc * dd)
         branch _ dc nd _   (Just a) Nothing      = Frac (nd * a) dc
         branch nc _ _ dd   Nothing  (Just b)     = Frac (nc * b) dd
+        branch _ _ _ _     (Just a) (Just b)     = a * b
 
 prod_f (Frac n d) e = branch n d e $ frac_ e d
     where
@@ -632,7 +633,7 @@ exp' _ 0 = Const 1
 exp' e 1 = e
 
 exp' (Const c) p     = Const (c Prelude.^ p)                    -- S.3
-exp' (Exp e p) q     = Exp e (p * q)
+exp' (Exp e p) q     = Exp e (p * q)                            -- S.4
 exp' (Frac n d) q    = Frac (exp' n q) (exp' d q)
 exp' e p             = Exp e p                                  -- S.5
 
