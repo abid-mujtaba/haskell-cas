@@ -13,3 +13,6 @@ x, y, z :: Expr a
 x = Symbol "x"
 y = Symbol "y"
 z = Symbol "z"
+
+f1 = x / y
+f2 = y^3 / (x^2 * z)

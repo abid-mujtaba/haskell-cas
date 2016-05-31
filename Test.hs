@@ -227,6 +227,8 @@ tests = TestList [                                              -- We create a l
 
                     let xi = 1/x
                     let yi = 1/y
+                    let f1 = x/y
+                    let f2 = (y^3/x^2)
 
                     aE "test1" (2/x) (2 * xi)
                     aE "test2" (y/x) (xi * y)
@@ -235,6 +237,7 @@ tests = TestList [                                              -- We create a l
                     aE "test5" 1 (x * xi)
                     aE "test6" x (y * (x/y))
                     aE "test7" xi (yi * (y/x))
+                    aE "test8" (y^2/x) (f1 * f2)
         ]
 
 

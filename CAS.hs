@@ -668,21 +668,25 @@ frac' a b = branch $ frac_ a b                                  -- AD.6
 
 
 frac_ :: (Integral a, Show a) => Expr a -> Expr a -> Maybe (Expr a)           -- AD.7
-frac_ (Exp a p) (Exp b q)
+frac_ ea@(Exp a p) eb@(Exp b q)
     | a == b        = Just $ exp_ a (p - q)
-    | otherwise     = Nothing
+    | otherwise     = frac_2 ea eb
 
-frac_ (Exp a p) b
+frac_ ea@(Exp a p) b
     | a == b        = Just $ exp_ a (p - 1)
-    | otherwise     = Nothing
+    | otherwise     = frac_2 ea b
 
-frac_ a (Exp b p)
+frac_ a eb@(Exp b p)
     | a == b        = Just $ Frac (Const 1) (exp_ b (p - 1))
-    | otherwise     = Nothing
+    | otherwise     = frac_2 a eb
 
 frac_ a b
     | a == b        = Just $ Const 1
-    | otherwise     = Nothing
+    | otherwise     = frac_2 a b
+
+
+frac_2 :: (Integral a, Show a) => Expr a -> Expr a -> Maybe (Expr a)
+frac_2 _ _ = Nothing
 
 
 rec :: (Integral a, Show a) => Expr a -> Expr a
