@@ -1,11 +1,11 @@
 --  Copyright 2015 Abid Hasan Mujtaba
---  
+--
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
 --  You may obtain a copy of the License at
---  
+--
 --      http://www.apache.org/licenses/LICENSE-2.0
---  
+--
 --  Unless required by applicable law or agreed to in writing, software
 --  distributed under the License is distributed on an "AS IS" BASIS,
 --  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@
 --
 -- Details comments to this code are given in the accompanying 'comments.md' file. These are labelled using a simple scheme which consists of an uppercase letter followed by a number, e.g. C.3 (search for this label in the comments file to find the relevant comment)
 
--- The following comment is an instruction to the compiler which gives us access to the ! pattern which is used to require strictness is specified variables
+-- The following comment is an instruction to the compiler which gives us access to the ! pattern which is used to require strictness in specified variables
 {-# LANGUAGE BangPatterns #-}
 
 module CAS                                                           -- A.1
@@ -648,7 +648,7 @@ frac' :: (Integral a, Show a) => Expr a -> Expr a -> Expr a
 
 -- ToDo: Implement division where one or both expressions are of type Frac
 -- ToDo: Implement Prod / Prod
-frac' (Prod as) (Prod bs) = undefined
+frac' (Prod _) (Prod _) = undefined
 
 frac' (Prod as) b = divide [] as b                              -- AD.2
                         where

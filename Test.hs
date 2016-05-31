@@ -71,6 +71,7 @@ main_quick = do               -- This IO Action runs only the property checks
 -- The first assertion that fails causes the entire TestCase to fail and the subsequent assertions are not tested
 -- Each assertEqual call takes the format: aE <failure message> <expected value> <actual/tested value>
 
+tests :: Test
 tests = TestList [                                              -- We create a list of TestCases
 
             TestLabel "Adding similar products" $
@@ -82,6 +83,13 @@ tests = TestList [                                              -- We create a l
                     aE "test2" (5 * e) ((2 * e) + (3 * e))
                     aE "test3" (3 * e) ((-2 * e) + (5 * e))
                     aE "test4" (-7 * e) ((-3 * e) + (4 * (-e)))
+            ,
+
+            TestLabel "Adding element to product of same element" $
+                TestCase $ do
+
+                    aE "test1" (3 * x) (x + (2 * x))
+                    aE "test2" (-2 * x) (x + (-3 * x))
             ,
 
             TestLabel "Subtracting equal expressions" $
