@@ -20,25 +20,13 @@
 -- > :l TestCAS
 -- > runTestTT tests
 --
--- Test tests can also be run by compiling the module and executing it. This task is automated in the Makefile so all
--- you need to do is run:
+-- The Stack build-system provides an automated way for running these tests:
 --
--- make test
+-- stack test
 --
 --
 -- Source for HUnit usage: https://wiki.haskell.org/HUnit_1.0_User's_Guide
 -- Source for QuickCheck usage: http://www.cse.chalmers.se/~rjmh/QuickCheck/manual.html
-
-
-
-module Test
-    (
-        main,               -- We must export the main functions to create the relevant executables
-        main_unit,
-        main_quick,
-        tests,
-    )
-    where
 
 
 import Control.Applicative
@@ -52,14 +40,20 @@ import Test.QuickCheck
 import CAS
 import Vars
 
+main :: IO ()
 main = do                     -- In the main function we simply run the tests. So running the executable (Test) will cause the tests to be executed
+          putStrLn "\n\n============ Unit Tests ===============\n"
           main_unit
+
+          putStrLn "\n=========== Random Tests ===============\n"
           main_quick
 
 
+main_unit :: IO Counts
 main_unit = do                -- This IO Action runs only the unit tests
                 runTestTT tests
 
+main_quick :: IO ()
 main_quick = do               -- This IO Action runs only the property checks
                 quickTests
 
