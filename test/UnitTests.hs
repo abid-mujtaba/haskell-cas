@@ -15,6 +15,8 @@
 --
 -- This module contains ALL Unit Tests for this project.
 -- It exports a single 'main' function that runs all of the tests defined here-in
+--
+-- Source for HUnit usage: https://wiki.haskell.org/HUnit_1.0_User's_Guide
 
 
 module UnitTests (main)
