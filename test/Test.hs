@@ -38,7 +38,13 @@ import Test.HUnit
 import Test.QuickCheck
 
 import CAS
-import Vars
+
+
+x, y, z :: Expr a
+x = Symbol "x"
+y = Symbol "y"
+z = Symbol "z"
+
 
 main = do                     -- In the main function we simply run the tests. So running the executable (Test) will cause the tests to be executed
           putStrLn "\n\n============ Unit Tests ===============\n"
