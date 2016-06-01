@@ -40,13 +40,12 @@ import Test.QuickCheck
 import CAS
 import Vars
 
-main :: IO ()
 main = do                     -- In the main function we simply run the tests. So running the executable (Test) will cause the tests to be executed
           putStrLn "\n\n============ Unit Tests ===============\n"
           main_unit
 
-          putStrLn "\n=========== Random Tests ===============\n"
-          main_quick
+        --   putStrLn "\n=========== Random Tests ===============\n"
+        --   main_quick
 
 
 main_unit :: IO Counts
@@ -84,6 +83,8 @@ tests = TestList [                                              -- We create a l
 
                     aE "test1" (3 * x) (x + (2 * x))
                     aE "test2" (-2 * x) (x + (-3 * x))
+                    aE "test3" (3 * x * y) ((x * y) + (2 * x * y))
+                    aE "test4" (3 * x^2) (x^2 + (2 * x^2))
             ,
 
             TestLabel "Subtracting equal expressions" $
