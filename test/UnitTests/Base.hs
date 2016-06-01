@@ -1,7 +1,9 @@
+-- Defines objects that are used by ALL the sub-modules of UnitTests
+
 module UnitTests.Base
     where
 
-import Test.HUnit
+import Test.HUnit(assertEqual, assertBool, Assertion)
 
 import CAS
 

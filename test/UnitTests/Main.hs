@@ -22,7 +22,8 @@
 module UnitTests.Main (main)
     where
 
-import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
+-- We explicitly import all the functions, types and constructors that we use in THIS module
+import Test.HUnit (Test(TestList), Counts, runTestTT)
 
 import qualified UnitTests.Addition (tests)
 import qualified UnitTests.Multiplication (tests)

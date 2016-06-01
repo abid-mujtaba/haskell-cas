@@ -4,7 +4,7 @@ module UnitTests.Ordering (tests)
     where
 
 import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
-import Test.HUnit
+import Test.HUnit(Test(TestCase, TestLabel))
 
 import CAS
 import UnitTests.Base
