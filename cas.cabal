@@ -34,6 +34,7 @@ test-suite cas-test
                      , QuickCheck
   other-modules:       UnitTests.Main
                      , UnitTests.Base
+                     , UnitTests.Addition
                      , UnitTests.Multiplication
                      , UnitTests.Ordering
                      , QuickTests
