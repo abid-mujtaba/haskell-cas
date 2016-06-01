@@ -321,8 +321,14 @@ sum' :: (Show a, Integral a) => Expr a -> Expr a -> Expr a
 sum' a@(Const _) b          = sum_c a b                 -- Z.9
 sum' a@(Neg (Const _)) b    = sum_c a b
 
+sum' a b@(Const _)          = sum_c b a
+sum' a b@(Neg (Const _))    = sum_c b a
+
 sum' a@(Prod _) b           = sum_p a b
 sum' a@(Neg (Prod _)) b     = sum_p a b
+
+sum' a b@(Prod _)           = sum_p b a
+sum' a b@(Neg (Prod _))     = sum_p b a
 
 sum' a b    = sum_x a b                                 -- Z.10
 
@@ -371,7 +377,7 @@ sum_x a (Sum bs) = sum_list $ add a bs                                          
 sum_x a b = case (compare a b) of                                         -- AB.3
                     GT -> Sum [a, b]
                     LT -> Sum [b, a]
-                    EQ -> Sum [a, b] -- error "Only equal expressions should have equal compare result. In that case execution shouldn't arrive here. -- ToDO: Replace with error when all additions have been exhaustedle
+                    EQ -> Sum [a, b] -- error "Only equal expressions should have equal compare result. In that case execution shouldn't arrive here. -- ToDO: Replace with error when all additions have been exhausted
 
 
 -- Rules for adding a Prod with other expressions
@@ -381,6 +387,14 @@ sum_p :: (Show a, Integral a) => Expr a -> Expr a -> Expr a                     
 sum_p a b@(Prod _)       = sum_pc a b                                           -- AC.2
 sum_p a b@(Neg (Prod _)) = sum_pc a b
 
+-- At this point we have 'a' is a Prod while b is NOT
+-- sum_p a@(Prod (c@(Const _):ae:[])) b = addSingle c ae b
+--     where
+--         addSingle c ae b
+--             | ae == b       = (c + 1) * ae
+--             | otherwise     = sum_x a b
+
+-- sum_p a@(Neg (Prod ((Const c):ps))) b = undefined
 sum_p a b                = sum_x a b                                            -- AC.3
 
 
