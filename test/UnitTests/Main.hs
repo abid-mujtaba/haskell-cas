@@ -19,29 +19,15 @@
 -- Source for HUnit usage: https://wiki.haskell.org/HUnit_1.0_User's_Guide
 
 
-module UnitTests (main)
+module UnitTests.Main (main)
     where
 
 import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
-import Test.HUnit
 
+import Test.HUnit
 import CAS
 
-
-
--- Define variables (expressions) that are used in all of the tests below
-x, y, z :: Expr a
-x = Symbol "x"
-y = Symbol "y"
-z = Symbol "z"
-
-
--- Define shorthand utility functions for assertions
-aE :: (Eq a, Show a) => String -> a -> a -> Assertion
-aE = assertEqual
-
-aB :: String -> Bool -> Assertion
-aB = assertBool
+import UnitTests.Base
 
 
 

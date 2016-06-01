@@ -32,7 +32,8 @@ test-suite cas-test
                      , cas
                      , HUnit
                      , QuickCheck
-  other-modules:       UnitTests
+  other-modules:       UnitTests.Main
+                     , UnitTests.Base
                      , QuickTests
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
