@@ -28,11 +28,13 @@ import Test.QuickCheck
 import CAS
 
 import QuickTests.Arbitrary (arbitrary)
+import qualified QuickTests.Ordering (tests)
 
 
 main:: IO ()
-main= do               -- This IO Action runs only the property checks
+main = do               -- This IO Action runs only the property checks
             quickTests
+            QuickTests.Ordering.tests
 
 -- We define a composite IO action consisting of all quickCheck property tests defined in the module
 -- If one wants a look at the generated expressions in any quickCheck simply replace the call with 'verboseCheck'. This is a good debugging strategy.
@@ -44,9 +46,6 @@ quickTests = do
                 quickCheck $ counterexample "Adding an expression with itself" prop_Add_equal
                 quickCheck $ counterexample "Add a constant times an expression with another contant times its expressions" prop_Add_equal2
                 quickCheck $ counterexample "Subtract an expression from itself" prop_Sub_equal
-                quickCheck $ counterexample "Reverse Comparison Test" prop_Rev_Order
-                quickCheck $ counterexample "Comparing equal expressions" prop_Compare_Equality
-                quickCheck $ counterexample "Comparing unequal expressions" prop_Compare_Inequality
                 quickCheck $ counterexample "Additive Commutation between two expressions" prop_Add_Commute
                 quickCheck $ counterexample "Multiplicative Commutation between two expressions" prop_Mul_Commute
 
@@ -81,18 +80,3 @@ prop_Add_Commute e1 e2 = e1 + e2 == e2 + e1
 prop_Mul_Commute :: Expr Int -> Expr Int -> Bool
 prop_Mul_Commute e1 e2 = e1 * e2 == e2 * e1
     where types = (e1 :: Expr Int, e2 :: Expr Int)
-
-prop_Rev_Order :: Expr Int -> Expr Int -> Bool
-prop_Rev_Order e1 e2 = (compare e1 e2) == (flip $ compare e2 e1)
-    where types = (e1 :: Expr Int, e2 :: Expr Int)
-          flip LT = GT
-          flip GT = LT
-          flip EQ = EQ
-
-prop_Compare_Equality :: Expr Int -> Bool
-prop_Compare_Equality e = (compare e e) == EQ
-    where types = e :: (Expr Int)
-
-prop_Compare_Inequality :: Expr Int -> Expr Int -> Bool
-prop_Compare_Inequality e1 e2 = if e1 == e2 then (compare e1 e2) == EQ
-                                            else (compare e1 e2) /= EQ
