@@ -13,13 +13,13 @@
 --  limitations under the License.
 --
 --
--- This module contains ALL Unit Tests for this project.
--- It exports a single 'main' function that runs all of the tests defined here-in
+-- This module provides accesss to ALL Unit Tests for this project.
+-- It exports a single 'main' function that runs all of the unit tests which are defined in sub-modules of UnitTests (inside the test/UnitTests/ folder)
 --
 -- Source for HUnit usage: https://wiki.haskell.org/HUnit_1.0_User's_Guide
 
 
-module UnitTests.Main (main)
+module UnitTests (main)
     where
 
 -- We explicitly import all the functions, types and constructors that we use in THIS module

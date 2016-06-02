@@ -20,13 +20,13 @@
 -- stack test
 
 
-import qualified UnitTests.Main              -- All Unit tests are defined in the UnitTests module. We use a qualified import to keep the 'main' function inside it in a separate namespace
+import qualified UnitTests      -- All Unit tests are defined in the UnitTests module (and its submodules). We use a qualified import to keep the 'main' function inside it in a separate namespace
 import qualified QuickTests
 
 
 main = do                     -- In the main function we simply run the tests. So running the executable (Test) will cause the tests to be executed
           putStrLn "\n\n============ Unit Tests ===============\n"
-          UnitTests.Main.main
+          UnitTests.main
 
         --   putStrLn "\n=========== Random Tests ===============\n"
         --   QuickTests.main
