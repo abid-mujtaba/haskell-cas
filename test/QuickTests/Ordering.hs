@@ -3,11 +3,11 @@
 module QuickTests.Ordering (tests)
     where
 
-import Test.QuickCheck
+import Test.QuickCheck (quickCheck, counterexample)
 
 import CAS
 
-import QuickTests.Arbitrary
+import QuickTests.Arbitrary (arbitrary)
 
 
 tests = do

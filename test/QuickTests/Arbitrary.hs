@@ -1,6 +1,7 @@
 -- Module that makes Expr and instance of the Arbitrary type-class allowing
 -- random expressions to be generated for use in QuickTests
 
+-- This module only need export the function 'arbitrary' since it is the existence of that function (defined for 'Arbitrary (Expr a)' that makes Expr and instance of the Arbitrary class)
 
 module QuickTests.Arbitrary (arbitrary)
     where
