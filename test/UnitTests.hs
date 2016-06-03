@@ -25,9 +25,9 @@ module UnitTests (main)
 -- We explicitly import all the functions, types and constructors that we use in THIS module
 import Test.HUnit (Test(TestList), Counts, runTestTT)
 
-import qualified UnitTests.Addition (tests)
-import qualified UnitTests.Multiplication (tests)
-import qualified UnitTests.Ordering (tests)
+-- import qualified UnitTests.Addition (tests)
+-- import qualified UnitTests.Multiplication (tests)
+-- import qualified UnitTests.Ordering (tests)
 
 
 main :: IO Counts
@@ -39,6 +39,7 @@ main = do                -- This IO Action runs only the unit tests
 -- We simply concatenate these tests to construct a single 'TestList' which 'main' then executes using the 'runTestTT' function (from Test.HUnit)
 tests :: Test
 tests = TestList $
-            UnitTests.Addition.tests
-        ++  UnitTests.Multiplication.tests
-        ++  UnitTests.Ordering.tests
+            []
+        -- ++  UnitTests.Addition.tests
+        -- ++  UnitTests.Multiplication.tests
+        -- ++  UnitTests.Ordering.tests
