@@ -25,9 +25,15 @@
 -- The following comment is an instruction to the compiler which gives us access to the ! pattern which is used to require strictness in specified variables
 {-# LANGUAGE BangPatterns #-}
 
+-- | The CAS module is the top-most entity in this library and gives access to
+-- the Expr class and all associated functions that correspond to standard
+-- arithmetic operations (+-*/^), .etc.
 module CAS                                                           -- A.1
     (
+    -- * Classes
+    -- | The Expr class is the primary entity forming the foundation of the CAS. We only export its 'Symbol' constructor. All other types are created using the provided functions (arithmetic operations)
       Expr(Symbol)                    -- Data typeclass.             -- A.2
+    -- * Methods
 --      , simplify
 --      , diff
 --      , eval
@@ -113,8 +119,9 @@ instance (Show a, Integral a) => Fractional (Expr a) where               -- E.1
   fromRational _ = error "Only integer constants are allowed in Expr."             -- E.3
 
 
--- We provide our own definition of the ^ function for exponentiation
-
+-- | Exponentiation in our CAS is understood to be raising an expression by an integer power.
+-- This definition clashes with the definition of the (^) operator in Prelude.
+-- Therefore the Prelude.^ definition must be hidden (or at least qualified) whenever the CAS is used.
 (^) :: (Integral a, Show a) => Expr a -> Int -> Expr a                                  -- Q.1
 a ^ p = exp_ a p                                                                -- Q.2
 

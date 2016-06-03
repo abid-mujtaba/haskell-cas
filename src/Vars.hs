@@ -1,5 +1,4 @@
--- We declare useful symbols and constants here which we will use in both ghci and the Test module
-
+-- | This module declares useful variables (expressions) which are used in ghci to aid in debugging and development.
 module Vars (
     x, y, z,
 ) where
@@ -7,12 +6,10 @@ module Vars (
 import Prelude hiding ((^))             -- We have to suppress the Prelude definition of (^) since it conflicts with the one in CAS
 import CAS
 
--- We define and export some useful symbols which will save us time later when we export the module. To that end we simply use the 'Symbol String' constructor.
-
+-- | We define and export some useful symbols (the ubiquitous x, y, z).
 x, y, z :: Expr a
 x = Symbol "x"
 y = Symbol "y"
 z = Symbol "z"
 
-f1 = x / y
-f2 = y^3 / (x^2 * z)
+-- To create the variables we simply use the 'Symbol String' constructor.
