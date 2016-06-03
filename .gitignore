@@ -13,3 +13,6 @@
 
 # Ignore Stack files
 .stack-work/
+
+# Ignore copies (orig) of files
+src/orig-*
