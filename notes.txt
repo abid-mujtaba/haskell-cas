@@ -21,3 +21,8 @@ To-Do:
     - Automate the rule that Sum [e] = e (sum over single element is the element itself)
 
     - Investigate making Sum [list] behave like a list that is treat Sum as a concatenation of Expr elements e1:e2:e3:[]. This will greatly simplify pattern matching
+
+    - Possibly use "View Patterns" to implement pattern matching complicated by the large number of constructors for Expr
+    - Possibly consolidate Sum and Prod in to a single type with two constructors of its own. This will consolidate their similarities.
+
+    - Some good ideas on CAS as a DSL: http://tom.lokhorst.eu/2009/09/deeply-embedded-dsls
