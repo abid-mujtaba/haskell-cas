@@ -7,9 +7,11 @@ import Prelude hiding ((^))             -- We have to suppress the Prelude defin
 import CAS
 
 -- | We define and export some useful symbols (the ubiquitous x, y, z).
-x, y, z :: Expr a
-x = Symbol "x"
-y = Symbol "y"
-z = Symbol "z"
+x, y, z :: Expr
+x = symbol "x"
+y = symbol "y"
+z = symbol "z"
 
--- To create the variables we simply use the 'Symbol String' constructor.
+-- To create the variables we simply use the 'symbol' utility function that is defined in Expr and exported by CAS
+-- This function provides the only mechanism for creating Atoms that corresond to single symbols/variables
+-- i.e. x = Atom 1 "x" 1 = 1 * x^1

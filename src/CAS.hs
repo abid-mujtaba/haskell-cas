@@ -32,10 +32,13 @@ module CAS                                                           -- A.1
     (
     -- * Classes
     -- | The Expr class is the primary entity forming the foundation of the CAS. We only export its 'Symbol' constructor. All other types are created using the provided functions (arithmetic operations)
-      Expr(Symbol)                    -- Data typeclass.             -- A.2
+    --   Expr (Atom, symbol)                    -- Data typeclass.             -- A.2
+        Expr (Atom),
+        symbol
     -- * Methods
     --   , (^)                                                          -- A.4
     )
     where
 
 import Expr
+import Expr.Show
