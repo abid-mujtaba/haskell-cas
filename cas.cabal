@@ -19,9 +19,7 @@ library
                      , Expr
                      , Vars
   -- We must define other modules that are used by the library but are not exposed to external users
-  -- In particular the Vars module is only for purposes of debugging inside the ghci
-  -- other-modules:       Expr
-                    --  , Vars
+  other-modules:       Expr.Show
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 

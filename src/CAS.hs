@@ -19,11 +19,10 @@
 -- This module implements a Computer Algebra System for Haskell.
 --
 -- This work is inspired in part by: https://github.com/hepek/Ramblings/blob/master/symb.lhs
---
--- Details comments to this code are given in the accompanying 'comments.md' file. These are labelled using a simple scheme which consists of an uppercase letter followed by a number, e.g. C.3 (search for this label in the comments file to find the relevant comment)
+
 
 -- The following comment is an instruction to the compiler which gives us access to the ! pattern which is used to require strictness in specified variables
-{-# LANGUAGE BangPatterns #-}
+-- {-# LANGUAGE BangPatterns #-}
 
 -- | The CAS module is the top-most entity in this library and gives access to
 -- the Expr class and all associated functions that correspond to standard
@@ -31,10 +30,9 @@
 module CAS                                                           -- A.1
     (
     -- * Classes
-    -- | The Expr class is the primary entity forming the foundation of the CAS. We only export its 'Symbol' constructor. All other types are created using the provided functions (arithmetic operations)
-    --   Expr (Atom, symbol)                    -- Data typeclass.             -- A.2
-        Expr (Atom),
-        symbol
+    -- | The Expr class is the primary entity forming the foundation of the CAS. We export NONE of the constructors of Expr. The expressions must be built up using either 'symbol' for variable creation OR the defined arithmetic operators
+        Expr (),
+        symbol              -- Defined in Expr module and exported here. This is the function that allows the user to declare symbolic variables (x, y, z .etc)
     -- * Methods
     --   , (^)                                                          -- A.4
     )
