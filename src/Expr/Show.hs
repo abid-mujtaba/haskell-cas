@@ -12,4 +12,6 @@ import Expr (Expr (Symbol, Atom))           -- We need access to ALL constructor
 -- This requires that we define the 'show' function and what it is supposed to do when acting on an object of type Expr
 instance Show Expr where
     show (Symbol s) = s                                                 -- Inside every Symbol is a String. We simply tell 'show' that for a Symbol object simply show the String inside
+    show (Atom 1 e 1) = show e                                          -- If the atom has coeff 1 and power 1 then simply show the core expr
+    show (Atom 1 e p) = show e ++ "^" ++ show p                         -- If the atom has coeff 1 then do not display the coeff 
     show (Atom c e p) = show c ++ " " ++ show e ++ "^" ++ show p        -- We use String concatenation to define how an atom is to be represented as a String
