@@ -4,7 +4,7 @@
 module UnitTests.Addition (tests)
     where
 
-import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
+-- import Prelude hiding ((^))     -- This allows us to use the ^ operator defined in CAS without collision with Prelude.^
 import Test.HUnit (Test(TestLabel, TestCase))
 
 import CAS

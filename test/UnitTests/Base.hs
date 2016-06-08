@@ -8,10 +8,11 @@ import Test.HUnit(assertEqual, assertBool, Assertion)
 import CAS
 
 -- Define variables (expressions) that are used in all of the tests below
-x, y, z :: Expr a
-x = Symbol "x"
-y = Symbol "y"
-z = Symbol "z"
+-- The variables are defined using the 'symbol' utility function defined in Expr and exported by CAS
+x, y, z :: Expr
+x = symbol "x"
+y = symbol "y"
+z = symbol "z"
 
 
 -- Define shorthand utility functions for assertions
