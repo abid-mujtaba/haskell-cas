@@ -19,5 +19,6 @@ data Expr =
 symbol :: String -> Expr
 symbol name
     -- We use guards to test that the string passed to the function is valid
+    -- The first guard uses regex which are posix based hence the strange character class names
     | name =~ "^[[:alpha:]][[:alnum:]_]*$"  = Atom 1 (Symbol name) 1
     | otherwise                             = error "Valid symbol strings start with an alphabet and only contain alphabets, numbers and _ (underscore)."
