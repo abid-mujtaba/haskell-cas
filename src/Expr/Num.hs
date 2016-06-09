@@ -10,7 +10,7 @@ import Expr (Expr(Add))
 import qualified Expr.Const (fromInteger)
 
 instance Num Expr where
-    -- ToDo: Implement using separate module and deal with commutation
+    -- ToDo: Implement using separate module and deal with commutation and adding with zero
     x + y           = Add x y
     x * y           = error "Not implemented yet"
     x - y           = error "Not implemented yet"
