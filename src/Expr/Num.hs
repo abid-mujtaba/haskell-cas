@@ -10,8 +10,8 @@ import Expr (Expr(Add))
 instance Num Expr where
     -- ToDo: Implement using separate module and deal with commutation
     x + y           = Add x y
-    -- x * y           = error "Not implemented yet"
-    -- x - y           = error "Not implemented yet"
-    -- abs x           = error "Not implemented yet"
-    -- signum x        = error "Not implemented yet"
-    -- fromInteger c   = error "Not implemented yet"
+    x * y           = error "Not implemented yet"
+    x - y           = error "Not implemented yet"
+    abs x           = error "Not implemented yet"
+    signum x        = error "Not implemented yet"
+    fromInteger c   = error "Not implemented yet"
