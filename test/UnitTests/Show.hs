@@ -17,4 +17,12 @@ tests = [
                     aE "test1" "x" $ show x
                     aE "test2" "y" $ show y
                     aE "test3" "z" $ show z
+            ,
+
+            TestLabel "Rendering pre-ordered addition of symbols" $
+                TestCase $ do
+
+                    aE "test1" "(x + y)" $ show (x + y)
+                    aE "test2" "(y + z)" $ show (y + z)
+                    aE "test3" "(x + z)" $ show (x + z)
         ]
