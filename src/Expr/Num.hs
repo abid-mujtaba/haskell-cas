@@ -6,12 +6,12 @@ module Expr.Num
     )
     where
 
-import Expr (Expr(Add))
+import Expr (Expr())
 import qualified Expr.Const (fromInteger)
+import qualified Expr.Add (add)
 
 instance Num Expr where
-    -- ToDo: Implement using separate module and deal with commutation and adding with zero
-    x + y           = Add x y
+    x + y           = Expr.Add.add x y                   -- Addition is handled by a separate module
     x * y           = error "Not implemented yet"
     x - y           = error "Not implemented yet"
     abs x           = error "Not implemented yet"
