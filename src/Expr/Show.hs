@@ -16,5 +16,10 @@ instance Show Expr where
     show (Atom 1 e 1) = show e                                          -- If the atom has coeff 1 and power 1 then simply show the core expr
     show (Atom 1 e p) = show e ++ "^" ++ show p                         -- If the atom has coeff 1 then do not display the coeff
     show (Atom c e p) = show c ++ " " ++ show e ++ "^" ++ show p        -- We use String concatenation to define how an atom is to be represented as a String
-    -- ToDo: Deal with recursive Add structures
-    show (Add x y)    = "(" ++ show x ++ " + " ++ show y ++ ")"         -- Added expressions are always surrounded by parentheses
+    show (Add x y)    = "(" ++ showSum x ++ " + " ++ showSum y ++ ")"   -- Added expressions are always surrounded by parentheses. Recursively added expressions share a single set of parentheses
+
+
+-- Function for dealing with recursively added expressions
+showSum :: Expr -> String
+showSum (Atom 1 (Add x y) 1)  = showSum x ++ " + " ++ showSum y         -- If an expression consists of an addition with NO coefficient and no power then it is included in the original set of parentheses defined by 'show (Add x y)'
+showSum e                     = show e                                  -- Every other kind of expression is then relegated back to the original show for rendering

@@ -27,4 +27,11 @@ tests = [
                     aE "test3" "(x + z)" $ show (x + z)
                     aE "test4" "(x + 2)" $ show (x + 2)
                     aE "test5" "(y + 3)" $ show (y + 3)
+            ,
+
+            TestLabel "Rending pre-ordered addition of more than two symbols and constants" $
+                TestCase $ do
+
+                    aE "test1" "(x + y + z)" $ show (x + y + z)
+                    aE "test2" "(x + y + 3)" $ show (x + y + 3)
         ]
