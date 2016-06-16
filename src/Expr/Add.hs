@@ -2,8 +2,11 @@
 module Expr.Add
     (
         add
+      , negate
     )
     where
+
+import Prelude hiding (negate)
 
 import Expr (Expr(Atom, Add))
 
@@ -13,3 +16,8 @@ add :: Expr -> Expr -> Expr
 add x (Atom 0 _ _) = x              -- Implements additive identity. Any expression plus zero is unchanged. Note the pattern match using the coeff (first element) of Atom alone which if it is zero corresponds to the constant zero regardless of the core or power
 add (Atom 0 _ _) x = x
 add x y = Atom 1 (Add x y) 1        -- Naive implementation of addition. Every "returned" (fully processed) expression in this CAS "MUST" be encapsulated as an Atom so that the initial patterns designed around this assumption can come in to play
+
+
+negate :: Expr -> Expr
+negate (Atom c e p)     = Atom (-c) e p
+negate _                = error "Expr.Add.negate is only defined for Expr.Atom"
