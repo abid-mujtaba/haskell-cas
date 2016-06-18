@@ -29,9 +29,25 @@ tests = [
                     aE "test5" "(y + 3)" $ show (y + 3)
             ,
 
-            TestLabel "Rending pre-ordered addition of more than two symbols and constants" $
+            TestLabel "Rendering pre-ordered addition of more than two symbols and constants" $
                 TestCase $ do
 
                     aE "test1" "(x + y + z)" $ show (x + y + z)
                     aE "test2" "(x + y + 3)" $ show (x + y + 3)
+            ,
+
+            TestLabel "Rendering subtraction of symbols and constants" $
+                TestCase $ do
+
+                    aE "test1" "(x - y)" $ show (x - y)
+                    aE "test2" "(x - 3)" $ show (x - 3)
+                    aE "test3" "(x + y - z)" $ show (x + y - z)
+                    aE "test4" "(x - y + z)" $ show (x - y + z)
+            ,
+
+            TestLabel "Rendering addition and subtraction where the first symbol is negative" $
+                TestCase $ do
+
+                    aE "test1" "(-x + y)" $ show (-x + y)
+                    aE "test2" "(-x - y)" $ show (-x - y)
         ]
