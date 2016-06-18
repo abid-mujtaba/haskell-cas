@@ -13,7 +13,7 @@ import qualified Expr.Add (add, negate)
 instance Num Expr where
     x + y           = Expr.Add.add x y                   -- Addition is handled by a separate module
     x * y           = error "Not implemented yet"
-    x - y           = error "Not implemented yet"
+    x - y           = x + negate y                       -- Subtraction is simply addition with the second expression negated 
     abs x           = error "Not implemented yet"
     signum x        = error "Not implemented yet"
     fromInteger     = Expr.Const.fromInteger             -- The Num class is able to detect when we are about to arithmetically associate an integer with an expression. Once that happens 'fromInteger' is used to convert the Integer in to an expression corresponding to it so that it can be transparently associated with the expression
