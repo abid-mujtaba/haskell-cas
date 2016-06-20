@@ -6,7 +6,7 @@ module Expr.Mul
     where
 
 
-import Expr (Expr (Mul))
+import Expr (Expr (Atom, Mul))
 
 mul :: Expr -> Expr -> Expr
-mul x y = Mul x y
+mul x y = Atom 1 (Mul x y) 1        -- The resulting Mul is encapsulated in an Atom for more efficient pattern-matching
