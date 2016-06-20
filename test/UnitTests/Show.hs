@@ -50,4 +50,12 @@ tests = [
 
                     aE "test1" "(-x + y)" $ show (-x + y)
                     aE "test2" "(-x - y)" $ show (-x - y)
+            ,
+
+            TestLabel "Rendering pre-ordering constants and symbols being multiplied" $
+                TestCase $ do
+
+                    aE "test1" "x y" $ show (x * y)
+                    aE "test2" "2 z" $ show (2 * z)
+                    aE "test3" "-3 x" $ show (-3 * x)
         ]

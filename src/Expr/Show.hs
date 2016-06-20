@@ -5,7 +5,7 @@ module Expr.Show
     )
     where
 
-import Expr (Expr (Symbol, Atom, Add))           -- We need access to ALL constructors of Expr since we need to pattern match against them
+import Expr (Expr (Symbol, Atom, Add, Mul))           -- We need access to ALL constructors of Expr since we need to pattern match against them
 import qualified Expr.Add (negate)
 
 -- We declare Expr to be an instance of the Show type-class
@@ -18,6 +18,7 @@ instance Show Expr where
     show (Add x y@(Atom c _ _))
         | c >= 0    = "(" ++ showSum x ++ " + " ++ showSum y ++ ")"
         | otherwise = "(" ++ showSum x ++ " - " ++ showSum (Expr.Add.negate y) ++ ")"       -- If the second argument has negative coeff then we show a minus sign and use negate to flip the sign of the expression before showing it
+    show (Mul x y) = show x ++ " " ++ show y
 
 -- Define how to show the coefficient of an Atom is to be rendered/shown
 showCoeff :: Integer -> String
