@@ -12,6 +12,7 @@ module Expr.Num
 import Expr (Expr())
 import qualified Expr.Const (fromInteger)
 import qualified Expr.Add (add, negate)
+import qualified Expr.Mul (mul)
 
 instance Num Expr where
     x + y           = Expr.Add.add x y                   -- Addition is handled by a separate module

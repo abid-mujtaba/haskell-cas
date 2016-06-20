@@ -1,7 +1,7 @@
 -- | The Expr module defines the Expr type-class and consequently forms the core of the CAS module
 module Expr
     (
-        Expr (Symbol, Atom, Add),
+        Expr (Symbol, Atom, Add, Mul),
         symbol
     )
     where
