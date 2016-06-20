@@ -27,7 +27,7 @@ import Test.HUnit (Test(TestList), Counts, runTestTT)
 
 import qualified UnitTests.Show (tests)
 import qualified UnitTests.Addition (tests)
--- import qualified UnitTests.Multiplication (tests)
+import qualified UnitTests.Multiplication (tests)
 -- import qualified UnitTests.Ordering (tests)
 
 
@@ -43,5 +43,5 @@ tests = TestList $
             []
         ++ UnitTests.Show.tests
         ++  UnitTests.Addition.tests
-        -- ++  UnitTests.Multiplication.tests
+        ++  UnitTests.Multiplication.tests
         -- ++  UnitTests.Ordering.tests
