@@ -22,3 +22,5 @@ instance Num Expr where
     signum x        = error "Not implemented yet"
     fromInteger     = Expr.Const.fromInteger             -- The Num class is able to detect when we are about to arithmetically associate an integer with an expression. Once that happens 'fromInteger' is used to convert the Integer in to an expression corresponding to it so that it can be transparently associated with the expression
     negate          = Expr.Add.negate
+
+-- Note: Since we are overloading existing arithmetic operators with established order of precedence we get this order for free for our expressions

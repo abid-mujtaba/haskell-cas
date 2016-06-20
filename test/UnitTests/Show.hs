@@ -52,7 +52,7 @@ tests = [
                     aE "test2" "(-x - y)" $ show (-x - y)
             ,
 
-            TestLabel "Rendering pre-ordering constants, symbols and sums being multiplied" $
+            TestLabel "Rendering pre-ordered constants, symbols and sums being multiplied" $
                 TestCase $ do
 
                     aE "test1" "x y" $ show (x * y)
@@ -60,4 +60,12 @@ tests = [
                     aE "test3" "-3 x" $ show (-3 * x)
                     aE "test4" "2 (x + y)" $ show (2 * (x + y))
                     aE "test5" "2 (x + y) z" $ show (2 * (x + y) * z)
+            ,
+
+            TestLabel "Rendering pre-ordered sum of products" $
+                TestCase $ do
+
+                    aE "test1" "(2 x + y)" $ show (2 * x + y)
+                    aE "test2" "(-3 x + z)" $ show (-3 * x + z)
+                    aE "test3" "(2 x y + 3 z)" $ show (2 * x * y + 3 * z)
         ]
