@@ -18,7 +18,10 @@ tests = [
                     aE "test2" x (x * 1)
                     aE "test3" (x + y) ((x + y) * 1)
                     aE "test4" (x + y) (1 * (x + y))
-                    
+                    aE "test5" (x * y) (x * y * 1)
+                    aE "test6" (x * y) (x * 1 * y)
+                    aE "test7" (x * y) (1 * x * y)
+
             -- TestLabel "Multiplicative Commutation" $
             --     TestCase $ do
             --
