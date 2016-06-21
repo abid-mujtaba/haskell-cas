@@ -2,6 +2,7 @@
 module Expr.Show
     (
         show
+      , showActual
     )
     where
 
@@ -41,3 +42,11 @@ showSum (Atom 1 (Add x y@(Atom c _ _)) 1)
     | c < 0    = showSum x ++ " - " ++ showSum (Expr.Add.negate y)     -- Since we are showing a "-" sign we negate the second argument before we show it
     | otherwise = showSum x ++ " + " ++ showSum y
 showSum e                     = show e                                  -- Every other kind of expression is then relegated back to the original show for rendering
+
+
+-- Utility function for showing the actual constructor and recursive nature of an expression.
+showActual :: Expr -> String
+showActual (Symbol s) = s
+showActual (Add a b) = "(Add " ++ showActual a ++ " " ++ showActual b ++ ")"
+showActual (Mul a b) = "(Mul " ++ showActual a ++ " " ++ showActual b ++ ")"
+showActual (Atom c e p) = "(Atom " ++ show c ++ " " ++ showActual e ++ " " ++ show p ++ ")"
