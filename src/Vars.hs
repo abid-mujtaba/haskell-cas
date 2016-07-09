@@ -3,7 +3,6 @@ module Vars (
     x, y, z,
 ) where
 
-import Prelude hiding ((^))             -- We have to suppress the Prelude definition of (^) since it conflicts with the one in CAS
 import CAS
 
 -- | We define and export some useful symbols (the ubiquitous x, y, z).
