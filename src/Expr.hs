@@ -1,7 +1,7 @@
 -- | The Expr module defines the Expr type-class and consequently forms the core of the CAS module
 module Expr
     (
-        Expr (Symbol, Atom, Add, Mul),
+        Expr (Symbol, Atom, Add, Mul, Inv),
         symbol
     )
     where
@@ -15,6 +15,7 @@ data Expr =
             | Atom Integer (Expr) Integer       -- The work-horse of the Expr class. This type corresponds to any expression with an integer coefficient (possibly negative) and the core expression is raised to a (possibly negative) integer power
             | Add Expr Expr                     -- Define addition as a constructor that pulls together just two expressions. Addition of more than two expressions will use 'Add' recursively e.g. Add x (Add y z). Such a definition is exactly like 'Cons' is used to recursively build up lists and indeed the list pattern matching paradigm will be used here
             | Mul Expr Expr                     -- Define multiplication analogously to addition
+            | Inv Expr                          -- An "inverse" expression is basically an expression raised to the power -1. This is the mechanism for working with fractions
             deriving (Eq)                 -- By declaring that Expr derives from the Eq type-class we declare that two Expressions can be compared for equality using a naive comparison where the expressions are matched recursively in their entirety
 
 

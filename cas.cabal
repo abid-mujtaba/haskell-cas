@@ -23,6 +23,7 @@ library
                      , Expr.Const
                      , Expr.Add
                      , Expr.Mul
+                     , Expr.Fractional
                      , Vars
   build-depends:       base >= 4.7 && < 5
                      , regex-posix
