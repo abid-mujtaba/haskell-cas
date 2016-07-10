@@ -1,8 +1,10 @@
 -- | The Expr module defines the Expr type-class and consequently forms the core of the CAS module
 module Expr
     (
-        Expr (Symbol, Atom, Add, Mul, Inv),
-        symbol
+          Expr (..)                 -- The (..) indicates that ALL constructors of the Expr data type are exported
+        , symbol
+        , ExprType (..)
+        , exprtype
     )
     where
 
@@ -25,3 +27,23 @@ symbol name
     -- The first guard uses regex which are posix based hence the strange character class names
     | name =~ "^[[:alpha:]][[:alnum:]_]*$"  = Atom 1 (Symbol name) 1
     | otherwise                             = error "Valid symbol strings start with an alphabet and only contain alphabets, numbers and _ (underscore)."
+
+
+-- A type that declares the expression-type
+data ExprType =
+            CNT
+            | SYM
+            | EXP
+            | ADD
+            | MUL
+            | INV
+            deriving (Show)
+
+
+-- A function that takes an expression and returns the encapsulating (outer-most) ExprType IGNORING the power of the exponent
+exprtype :: Expr -> ExprType
+exprtype (Atom _ _ 0)           = CNT
+exprtype (Atom _ (Symbol _) _)  = SYM
+exprtype (Atom _ (Add _ _) _)   = ADD
+exprtype (Atom _ (Mul _ _) _)   = MUL
+exprtype (Atom _ (Inv _) _)     = INV
