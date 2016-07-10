@@ -21,6 +21,18 @@ tests = [
                     aE "test5" (x * y) (x * y * 1)
                     aE "test6" (x * y) (x * 1 * y)
                     aE "test7" (x * y) (1 * x * y)
+            ,
+
+            TestLabel "Exponentiation through multiplication" $
+                TestCase $ do
+
+                    aE "test1" (x^2) (x * x)
+                    aE "test2" (x^3) (x * x * x)
+            --
+            -- TestLabel "Multiplying by oneself" $
+            --     TestCase $ do
+            --
+            --         aE "test1" x^2
 
             -- TestLabel "Multiplicative Commutation" $
             --     TestCase $ do
