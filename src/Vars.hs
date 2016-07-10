@@ -1,4 +1,6 @@
 -- | This module declares useful variables (expressions) which are used in ghci to aid in debugging and development.
+{-# LANGUAGE NoImplicitPrelude #-}
+
 module Vars (
     x, y, z,
 ) where

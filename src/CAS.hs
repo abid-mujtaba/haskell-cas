@@ -23,6 +23,8 @@
 
 -- The following comment is an instruction to the compiler which gives us access to the ! pattern which is used to require strictness in specified variables
 -- {-# LANGUAGE BangPatterns #-}
+-- The following comment stops GHC from implicitly including the Prelude in this module. We need this since we want to define our own version of the ^ operator.
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -- | The CAS module is the top-most entity in this library and gives access to
 -- the Expr class and all associated functions that correspond to standard
@@ -41,3 +43,5 @@ module CAS                                                           -- A.1
 import Expr
 import Expr.Show
 import Expr.Num
+
+import CasPrelude
