@@ -24,3 +24,5 @@ instance Num Expr where
     negate          = Expr.Add.negate
 
 -- Note: Since we are overloading existing arithmetic operators with established order of precedence we get this order for free for our expressions
+
+-- Note: By implementing (*) we get the implementation for (^) for free since it is defined in the Real type-class using multiplication for all instances of the Num class i.e. the (^) method has a uniform implementaion that only uses those aspects of an object that are defined for Num

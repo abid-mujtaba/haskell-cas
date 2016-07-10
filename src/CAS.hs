@@ -41,3 +41,4 @@ module CAS                                                           -- A.1
 import Expr
 import Expr.Show
 import Expr.Num
+import Expr.Fractional
