@@ -68,4 +68,27 @@ tests = [
                     aE "test1" "(2 x + y)" $ show (2 * x + y)
                     aE "test2" "(-3 x + z)" $ show (-3 * x + z)
                     aE "test3" "(2 x y + 3 z)" $ show (2 * x * y + 3 * z)
+            ,
+
+            TestLabel "Rendering (pre-ordered) products of exponents" $
+                TestCase $ do
+
+                    aE "test1" "x^2" $ show (x^2)
+                    aE "test2" "x^3" $ show (x^3)
+                    aE "test3" "x^2 y" $ show (x^2 * y)
+                    aE "test4" "x y^2" $ show (x * y^2)
+                    aE "test5" "x (y + z)" $ show (x * (y + z))
+                    aE "test6" "(x + y)^2" $ show ((x + y)^2)
+            ,
+
+            TestLabel "Rendering divided terms" $
+                TestCase $ do
+
+                    aE "test1" "1 / x" $ show (1 / x)
+                    aE "test2" "x / y" $ show (x / y)
+                    aE "test3" "1 / x^2" $ show (1 / x^2)
+                    aE "test4" "x / (y z)" $ show (x / (y*z))
+                    aE "test5" "x / (y + z)" $ show (x / (y + z))
+                    aE "test6" "x / 2" $ show (x / 2)
+                    aE "test7" "(x + y) / 2" $ show ((x + y) / 2)
         ]
